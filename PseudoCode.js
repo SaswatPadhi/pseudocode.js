@@ -10,12 +10,16 @@ counterpart. Some details are improved to make it more natural.
 The TeX-style pseudocode language (follows **algoritmic** environment) represented
 in a context-free grammar:
 
-    <algorithmic>   :== \begin{algorithmic}
-                        + <condition>
-                        + <block>
-                        + \end{algorithmic}
+    <pseudo>        :== ( <algorithm> | <algorithmic> )[0..n]
 
-    <conditions>    :== ( <require> | <ensure> )[0..n]
+    <algorithm>     :== \begin{algorithm}
+                        + ( <caption> | <algorithmic> )[0..n]
+                        \end{algorithm}
+    <caption>       :== \caption{ <text> }
+
+    <algorithmic>   :== \begin{algorithmic}
+                        + ( <ensure> | <require> | <block> )[0..n]
+                        + \end{algorithmic}
     <require>       :== \REQUIRE + <text>
     <ensure>        :== \ENSURE + <text>
 
@@ -270,47 +274,92 @@ var Parser = function(lexer) {
 
 Parser.prototype.parse = function() {
     var root = new ParseNode('root');
-    var algNode = this._parseAlgorithmic();
-    root.addChild(algNode);
+
+    while (true) {
+        var envName = this._acceptEnvironment();
+        if (envName === null) break;
+
+        var envNode;
+        if (envName === 'algorithm')
+            envNode = this._parseAlgorithmInner();
+        else if (envName === 'algorithmic')
+            envNode = this._parseAlgorithmicInner();
+        else
+            throw new ParseError('Unexpected environment ' + envName);
+
+        this._closeEnvironment(envName);
+        root.addChild(envNode);
+    }
+    //TODO: check this is the end of input
     return root;
 };
 
-Parser.prototype._parseAlgorithmic = function() {
-    var algNode = new ParseNode('algorithmic');
-
+Parser.prototype._acceptEnvironment = function() {
     var lexer = this._lexer;
-    // \begin{algorithmic}
-    lexer.expect('func', 'begin');
+    // \begin{XXXXX}
+    if (!lexer.accept('func', 'begin')) return null;
+
     lexer.expect('open');
-    lexer.expect('ordinary', 'algorithmic');
+    var envName = lexer.expect('ordinary');
     lexer.expect('close');
+    return envName;
+}
 
-    // <condition> precondition, postcondition
-    algNode.addChild(this._parseConditions());
-
-    // <block>
-    algNode.addChild(this._parseBlock());
-
-    // \end{algorithmic}
+Parser.prototype._closeEnvironment = function(envName) {
+    // \close{XXXXX}
+    var lexer = this._lexer;
     lexer.expect('func', 'end');
     lexer.expect('open');
-    lexer.expect('ordinary', 'algorithmic');
+    lexer.expect('ordinary', envName);
     lexer.expect('close');
+}
 
-    return algNode;
-};
-
-Parser.prototype._parseConditions = function() {
-    var conditionsNode = new ParseNode('conditions');
-
+Parser.prototype._parseAlgorithmInner = function() {
+    var algNode = new ParseNode('algorithm');
     while (true) {
-        var commandNode = this._parseCommand(['REQUIRE', 'ENSURE']);
-        if (commandNode) { conditionsNode.addChild(commandNode); continue; }
+        var envName = this._acceptEnvironment();
+        if (envName !== null) {
+            if (envName !== 'algorithmic')
+                throw new ParseError('Unexpected environment ' + envName);
+            var algmicNode = this._parseAlgorithmicInner();
+            this._closeEnvironment();
+            algNode.addChild(algmicNode);
+            continue;
+        }
+
+        var captionNode = this._parseCaption();
+        if (captionNode) {
+            algNode.addChild(captionNode);
+            continue;
+        }
 
         break;
     }
+    return algNode;
+}
 
-    return conditionsNode;
+Parser.prototype._parseAlgorithmicInner = function() {
+    var algmicNode = new ParseNode('algorithmic');
+    while (true) {
+        var node;
+        if (!(node = this._parseCommand(['ENSURE', 'REQUIRE'])) &&
+            !(node = this._parseBlock())) break;
+
+        algmicNode.addChild(node);
+    }
+    return algmicNode;
+};
+
+Parser.prototype._parseCaption = function() {
+    var lexer = this._lexer;
+    if (!lexer.accept('func', 'caption')) return null;
+
+    var captionNode = new ParseNode('caption');
+    lexer.expect('open');
+    captionNode.addChild(this._parseText());
+    lexer.expect('close');
+
+    return captionNode;
 }
 
 Parser.prototype._parseBlock = function() {
@@ -329,7 +378,7 @@ Parser.prototype._parseBlock = function() {
         break;
     }
 
-    return blockNode;
+    return blockNode.children.length > 0 ? blockNode : null;
 };
 
 Parser.prototype._parseControl = function() {
@@ -478,6 +527,8 @@ function Builder(parser) {
     console.log(this._root.toString());
 }
 
+Builder.prototype._captionCount = 0;
+
 Builder.prototype.toMarkup = function() {
     this._body = [];
     this._buildTree(this._root);
@@ -521,28 +572,58 @@ Builder.prototype._typeText = function(text) {
     this._body.push('<span>' + text + '</span>');
 }
 
+Builder.prototype._buildTreeForAllChildren = function(node) {
+    var children = node.children;
+    for (var ci = 0; ci < children.length; ci++)
+        this._buildTree(children[ci]);
+}
+
 Builder.prototype._buildTree = function(node) {
     switch(node.type) {
     case 'root':
         this._beginDiv('pseudo');
-        this._buildTree(node.children[0]);
+        this._buildTreeForAllChildren(node);
         this._endDiv();
         break;
-    case 'algorithmic':
-        this._buildTree(node.children[0]);
-        this._buildTree(node.children[1]);
+    case 'algorithm':
+        // First, decide the caption if any
+        var lastCaptionNode;
+        for (var ci = 0; ci < node.children.length; ci++) {
+            var child = node.children[ci];
+            if (child.type !== 'caption') continue;
+            lastCaptionNode = child;
+            this._captionCount++;
+        }
+        // Then, build the header for algorithm
+        var className = 'ps-alg';
+        if (lastCaptionNode) className += ' with-caption';
+        this._beginDiv(className);
+        if (lastCaptionNode) this._buildTree(lastCaptionNode);
+        // Then, build other nodes
+        for (var ci = 0; ci < node.children.length; ci++) {
+            var child = node.children[ci];
+            if (child.type === 'caption') continue;
+            this._buildTree(child);
+        }
+
+        this._endDiv();
         break;
-    case 'conditions':
-        for (var ci = 0; ci < node.children.length; ci++)
-            this._buildTree(node.children[ci]);
+    case 'caption':
+        this._beginLine();
+        this._typeKeyword('Algorithm ' + this._captionCount);
+        var textNode = node.children[0];
+        this._buildTree(textNode);
+        this._endLine();
+        break;
+    case 'algorithmic':
+        this._buildTreeForAllChildren(node);
         break;
     case 'block':
         // node: <block>
         // ==>
         // HTML: <div class="ps-block"> ... </div>
         this._beginDiv('ps-block');
-        for (var ci = 0; ci < node.children.length; ci++)
-            this._buildTree(node.children[ci]);
+        this._buildTreeForAllChildren(node);
         this._endDiv();
         break;
     case 'if':
@@ -660,10 +741,7 @@ Builder.prototype._buildTree = function(node) {
     //     break;
     case 'cond':
     case 'text':
-        for (var ci = 0; ci < node.children.length; ci++) {
-            var child = node.children[ci];
-            this._buildTree(child);
-        }
+        this._buildTreeForAllChildren(node);
         break;
     case 'ordinary':
         var text = node.value;
@@ -701,7 +779,8 @@ parentModule.PseudoCode = {
             var parser = new Parser(lexer);
             var builder = new Builder(parser);
             var ele = builder.toDOM();
-            baseDomEle.appendChild(ele);
+            if (baseDomEle) baseDomEle.appendChild(ele);
+            return ele;
         // }
         // catch(e) {
         //     console.log(e.message);

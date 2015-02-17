@@ -12,18 +12,18 @@
         font-size: 1em;
         font-weight: 100;
         -webkit-font-smoothing: antialiased !important;
+    }
+    .pseudo .ps-alg {
         padding-bottom: 0.2em;
     }
-    .pseudo.with-caption {
+    .pseudo .ps-alg.with-caption {
         border-top: 3px solid black;
         border-bottom: 2px solid black;
     }
     .pseudo .ps-block {
         margin-left: 1.2em;
     }
-    .pseudo .ps-head {
-    }
-    .pseudo.with-caption > .ps-line:first-child {
+    .pseudo .ps-alg.with-caption > .ps-line:first-child {
         border-bottom: 2px solid black;
     }
     .pseudo .ps-line {
@@ -114,6 +114,8 @@
         </div>
     </div>
     <pre id="code" style="display:none">
+        \begin{algorithm}
+        \caption{Sample Algorithm}
         \begin{algorithmic}
         \REQUIRE $n \geq 0$
         \ENSURE $y = x^n$
@@ -130,6 +132,7 @@
         \ENDIF
         \ENDWHILE
         \end{algorithmic}
+        \end{algorithm}
     </pre>
     <pre id="test" style="display:none">
         \begin{algorithmic}
