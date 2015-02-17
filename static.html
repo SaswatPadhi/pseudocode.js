@@ -12,16 +12,18 @@
         font-size: 1em;
         font-weight: 100;
         -webkit-font-smoothing: antialiased !important;
+        padding-bottom: 0.2em;
+    }
+    .pseudo.with-caption {
         border-top: 3px solid black;
         border-bottom: 2px solid black;
-        padding-bottom: 0.2em;
     }
     .pseudo .ps-block {
         margin-left: 1.2em;
     }
     .pseudo .ps-head {
     }
-    .pseudo > .ps-line:first-child {
+    .pseudo.with-caption > .ps-line:first-child {
         border-bottom: 2px solid black;
     }
     .pseudo .ps-line {
@@ -41,7 +43,7 @@
     </style>
 </head>
 <body>
-    <div class="pseudo ps-captioned">
+    <div class="pseudo ps-captioned" style="display:none;">
         <p class="ps-line">
             <span class="ps-keyword">Algorithm 1</span>
             <span>Sample algorithm</span>
@@ -145,8 +147,9 @@
     </pre>
     <script type="text/javascript">
         var code = document.getElementById("code").textContent;
-        var html = PseudoCode.renderToString(code);
-        console.log(html);
+        // var html = PseudoCode.renderToString(code);
+        // console.log(html);
+        PseudoCode.render(code, document.body);
     </script>
 </body>
 </html>

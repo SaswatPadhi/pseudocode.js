@@ -10,23 +10,27 @@ counterpart. Some details are improved to make it more natural.
 The TeX-style pseudocode language (follows **algoritmic** environment) represented
 in a context-free grammar:
 
-    <algorithmic>   :== \begin{algorithmic} + <block> + \end{algorithmic}
-    <block>         :== <sentence>[0..n]
-    <sentence>      :== <control> | <statement> | <comment>
+    <algorithmic>   :== \begin{algorithmic}
+                        + <condition>
+                        + <block>
+                        + \end{algorithmic}
+
+    <conditions>    :== ( <require> | <ensure> )[0..n]
+    <require>       :== \REQUIRE + <text>
+    <ensure>        :== \ENSURE + <text>
+
+    <block>         :== ( <control> | <statement> | <comment> )[0..n]
 
     <control>       :== <if> | <for> | <while>
     <if>            :== \IF{<cond>} + <block>
                         + ( \ELIF{<cond>} <block> )[0..n]
                         + ( \ELSE <block> )[0..1]
                         + \ENDIF
-
     <for>           :== \FOR{<cond>} + <block> + \ENDFOR
     <while>         :== \WHILE{<cond>} + <block> + \ENDWHILE
 
-    <statement>     :== <state> | <require> | <ensure> | <return> | <print>
+    <statement>     :== <state> |  <return> | <print>
     <state>         :== \STATE + <text>
-    <require>       :== \REQUIRE + <text>
-    <ensure>        :== \ENSURE + <text>
     <return>        :== \RETURN + <text>
     <print>         :== \PRINT + <text>
 
@@ -61,6 +65,33 @@ Tokens
 
 */
 
+(function(parentModule, katex) { // rely on KaTex to process TeX math
+
+// ===========================================================================
+//  Utility functions
+// ===========================================================================
+
+function isString(str) {
+    return (typeof str === 'string') || (str instanceof String);
+}
+
+function isObject(obj) {
+    return (typeof obj === 'object' && (obj instanceof Object));
+}
+
+function toString(obj) {
+    if (!isObject(obj)) return obj + '';
+
+    var parts = [];
+    for (var member in obj)
+        parts.push(member + ': ' + toString(obj[member]));
+    return parts.join(', ');
+}
+
+// ===========================================================================
+//  Error handling
+// ===========================================================================
+
 function ParseError(message, pos, input) {
     var error = 'Error: ' + message;
     // If we have the input and a position, make the error a bit fancier
@@ -80,6 +111,10 @@ function ParseError(message, pos, input) {
 };
 ParseError.prototype = Object.create(Error.prototype);
 ParseError.prototype.constructor = ParseError;
+
+// ===========================================================================
+//  Lexer
+// ===========================================================================
 
 /* Math pattern
     Math environtment like $ $ or \( \) cannot be matched using regular
@@ -183,9 +218,7 @@ Lexer.prototype.next = function() {
             this._pos, this._input);
 };
 
-function isString(str) {
-    return (typeof str === 'string') || (str instanceof String);
-}
+
 
 /* Check whether the text of the next symbol matches */
 Lexer.prototype._matchText = function(text) {
@@ -198,6 +231,9 @@ Lexer.prototype._matchText = function(text) {
         return text.indexOf(this._symbol.text) >= 0;
 };
 
+// ===========================================================================
+//  Parser
+// ===========================================================================
 
 var ParseNode = function(type, val) {
     this.type = type;
@@ -212,7 +248,7 @@ ParseNode.prototype.toString = function(level) {
     for (var i = 0; i < level; i++) indent += '  ';
 
     var res = indent + '<' + this.type + '>';
-    if (this.value) res += ' (' + this.value + ')';
+    if (this.value) res += ' (' + toString(this.value) + ')';
     res += '\n';
 
     for (var ci = 0; ci < this.children.length; ci++) {
@@ -249,6 +285,9 @@ Parser.prototype._parseAlgorithmic = function() {
     lexer.expect('ordinary', 'algorithmic');
     lexer.expect('close');
 
+    // <condition> precondition, postcondition
+    algNode.addChild(this._parseConditions());
+
     // <block>
     algNode.addChild(this._parseBlock());
 
@@ -261,6 +300,19 @@ Parser.prototype._parseAlgorithmic = function() {
     return algNode;
 };
 
+Parser.prototype._parseConditions = function() {
+    var conditionsNode = new ParseNode('conditions');
+
+    while (true) {
+        var commandNode = this._parseCommand(['REQUIRE', 'ENSURE']);
+        if (commandNode) { conditionsNode.addChild(commandNode); continue; }
+
+        break;
+    }
+
+    return conditionsNode;
+}
+
 Parser.prototype._parseBlock = function() {
     var blockNode = new ParseNode('block');
 
@@ -268,7 +320,7 @@ Parser.prototype._parseBlock = function() {
         var controlNode = this._parseControl();
         if (controlNode) { blockNode.addChild(controlNode); continue; }
 
-        var commandNode = this._parseCommand();
+        var commandNode = this._parseCommand(['STATE', 'PRINT', 'RETURN']);
         if (commandNode) { blockNode.addChild(commandNode); continue; }
 
         var commentNode = this._parseComment();
@@ -339,13 +391,12 @@ Parser.prototype._parseLoop = function() {
     return loopNode;
 };
 
-Parser.prototype._parseCommand = function() {
-    if (!this._lexer.accept('func',
-        ['STATE', 'REQUIRE', 'ENSURE', 'RETURN', 'PRINT']))
+Parser.prototype._parseCommand = function(acceptCommands) {
+    if (!this._lexer.accept('func', acceptCommands))
         return null;
 
     var cmdName = this._lexer.text();
-    var cmdNode = new ParseNode(cmdName);
+    var cmdNode = new ParseNode('command', cmdName);
     cmdNode.addChild(this._parseText());
     return cmdNode;
 };
@@ -363,7 +414,8 @@ Parser.prototype._parseComment = function() {
     return commentNode;
 };
 
-Parser.prototype._parseCond = Parser.prototype._parseText = function() {
+Parser.prototype._parseCond =
+Parser.prototype._parseText = function() {
     var textNode = new ParseNode('text');
 
     var symbolNode;
@@ -417,16 +469,244 @@ Parser.prototype._parseSymbol = function() {
     return null;
 }
 
-var PseudoCode = {};
-PseudoCode.renderToString = function(input) {
-    var res;
-    // try {
-        var parser = new Parser(new Lexer(input));
-        var tree = parser.parse();
-        console.log(tree.toString());
-    // }
-    // catch(e) {
-    //     console.log(e.message);
-    // }
-    return res;
+// ===========================================================================
+//  Builder
+// ===========================================================================
+
+function Builder(parser) {
+    this._root = parser.parse();
+    console.log(this._root.toString());
+}
+
+Builder.prototype.toMarkup = function() {
+    this._body = [];
+    this._buildTree(this._root);
+    var html = this._body.join('\n');
+    delete this._body;
+    return html;
+}
+
+Builder.prototype.toDOM = function() {
+    var html = this.toMarkup();
+    var div = document.createElement('div');
+    div.innerHTML = html;
+    return div.firstChild;
+}
+
+Builder.prototype._beginDiv = function(className) {
+    this._body.push('<div class="' + className + '">');
+}
+
+Builder.prototype._endDiv = function() {
+    this._body.push('</div>');
+}
+
+Builder.prototype._beginLine = function() {
+    this._beginP('ps-line');
+}
+
+Builder.prototype._beginP = function(className) {
+    this._body.push('<p class="' + className + '">');
+}
+
+Builder.prototype._endP = Builder.prototype._endLine = function() {
+    this._body.push('</p>');
+}
+
+Builder.prototype._typeKeyword = function(keyword) {
+    this._body.push('<span class="ps-keyword">' + keyword + '</span>');
+}
+
+Builder.prototype._typeText = function(text) {
+    this._body.push('<span>' + text + '</span>');
+}
+
+Builder.prototype._buildTree = function(node) {
+    switch(node.type) {
+    case 'root':
+        this._beginDiv('pseudo');
+        this._buildTree(node.children[0]);
+        this._endDiv();
+        break;
+    case 'algorithmic':
+        this._buildTree(node.children[0]);
+        this._buildTree(node.children[1]);
+        break;
+    case 'conditions':
+        for (var ci = 0; ci < node.children.length; ci++)
+            this._buildTree(node.children[ci]);
+        break;
+    case 'block':
+        // node: <block>
+        // ==>
+        // HTML: <div class="ps-block"> ... </div>
+        this._beginDiv('ps-block');
+        for (var ci = 0; ci < node.children.length; ci++)
+            this._buildTree(node.children[ci]);
+        this._endDiv();
+        break;
+    case 'if':
+        // \IF { <cond> }
+        // ==>
+        // <p class="ps-line">
+        //      <span class="ps-keyword">if</span>
+        //      ...
+        //      <span class="ps-keyword">then</span>
+        // </p>
+        this._beginLine();
+        this._typeKeyword('if');
+        var cond = node.children[0];
+        this._buildTree(cond);
+        this._typeKeyword('then');
+        this._endLine();
+        // <block>
+        var ifBlock = node.children[1];
+        this._buildTree(ifBlock);
+
+        // ( \ELIF {<cond>} <block> )[0..n]
+        var numElif = node.value.numElif;
+        for (var ei = 0 ; ei < numElif; ei++) {
+            // \ELIF {<cond>}
+            // ==>
+            // <p class="ps-line">
+            //      <span class="ps-keyword">elif</span>
+            //      ...
+            //      <span class="ps-keyword">then</span>
+            // </p>
+            this._beginLine();
+            this._typeKeyword('if');
+            var elifCond = node.children[2 + 2 * ei];
+            this._buildTree(elifCond);
+            this._typeKeyword('then');
+            this._endLine();
+
+            // <block>
+            var elifBlock = node.children[2 + 2 * ei + 1];
+            this._buildTree(elifBlock);
+        }
+
+        // ( \ELSE <block> )[0..1]
+        var hasElse = node.value.hasElse;
+        if (hasElse) {
+            // \ELSE
+            // ==>
+            // <p class="ps-line">
+            //      <span class="ps-keyword">else</span>
+            // </p>
+            this._beginLine();
+            this._typeKeyword('else');
+            this._endLine();
+
+            // <block>
+            var elseBlock = node.children[node.children.length - 1];
+            this._buildTree(elseBlock);
+        }
+
+        // ENDIF
+        this._beginLine();
+        this._typeKeyword('end if');
+        this._endLine();
+
+        break;
+    case 'loop':
+        // \FOR{<cond>} or \WHILE{<cond>}
+        // ==>
+        // <p class="ps-line">
+        //      <span class="ps-keyword">for</span>
+        //      ...
+        //      <span class="ps-keyword">do</span>
+        // </p>
+        var loopName = node.value.toLowerCase();
+        this._beginLine();
+        this._typeKeyword(loopName);
+        var cond = node.children[0];
+        this._buildTree(cond);
+        this._typeKeyword('do');
+        this._endLine();
+
+        // <block>
+        var block = node.children[1];
+        this._buildTree(block);
+
+        // \ENDFOR or \ENDWHILE
+        // ==>
+        // <p class="ps-line">
+        //      <span class="ps-keyword">end for</span>
+        // </p>
+        this._beginLine();
+        this._typeKeyword('end ' + loopName);
+        this._endLine();
+
+        break;
+    case 'command':
+        // commands: \STATE, \ENSURE, \PRINT, \RETURN, etc.
+        var cmdName = node.value;
+        var displayName = {
+            'STATE': '',
+            'ENSURE': 'Ensure:',
+            'REQUIRE': 'Require:',
+            'PRINT': 'print',
+            'RETURN': 'return'
+        }[cmdName];
+
+        this._beginLine();
+        if (displayName) this._typeKeyword(displayName);
+        var text = node.children[0];
+        this._buildTree(text);
+        this._endLine();
+
+        break;
+    // 'comment':
+    //     break;
+    case 'cond':
+    case 'text':
+        for (var ci = 0; ci < node.children.length; ci++) {
+            var child = node.children[ci];
+            this._buildTree(child);
+        }
+        break;
+    case 'ordinary':
+        var text = node.value;
+        this._typeText(text);
+        break;
+    case 'math':
+        var math = node.value;
+        var mathHTML = katex.renderToString(math);
+        this._body.push(mathHTML);
+        break;
+    default:
+        throw new ParseError('Unexpected ParseNode of type ' + node.type);
+    }
+}
+
+// ===========================================================================
+//  Entry points
+// ===========================================================================
+
+parentModule.PseudoCode = {
+    renderToString: function(input) {
+        // try {
+            var lexer = new Lexer(input);
+            var parser = new Parser(lexer);
+            var builder = new Builder(parser);
+            return builder.toMarkup();
+        // }
+        // catch(e) {
+        //     console.log(e.message);
+        // }
+    },
+    render: function(input, baseDomEle) {
+        // try {
+            var lexer = new Lexer(input);
+            var parser = new Parser(lexer);
+            var builder = new Builder(parser);
+            var ele = builder.toDOM();
+            baseDomEle.appendChild(ele);
+        // }
+        // catch(e) {
+        //     console.log(e.message);
+        // }
+    }
 };
+
+})(window, katex);
