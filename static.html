@@ -19,8 +19,8 @@
         border-bottom: 2px solid black;
         padding-bottom: 0.2em;
     }
-    .pseudo .ps-alg.with-linenum > .ps-line {
-        margin-left: 1.2em;
+    .pseudo .ps-alg.with-linenum > .ps-line.ps-code {
+        margin-left: 0.8em;
     }
     .pseudo .ps-alg.with-caption > .ps-line:first-child {
         border-bottom: 2px solid black;
@@ -28,9 +28,21 @@
     .pseudo .ps-line {
         line-height: 1.2;
         margin: 0 0;
+        position: relative;
     }
     .pseudo .ps-line > span {
         font-size: 1.21em;
+    }
+    .pseudo .ps-line > .ps-linenum {
+        font-size: 0.8em;
+        line-height: 1em;
+        position: absolute;
+        left: 0;
+        top: 0.6em;
+        display: block;
+        width: 1.5em;
+        text-align: right;
+        margin-left: -0.5em;
     }
     .pseudo .ps-keyword {
         font-weight: 700;
@@ -153,7 +165,7 @@
         var code = document.getElementById("code").textContent;
         // var html = PseudoCode.renderToString(code);
         // console.log(html);
-        PseudoCode.render(code, document.body);
+        PseudoCode.render(code, document.body, {lineNumber: true});
     </script>
 </body>
 </html>

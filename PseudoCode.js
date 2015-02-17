@@ -522,8 +522,25 @@ Parser.prototype._parseSymbol = function() {
 //  Builder
 // ===========================================================================
 
-function Builder(parser) {
+function BuilderOptions(options) {
+    options = options || {};
+    this.indentSize = options.indentSize ?
+                        this._parseEmVal(options.indentSize) : 1.2;
+    this.commentSymbol = options.commentSymbol || '//';
+    this.lineNumberPunc = options.lineNumberPunc || ':';
+    this.lineNumber = options.lineNumber != null ? options.lineNumber : false;
+}
+
+BuilderOptions.prototype._parseEmVal = function(emVal) {
+    var emVal = emVal.trim();
+    if (emVal.indexOf('em') !== emVal.length - 2)
+        throw 'Option unit error; no `em` found';
+    return Number(emVal.substring(0, emVal.length - 2));
+}
+
+function Builder(parser, options) {
     this._root = parser.parse();
+    this._options = new BuilderOptions(options);
     this._blockLevel = 0;
     console.log(this._root.toString());
 }
@@ -554,7 +571,19 @@ Builder.prototype._endDiv = function() {
 }
 
 Builder.prototype._beginLine = function() {
-    this._body.push('<p class="ps-line" style="padding-left:' + (this._blockLevel * 1.2)+ 'em;"">');
+    var className = 'ps-line';
+    if (this._blockLevel > 0) { // this line is code
+        className += ' ps-code';
+        this._numLOC++;
+    }
+    var indent = this._blockLevel * this._options.indentSize;
+    this._body.push('<p class="' + className + '" style="padding-left:' +
+                    indent + 'em;"">');
+
+    if (this._options.lineNumber && this._blockLevel > 0) {
+        this._body.push('<span class="ps-linenum">' + this._numLOC +
+            this._options.lineNumberPunc + '</span>');
+    }
 }
 
 Builder.prototype._endLine = function() {
@@ -594,6 +623,7 @@ Builder.prototype._buildTree = function(node) {
         // Then, build the header for algorithm
         var className = 'ps-alg';
         if (lastCaptionNode) className += ' with-caption';
+        if (this._options.lineNumber) className += ' with-linenum';
         this._beginDiv(className);
         if (lastCaptionNode) this._buildTree(lastCaptionNode);
         // Then, build other nodes
@@ -613,6 +643,7 @@ Builder.prototype._buildTree = function(node) {
         this._endLine();
         break;
     case 'algorithmic':
+        if (this._options.lineNumber) this._numLOC = 0;
         this._buildTreeForAllChildren(node);
         break;
     case 'block':
@@ -759,29 +790,23 @@ Builder.prototype._buildTree = function(node) {
 // ===========================================================================
 
 parentModule.PseudoCode = {
-    renderToString: function(input) {
-        // try {
-            var lexer = new Lexer(input);
-            var parser = new Parser(lexer);
-            var builder = new Builder(parser);
-            return builder.toMarkup();
-        // }
-        // catch(e) {
-        //     console.log(e.message);
-        // }
+    renderToString: function(input, options) {
+        if (input == null) throw 'input cannot be empty';
+
+        var lexer = new Lexer(input);
+        var parser = new Parser(lexer);
+        var builder = new Builder(parser, options);
+        return builder.toMarkup();
     },
-    render: function(input, baseDomEle) {
-        // try {
-            var lexer = new Lexer(input);
-            var parser = new Parser(lexer);
-            var builder = new Builder(parser);
-            var ele = builder.toDOM();
-            if (baseDomEle) baseDomEle.appendChild(ele);
-            return ele;
-        // }
-        // catch(e) {
-        //     console.log(e.message);
-        // }
+    render: function(input, baseDomEle, options) {
+        if (input == null || baseDomEle == null) throw 'argument cannot be null';
+
+        var lexer = new Lexer(input);
+        var parser = new Parser(lexer);
+        var builder = new Builder(parser, options);
+        var ele = builder.toDOM();
+        baseDomEle.appendChild(ele);
+        return ele;
     }
 };
 
