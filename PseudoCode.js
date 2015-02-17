@@ -524,6 +524,7 @@ Parser.prototype._parseSymbol = function() {
 
 function Builder(parser) {
     this._root = parser.parse();
+    this._blockLevel = 0;
     console.log(this._root.toString());
 }
 
@@ -553,14 +554,10 @@ Builder.prototype._endDiv = function() {
 }
 
 Builder.prototype._beginLine = function() {
-    this._beginP('ps-line');
+    this._body.push('<p class="ps-line" style="padding-left:' + (this._blockLevel * 1.2)+ 'em;"">');
 }
 
-Builder.prototype._beginP = function(className) {
-    this._body.push('<p class="' + className + '">');
-}
-
-Builder.prototype._endP = Builder.prototype._endLine = function() {
+Builder.prototype._endLine = function() {
     this._body.push('</p>');
 }
 
@@ -622,9 +619,9 @@ Builder.prototype._buildTree = function(node) {
         // node: <block>
         // ==>
         // HTML: <div class="ps-block"> ... </div>
-        this._beginDiv('ps-block');
+        this._blockLevel++;
         this._buildTreeForAllChildren(node);
-        this._endDiv();
+        this._blockLevel--;
         break;
     case 'if':
         // \IF { <cond> }
