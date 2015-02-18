@@ -577,16 +577,17 @@ Builder.prototype._beginLine = function() {
         this._numLOC++;
     }
     var indent = this._blockLevel * this._options.indentSize;
-    this._body.push('<p class="' + className + '" style="padding-left:' +
-                    indent + 'em;"">');
-
+    this._body.push('<p class="' + className + '">');
     if (this._options.lineNumber && this._blockLevel > 0) {
         this._body.push('<span class="ps-linenum">' + this._numLOC +
             this._options.lineNumberPunc + '</span>');
     }
+    this._body.push('<span class="ps-line-content" style="padding-left:'
+                    + indent + 'em;">');
 }
 
 Builder.prototype._endLine = function() {
+    this._body.push('</span>')
     this._body.push('</p>');
 }
 
@@ -621,9 +622,8 @@ Builder.prototype._buildTree = function(node) {
             this._captionCount++;
         }
         // Then, build the header for algorithm
-        var className = 'ps-alg';
+        var className = 'ps-algorithm';
         if (lastCaptionNode) className += ' with-caption';
-        if (this._options.lineNumber) className += ' with-linenum';
         this._beginDiv(className);
         if (lastCaptionNode) this._buildTree(lastCaptionNode);
         // Then, build other nodes
@@ -643,8 +643,14 @@ Builder.prototype._buildTree = function(node) {
         this._endLine();
         break;
     case 'algorithmic':
-        if (this._options.lineNumber) this._numLOC = 0;
+        var className = 'ps-algorithmic';
+        if (this._options.lineNumber) {
+            className += ' with-linenum';
+            this._numLOC = 0;
+        }
+        this._beginDiv(className);
         this._buildTreeForAllChildren(node);
+        this._endDiv();
         break;
     case 'block':
         // node: <block>

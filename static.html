@@ -13,43 +13,45 @@
         font-weight: 100;
         -webkit-font-smoothing: antialiased !important;
     }
-    .pseudo .ps-alg {
+    .pseudo .ps-algorithm {
         margin: 0.8em 0;
+        padding-bottom: 0.2em;
+        /* algorithm environment has borders; algorithmic has not */
         border-top: 3px solid black;
         border-bottom: 2px solid black;
-        padding-bottom: 0.2em;
     }
-    .pseudo .ps-alg.with-linenum > .ps-line.ps-code {
-        margin-left: 0.8em;
-    }
-    .pseudo .ps-alg.with-caption > .ps-line:first-child {
+    .pseudo .ps-algorithm.with-caption > .ps-line:first-child {
         border-bottom: 2px solid black;
     }
     .pseudo .ps-line {
-        line-height: 1.2;
-        margin: 0 0;
-        position: relative;
+        margin: 0; padding: 0;
     }
-    .pseudo .ps-line > span {
+    /* line-content is where indent is added to */
+    .pseudo .ps-line-content {
+        line-height: 1.452;
+    }
+    .pseudo .ps-line-content > span {
         font-size: 1.21em;
+        line-height: 1.2;
     }
-    .pseudo .ps-line > .ps-linenum {
-        font-size: 0.8em;
-        line-height: 1em;
-        position: absolute;
-        left: 0;
-        top: 0.6em;
-        display: block;
-        width: 1.5em;
-        text-align: right;
-        margin-left: -0.5em;
-    }
+    /* keyword */
     .pseudo .ps-keyword {
         font-weight: 700;
         margin: 0 0.25em;
     }
     .pseudo .ps-keyword:first-child{
         margin: 0 0.25em 0 0;
+    }
+    /* line number support */
+    .pseudo .ps-linenum {
+        font-size: 0.8em;
+        line-height: 1em;
+        width: 2em;
+        text-align: right;
+        display: inline-block;
+    }
+    .pseudo .ps-algorithmic.with-linenum .ps-line.ps-code .ps-line-content {
+        margin-left: -1em;
     }
     </style>
 </head>
@@ -145,7 +147,6 @@
         \ENDWHILE
         \end{algorithmic}
         \end{algorithm}
-        \begin{algorithm}
         \begin{algorithmic}
         \REQUIRE this is shit!
         \ENSURE i think so
@@ -158,8 +159,6 @@
             \ENDIF
         \ENDWHILE
         \end{algorithmic}
-        \caption{this is it!}
-        \end{algorithm}
     </pre>
     <script type="text/javascript">
         var code = document.getElementById("code").textContent;
