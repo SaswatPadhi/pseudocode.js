@@ -33,8 +33,7 @@
         \end{algorithmic}
         \end{algorithm}
         \begin{algorithmic}
-        \REQUIRE this is shit!
-        \ENSURE i think so
+        \PROCEDURE{Simple}{}
         \STATE bigger
         \WHILE{1+1}
             \IF{n < 10}
@@ -44,8 +43,10 @@
                 \STATE $ f(x) = \int_{-\infty}^\infty
     \hat f(\xi)\,e^{2 \pi i \xi x}
     \,d\xi $
+                \STATE $m \gets$ \CALL{Simple}{}
             \ENDIF
         \ENDWHILE
+        \ENDPROCEDURE
         \end{algorithmic}
     </pre>
     <script type="text/javascript">

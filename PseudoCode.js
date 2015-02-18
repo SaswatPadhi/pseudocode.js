@@ -23,7 +23,8 @@ in a context-free grammar:
     <require>       :== \REQUIRE + <text>
     <ensure>        :== \ENSURE + <text>
 
-    <block>         :== ( <control> | <statement> | <comment> )[0..n]
+    <block>         :== ( <control> | <function>
+                        | <statement> | <comment> | <call> )[0..n]
 
     <control>       :== <if> | <for> | <while>
     <if>            :== \IF{<cond>} + <block>
@@ -33,12 +34,17 @@ in a context-free grammar:
     <for>           :== \FOR{<cond>} + <block> + \ENDFOR
     <while>         :== \WHILE{<cond>} + <block> + \ENDWHILE
 
+    <function>      :== \FUNCTION{<name>}{<params>} <block> \ENDFUNCTION
+                        (same for <procedure>)
+
     <statement>     :== <state> |  <return> | <print>
     <state>         :== \STATE + <text>
     <return>        :== \RETURN + <text>
     <print>         :== \PRINT + <text>
 
     <comment>       :== \COMMENT{<text>}
+
+    <call>          :== \CALL{<text>}
 
     <cond>          :== <text>
     <text>          :== <symbol> + <text> | { <text> } | <empty>
@@ -66,8 +72,7 @@ recursive descent parser is **simplity** for the structure of resulting program
 closely mirrors that of the grammar.
 
 TODO:
-    * \function and \procedure{name}{params}
-    * \call
+    * command name case-insensitive
     * noend
     * line number every k lines: \begin{algorithmic}[k]
     * caption without the number: \caption*{}
@@ -298,7 +303,7 @@ Parser.prototype.parse = function() {
         this._closeEnvironment(envName);
         root.addChild(envNode);
     }
-    //TODO: check this is the end of input
+    this._lexer.expect('EOF');
     return root;
 };
 
@@ -377,11 +382,17 @@ Parser.prototype._parseBlock = function() {
         var controlNode = this._parseControl();
         if (controlNode) { blockNode.addChild(controlNode); continue; }
 
+        var functionNode = this._parseFunction();
+        if (functionNode) { blockNode.addChild(functionNode); continue; }
+
         var commandNode = this._parseCommand(['STATE', 'PRINT', 'RETURN']);
         if (commandNode) { blockNode.addChild(commandNode); continue; }
 
         var commentNode = this._parseComment();
         if (commentNode) { blockNode.addChild(commentNode); continue; }
+
+        var callNode = this._parseCall();
+        if (callNode) { blockNode.addChild(callNode); continue; }
 
         break;
     }
@@ -394,6 +405,30 @@ Parser.prototype._parseControl = function() {
     if ((controlNode = this._parseIf())) return controlNode;
     if ((controlNode = this._parseLoop())) return controlNode;
 };
+
+Parser.prototype._parseFunction = function() {
+    var lexer = this._lexer;
+    if (!lexer.accept('func', ['FUNCTION', 'PROCEDURE'])) return null;
+
+    // \FUNCTION{funcName}{funcArgs}
+    var funcType = this._lexer.text(); // FUNCTION or PROCEDURE
+    lexer.expect('open');
+    var funcName = lexer.expect('ordinary');
+    lexer.expect('close');
+    lexer.expect('open');
+    var argsNode = this._parseText();
+    lexer.expect('close');
+    // <block>
+    var blockNode = this._parseBlock();
+    // \ENDFUNCTION
+    lexer.expect('func', 'END' + funcType);
+
+    var functionNode = new ParseNode('function',
+                        {type: funcType, name: funcName});
+    functionNode.addChild(argsNode);
+    functionNode.addChild(blockNode);
+    return functionNode;
+}
 
 Parser.prototype._parseIf = function() {
     if (!this._lexer.accept('func', 'IF')) return null;
@@ -469,6 +504,24 @@ Parser.prototype._parseComment = function() {
     this._lexer.expect('close');
 
     return commentNode;
+};
+
+Parser.prototype._parseCall = function() {
+    var lexer = this._lexer;
+    if (!lexer.accept('func', 'CALL')) return null;
+
+    // \CALL { <ordinary> } { <text> }
+    lexer.expect('open');
+    var funcName = lexer.expect('ordinary');
+    lexer.expect('close');
+    lexer.expect('open');
+    var argsNode = this._parseText();
+    lexer.expect('close');
+
+    var callNode = new ParseNode('call');
+    callNode.value = funcName;
+    callNode.addChild(argsNode);
+    return callNode;
 };
 
 Parser.prototype._parseCond =
@@ -550,6 +603,7 @@ function Builder(parser, options) {
     this._root = parser.parse();
     this._options = new BuilderOptions(options);
     this._blockLevel = 0;
+    this._openLine = false;
     console.log(this._root.toString());
 }
 
@@ -578,6 +632,22 @@ Builder.prototype._endDiv = function() {
     this._body.push('</div>');
 }
 
+Builder.prototype._newLine = function() {
+    if (this._openLine) this._endLine();
+    this._openLine = true;
+    this._beginLine();
+}
+
+Builder.prototype._beginBlock = function() {
+    if (this._openLine) this._endLine();
+    this._blockLevel++;
+}
+
+Builder.prototype._endBlock = function() {
+    if (this._openLine) this._endLine();
+    this._blockLevel--;
+}
+
 Builder.prototype._beginLine = function() {
     var className = 'ps-line';
     if (this._blockLevel > 0) { // this line is code
@@ -597,10 +667,15 @@ Builder.prototype._beginLine = function() {
 Builder.prototype._endLine = function() {
     this._body.push('</span>')
     this._body.push('</p>');
+    this._openLine = false;
 }
 
 Builder.prototype._typeKeyword = function(keyword) {
     this._body.push('<span class="ps-keyword">' + keyword + '</span>');
+}
+
+Builder.prototype._typeFuncName = function(funcName) {
+    this._body.push('<span class="ps-funcname">' + funcName + '</span>');
 }
 
 Builder.prototype._typeText = function(text) {
@@ -664,9 +739,30 @@ Builder.prototype._buildTree = function(node) {
         // node: <block>
         // ==>
         // HTML: <div class="ps-block"> ... </div>
-        this._blockLevel++;
+        this._beginBlock();
         this._buildTreeForAllChildren(node);
-        this._blockLevel--;
+        this._endBlock();
+        break;
+    case 'function':
+        // \FUNCTION{<ordinary>}{<text>} <block> \ENDFUNCTION
+        // ==>
+        // function <ordinary>(<text>)
+        // ...
+        // end function
+        var funcType = node.value.type.toLowerCase();
+        var funcName = node.value.name;
+        var textNode = node.children[0];
+        var blockNode = node.children[1];
+        this._newLine();
+        this._typeKeyword(funcType);
+        this._typeFuncName(funcName);
+        this._typeText('(');
+        this._buildTree(textNode);
+        this._typeText(')');
+
+        this._buildTree(blockNode);
+        this._newLine();
+        this._typeKeyword('end ' + funcType);
         break;
     case 'if':
         // \IF { <cond> }
@@ -676,12 +772,11 @@ Builder.prototype._buildTree = function(node) {
         //      ...
         //      <span class="ps-keyword">then</span>
         // </p>
-        this._beginLine();
+        this._newLine();
         this._typeKeyword('if');
         var cond = node.children[0];
         this._buildTree(cond);
         this._typeKeyword('then');
-        this._endLine();
         // <block>
         var ifBlock = node.children[1];
         this._buildTree(ifBlock);
@@ -696,12 +791,11 @@ Builder.prototype._buildTree = function(node) {
             //      ...
             //      <span class="ps-keyword">then</span>
             // </p>
-            this._beginLine();
+            this._newLine();
             this._typeKeyword('if');
             var elifCond = node.children[2 + 2 * ei];
             this._buildTree(elifCond);
             this._typeKeyword('then');
-            this._endLine();
 
             // <block>
             var elifBlock = node.children[2 + 2 * ei + 1];
@@ -716,9 +810,8 @@ Builder.prototype._buildTree = function(node) {
             // <p class="ps-line">
             //      <span class="ps-keyword">else</span>
             // </p>
-            this._beginLine();
+            this._newLine();
             this._typeKeyword('else');
-            this._endLine();
 
             // <block>
             var elseBlock = node.children[node.children.length - 1];
@@ -726,9 +819,8 @@ Builder.prototype._buildTree = function(node) {
         }
 
         // ENDIF
-        this._beginLine();
+        this._newLine();
         this._typeKeyword('end if');
-        this._endLine();
 
         break;
     case 'loop':
@@ -740,12 +832,11 @@ Builder.prototype._buildTree = function(node) {
         //      <span class="ps-keyword">do</span>
         // </p>
         var loopName = node.value.toLowerCase();
-        this._beginLine();
+        this._newLine();
         this._typeKeyword(loopName);
         var cond = node.children[0];
         this._buildTree(cond);
         this._typeKeyword('do');
-        this._endLine();
 
         // <block>
         var block = node.children[1];
@@ -756,9 +847,8 @@ Builder.prototype._buildTree = function(node) {
         // <p class="ps-line">
         //      <span class="ps-keyword">end for</span>
         // </p>
-        this._beginLine();
+        this._newLine();
         this._typeKeyword('end ' + loopName);
-        this._endLine();
 
         break;
     case 'command':
@@ -776,11 +866,21 @@ Builder.prototype._buildTree = function(node) {
         if (displayName) this._typeKeyword(displayName);
         var text = node.children[0];
         this._buildTree(text);
-        this._endLine();
 
         break;
     // 'comment':
     //     break;
+    case 'call':
+        // \CALL{funcName}{funcArgs}
+        // ==>
+        // funcName(funcArgs)
+        var funcName = node.value;
+        var argsNode = node.children[0];
+        this._typeFuncName(funcName);
+        this._typeText('(');
+        this._buildTree(argsNode);
+        this._typeText(')');
+        break;
     case 'cond':
     case 'text':
         this._buildTreeForAllChildren(node);

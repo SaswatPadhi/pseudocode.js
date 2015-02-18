@@ -25,6 +25,10 @@
     font-size: 1.21em;
     line-height: 1.2;
 }
+.pseudo .ps-funcname {
+    font-family: serif;
+    font-variant: small-caps;
+}
 /* keyword */
 .pseudo .ps-keyword {
     font-weight: 700;
