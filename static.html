@@ -4,128 +4,13 @@
     <meta charset="utf-8">
     <link href="lib/katex/katex.min.css" type="text/css" rel="stylesheet">
     <script src="lib/katex/katex.min.js" type="text/javascript"></script>
+    <link href="css/PseudoCode.css" type="text/css" rel="stylesheet">
     <script src="PseudoCode.js" type="text/javascript"></script>
     <title>Hard-coded Result of PseudoCode.js</title>
     <style media="screen" type="text/css">
-    .pseudo {
-        font-family: KaTeX_Main;
-        font-size: 1em;
-        font-weight: 100;
-        -webkit-font-smoothing: antialiased !important;
-    }
-    .pseudo .ps-algorithm {
-        margin: 0.8em 0;
-        padding-bottom: 0.2em;
-        /* algorithm environment has borders; algorithmic has not */
-        border-top: 3px solid black;
-        border-bottom: 2px solid black;
-    }
-    .pseudo .ps-algorithm.with-caption > .ps-line:first-child {
-        border-bottom: 2px solid black;
-    }
-    .pseudo .ps-line {
-        margin: 0; padding: 0;
-    }
-    /* line-content is where indent is added to */
-    .pseudo .ps-line-content {
-        line-height: 1.452;
-    }
-    .pseudo .ps-line-content > span {
-        font-size: 1.21em;
-        line-height: 1.2;
-    }
-    /* keyword */
-    .pseudo .ps-keyword {
-        font-weight: 700;
-        margin: 0 0.25em;
-    }
-    .pseudo .ps-keyword:first-child{
-        margin: 0 0.25em 0 0;
-    }
-    /* line number support */
-    .pseudo .ps-linenum {
-        font-size: 0.8em;
-        line-height: 1em;
-        width: 2em;
-        text-align: right;
-        display: inline-block;
-    }
-    .pseudo .ps-algorithmic.with-linenum .ps-line.ps-code .ps-line-content {
-        margin-left: -1em;
-    }
     </style>
 </head>
 <body>
-    <div class="pseudo ps-captioned" style="display:none;">
-        <p class="ps-line">
-            <span class="ps-keyword">Algorithm 1</span>
-            <span>Sample algorithm</span>
-        </p>
-        <p class="ps-line">
-            <span class="ps-keyword">Require:</span>
-            <span class="katex"><span class="katex-inner"><span class="strut" style="height:0.64444em;"></span><span class="strut bottom" style="height:0.78041em;vertical-align:-0.13597em;"></span><span class="base textstyle uncramped"><span class="mord mathit">n</span><span class="mrel">≥</span><span class="mord">0</span></span></span></span>
-        </p>
-        <p class="ps-line">
-            <span class="ps-keyword">Ensure:</span>
-            <span class="katex"><span class="katex-inner"><span class="strut" style="height:0.664392em;"></span><span class="strut bottom" style="height:0.858832em;vertical-align:-0.19444em;"></span><span class="base textstyle uncramped"><span class="reset-textstyle textstyle uncramped"><span class="mord mathit" style="margin-right:0.03588em;">y</span><span class="mrel">=</span><span class="mord"><span class="mord mathit">x</span><span class="vlist"><span style="top:-0.363em;margin-right:0.05em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-textstyle scriptstyle uncramped"><span class="mord mathit">n</span></span></span><span class="baseline-fix"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span>​</span></span></span></span></span></span></span>
-        </p>
-        <div class="ps-block">
-            <p class="ps-line">
-                <span class="katex"><span class="katex-inner"><span class="strut" style="height:0.64444em;"></span><span class="strut bottom" style="height:0.8388800000000001em;vertical-align:-0.19444em;"></span><span class="base textstyle uncramped"><span class="reset-textstyle textstyle uncramped"><span class="mord mathit" style="margin-right:0.03588em;">y</span><span class="mrel">←</span><span class="mord">1</span></span></span></span></span>
-            </p>
-            <p class="ps-line">
-                <span class="katex"><span class="katex-inner"><span class="strut" style="height:0.68333em;"></span><span class="strut bottom" style="height:0.68333em;vertical-align:0em;"></span><span class="base textstyle uncramped"><span class="reset-textstyle textstyle uncramped"><span class="mord mathit" style="margin-right:0.07847em;">X</span><span class="mrel">←</span><span class="mord mathit">x</span></span></span></span></span>
-            </p>
-            <p class="ps-line">
-                <span class="katex"><span class="katex-inner"><span class="strut" style="height:0.68333em;"></span><span class="strut bottom" style="height:0.68333em;vertical-align:0em;"></span><span class="base textstyle uncramped"><span class="reset-textstyle textstyle uncramped"><span class="mord mathit" style="margin-right:0.10903em;">N</span><span class="mrel">←</span><span class="mord mathit">n</span></span></span></span></span>
-            </p>
-            <p class="ps-line">
-                <span class="ps-keyword">
-                    while
-                </span>
-                <span class="katex"><span class="katex-inner"><span class="strut" style="height:0.716em;"></span><span class="strut bottom" style="height:0.9309999999999999em;vertical-align:-0.215em;"></span><span class="base textstyle uncramped"><span class="reset-textstyle textstyle uncramped"><span class="mord mathit">N</span><span class="mrel">≠</span><span class="mord">0</span></span></span></span></span>
-                <span class="ps-keyword">
-                    do
-                </span>
-            </p>
-            <div class="ps-block">
-                <p class="ps-line">
-                    <span class="ps-keyword">if</span>
-                    <span class="katex"><span class="katex-inner"><span class="strut" style="height:0.68333em;"></span><span class="strut bottom" style="height:0.68333em;vertical-align:0em;"></span><span class="base textstyle uncramped"><span class="reset-textstyle textstyle uncramped"><span class="mord mathit" style="margin-right:0.10903em;">N</span></span></span></span></span>
-                    <span>is even</span>
-                    <span class="ps-keyword">then</span>
-                </p>
-                <div class="ps-block">
-                    <p class="ps-line">
-                        <span class="katex"><span class="katex-inner"><span class="strut" style="height:0.68333em;"></span><span class="strut bottom" style="height:0.76666em;vertical-align:-0.08333em;"></span><span class="base textstyle uncramped"><span class="reset-textstyle textstyle uncramped"><span class="mord mathit" style="margin-right:0.07847em;">X</span><span class="mrel">←</span><span class="mord mathit" style="margin-right:0.07847em;">X</span><span class="mbin">×</span><span class="mord mathit" style="margin-right:0.07847em;">X</span></span></span></span></span>
-                    </p>
-                    <p class="ps-line">
-                        <span class="katex"><span class="katex-inner"><span class="strut" style="height:0.75em;"></span><span class="strut bottom" style="height:1em;vertical-align:-0.25em;"></span><span class="base textstyle uncramped"><span class="reset-textstyle textstyle uncramped"><span class="mord mathit" style="margin-right:0.10903em;">N</span><span class="mrel">←</span><span class="mord mathit" style="margin-right:0.10903em;">N</span><span class="mord">/</span><span class="mord">2</span></span></span></span></span>
-                    </p>
-                </div>
-                <p class="ps-line">
-                    <span class="ps-keyword">else</span>
-                    <span>{</span>
-                        <span class="katex"><span class="katex-inner"><span class="strut" style="height:0.68333em;"></span><span class="strut bottom" style="height:0.68333em;vertical-align:0em;"></span><span class="base textstyle uncramped"><span class="reset-textstyle textstyle uncramped"><span class="mord mathit" style="margin-right:0.10903em;">N</span></span></span></span></span>
-                    <span>is old}</span>
-                </p>
-                <div class="ps-block">
-                    <p class="ps-line">
-                        <span class="katex"><span class="katex-inner"><span class="strut" style="height:0.68333em;"></span><span class="strut bottom" style="height:0.8777699999999999em;vertical-align:-0.19444em;"></span><span class="base textstyle uncramped"><span class="reset-textstyle textstyle uncramped"><span class="mord mathit" style="margin-right:0.03588em;">y</span><span class="mrel">←</span><span class="mord mathit" style="margin-right:0.03588em;">y</span><span class="mbin">×</span><span class="mord mathit" style="margin-right:0.07847em;">X</span></span></span></span></span>
-                    </p>
-                    <p class="ps-line">
-                        <span class="katex"><span class="katex-inner"><span class="strut" style="height:0.68333em;"></span><span class="strut bottom" style="height:0.76666em;vertical-align:-0.08333em;"></span><span class="base textstyle uncramped"><span class="reset-textstyle textstyle uncramped"><span class="mord mathit" style="margin-right:0.10903em;">N</span><span class="mrel">←</span><span class="mord mathit" style="margin-right:0.10903em;">N</span><span class="mbin">−</span><span class="mord">1</span></span></span></span></span>
-                    </p>
-                </div>
-                <p class="ps-line">
-                    <span class="ps-keyword">end if</span>
-                </p>
-            </div>
-            <p class="ps-line">
-                <span class="ps-keyword">end while</span>
-            </p>
-        </div>
-    </div>
     <pre id="code" style="display:none">
         \begin{algorithm}
         \caption{123!}
@@ -156,6 +41,9 @@
                 \STATE n++
             \ELSE
                 \STATE m+1
+                \STATE $ f(x) = \int_{-\infty}^\infty
+    \hat f(\xi)\,e^{2 \pi i \xi x}
+    \,d\xi $
             \ENDIF
         \ENDWHILE
         \end{algorithmic}
@@ -164,7 +52,10 @@
         var code = document.getElementById("code").textContent;
         // var html = PseudoCode.renderToString(code);
         // console.log(html);
-        PseudoCode.render(code, document.body, {lineNumber: true});
+        PseudoCode.render(code, document.body, {
+
+            lineNumber: true
+        });
     </script>
 </body>
 </html>

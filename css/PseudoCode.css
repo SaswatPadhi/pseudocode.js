@@ -1,0 +1,46 @@
+.pseudo {
+    font-family: KaTeX_Main;
+    font-size: 1em;
+    font-weight: 100;
+    -webkit-font-smoothing: antialiased !important;
+}
+.pseudo .ps-algorithm {
+    margin: 0.8em 0;
+    padding-bottom: 0.2em;
+    /* algorithm environment has borders; algorithmic has not */
+    border-top: 3px solid black;
+    border-bottom: 2px solid black;
+}
+.pseudo .ps-algorithm.with-caption > .ps-line:first-child {
+    border-bottom: 2px solid black;
+}
+.pseudo .ps-line {
+    margin: 0; padding: 0;
+}
+/* line-content is where indent is added to */
+.pseudo .ps-line-content {
+    line-height: 1.452;
+}
+.pseudo .ps-line-content > span {
+    font-size: 1.21em;
+    line-height: 1.2;
+}
+/* keyword */
+.pseudo .ps-keyword {
+    font-weight: 700;
+    margin: 0 0.25em;
+}
+.pseudo .ps-keyword:first-child{
+    margin: 0 0.25em 0 0;
+}
+/* line number support */
+.pseudo .ps-linenum {
+    font-size: 0.8em;
+    line-height: 1em;
+    width: 2em;
+    text-align: right;
+    display: inline-block;
+}
+.pseudo .ps-algorithmic.with-linenum .ps-line.ps-code .ps-line-content {
+    margin-left: -1em;
+}

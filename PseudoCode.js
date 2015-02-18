@@ -65,8 +65,16 @@ in the most natural form--- a (predictive) recursive descent parser. The major b
 recursive descent parser is **simplity** for the structure of resulting program
 closely mirrors that of the grammar.
 
-Tokens
-
+TODO:
+    * \function and \procedure{name}{params}
+    * \call
+    * noend
+    * line number every k lines: \begin{algorithmic}[k]
+    * caption without the number: \caption*{}
+    * soft return: \\
+    * fonts: \bf, \textbf{} ...
+    * size: \large, ...
+    * rename: e.g. require --> input, ensure --> output
 */
 
 (function(parentModule, katex) { // rely on KaTex to process TeX math
