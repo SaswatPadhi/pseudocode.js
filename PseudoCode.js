@@ -73,14 +73,16 @@ closely mirrors that of the grammar.
 
 TODO:
     * command name case-insensitive
+    * comment
     * noend
     * line number every k lines: \begin{algorithmic}[k]
     * caption without the number: \caption*{}
-    * soft return: \\
+    * excaped char: \\,
     * fonts: \bf, \textbf{} ...
     * size: \large, ...
     * rename: e.g. require --> input, ensure --> output
     * elimiate the default space (smaller than a ' ' char) between spans
+    *
 */
 
 (function(parentModule, katex) { // rely on KaTex to process TeX math
@@ -151,6 +153,7 @@ var mathPattern = {
 };
 var symbolRegex = {
     // TODO: which is correct? func: /^\\(?:[a-zA-Z]+|.)/,
+    special: /^(\\\\|\\{|\\}|\\\$|\\&|\\#|\\%|\\_)/,
     func: /^\\([a-zA-Z]+)/,
     open: /^\{/,
     close: /^\}/,
@@ -635,12 +638,6 @@ Builder.prototype._endDiv = function() {
     this._body.push('</div>');
 }
 
-Builder.prototype._newLine = function() {
-    if (this._openLine) this._endLine();
-    this._openLine = true;
-    this._beginLine();
-}
-
 Builder.prototype._beginBlock = function() {
     if (this._openLine) this._endLine();
     var extraCss = ' ps-outer-block';
@@ -653,6 +650,12 @@ Builder.prototype._endBlock = function() {
     if (this._openLine) this._endLine();
     this._body.push('</div>');
     this._blockLevel--;
+}
+
+Builder.prototype._newLine = function() {
+    if (this._openLine) this._endLine();
+    this._openLine = true;
+    this._beginLine();
 }
 
 Builder.prototype._beginLine = function() {
@@ -681,21 +684,49 @@ Builder.prototype._beginLine = function() {
 }
 
 Builder.prototype._endLine = function() {
+    this._flushText();
     this._body.push('</span>')
     this._body.push('</p>');
     this._openLine = false;
 }
 
 Builder.prototype._typeKeyword = function(keyword) {
+    this._flushText();
     this._body.push('<span class="ps-keyword">' + keyword + '</span>');
 }
 
 Builder.prototype._typeFuncName = function(funcName) {
+    this._flushText();
     this._body.push('<span class="ps-funcname">' + funcName + '</span>');
 }
 
+Builder.prototype._typeMath = function(math) {
+    this._flushText();
+    this._body.push(math);
+}
+
 Builder.prototype._typeText = function(text) {
-    this._body.push('<span>' + text + '</span>');
+    if (this._textBuf == undefined) this._textBuf = [];
+    this._textBuf.push(text);
+}
+
+Builder.prototype._flushText = function() {
+    if (this._textBuf !== undefined && this._textBuf.length >= 0) {
+        // TODO: HTML escape the string
+        var text = this._textBuf.join('');
+        this._body.push(text);
+        delete this._textBuf;
+    }
+}
+
+Builder.prototype._beginText = function() {
+    this._flushText();
+    this._body.push('<span>');
+}
+
+Builder.prototype._endText = function() {
+    this._flushText();
+    this._body.push('</span>');
 }
 
 Builder.prototype._buildTreeForAllChildren = function(node) {
@@ -777,6 +808,7 @@ Builder.prototype._buildTree = function(node) {
         this._typeText(')');
 
         this._buildTree(blockNode);
+
         this._newLine();
         this._typeKeyword('end ' + funcType);
         break;
@@ -878,7 +910,7 @@ Builder.prototype._buildTree = function(node) {
             'RETURN': 'return'
         }[cmdName];
 
-        this._beginLine();
+        this._newLine();
         if (displayName) this._typeKeyword(displayName);
         var text = node.children[0];
         this._buildTree(text);
@@ -899,7 +931,9 @@ Builder.prototype._buildTree = function(node) {
         break;
     case 'cond':
     case 'text':
+        this._beginText();
         this._buildTreeForAllChildren(node);
+        this._endText();
         break;
     case 'ordinary':
         var text = node.value;
@@ -908,7 +942,22 @@ Builder.prototype._buildTree = function(node) {
     case 'math':
         var math = node.value;
         var mathHTML = katex.renderToString(math);
-        this._body.push(mathHTML);
+        this._typeMath(mathHTML);
+        break;
+    case 'special':
+        var escapedStr = node.value;
+        var replace = {
+            '\\\\': '<br/>',
+            '\\{': '{',
+            '\\}': '}',
+            '\\$': '$',
+            '\\&': '&',
+            '\\#': '#',
+            '\\%': '%',
+            '\\_': '_'
+        };
+        var replaceStr = replace[escapedStr];
+        this._typeText(replaceStr);
         break;
     default:
         throw new ParseError('Unexpected ParseNode of type ' + node.type);
