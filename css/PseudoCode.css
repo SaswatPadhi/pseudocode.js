@@ -20,6 +20,7 @@
 /* line-content is where indent is added to */
 .pseudo .ps-line-content {
     line-height: 1.452;
+    text-indent: 0em;
 }
 .pseudo .ps-line-content > span {
     font-size: 1.21em;
@@ -44,7 +45,8 @@
     width: 2em;
     text-align: right;
     display: inline-block;
+    position: relative;
 }
-.pseudo .ps-algorithmic.with-linenum .ps-line.ps-code .ps-line-content {
-    margin-left: -1em;
+.pseudo .ps-algorithmic.with-linenum .ps-line.ps-code {
+    text-indent: -1.8em;
 }
