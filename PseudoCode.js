@@ -72,17 +72,16 @@ recursive descent parser is **simplity** for the structure of resulting program
 closely mirrors that of the grammar.
 
 TODO:
-    * command name case-insensitive
     * comment
+    * fonts: \bf, \textbf{} ...
+    * size: \large, ...
+    * command name case-insensitive
     * noend
     * line number every k lines: \begin{algorithmic}[k]
     * caption without the number: \caption*{}
-    * excaped char: \\,
-    * fonts: \bf, \textbf{} ...
-    * size: \large, ...
     * rename: e.g. require --> input, ensure --> output
     * elimiate the default space (smaller than a ' ' char) between spans
-    *
+    * double quotes
 */
 
 (function(parentModule, katex) { // rely on KaTex to process TeX math
@@ -640,9 +639,12 @@ Builder.prototype._endDiv = function() {
 
 Builder.prototype._beginBlock = function() {
     if (this._openLine) this._endLine();
-    var extraCss = ' ps-outer-block';
-    this._body.push('<div class="ps-block' + extraCss +
-                    '" style="margin-left:' + this._options.indentSize + 'em;">');
+
+    var extraIndentForFirstBlock =
+        this._options.lineNumber && this._blockLevel == 0 ? 0.6 : 0;
+    var blockIndent = this._options.indentSize + extraIndentForFirstBlock;
+    this._body.push('<div class="ps-block" style="margin-left:' +
+                    blockIndent+ 'em;">');
     this._blockLevel++;
 }
 
@@ -667,19 +669,14 @@ Builder.prototype._beginLine = function() {
         this._body.push('<p class="ps-line ps-code">');
         if (this._options.lineNumber) {
             this._body.push('<span class="ps-linenum" ' +
-                'style="left:-' + ( ( this._blockLevel - 1 ) * (indentSize + 0.3)) +
+                'style="left:-' + ( ( this._blockLevel - 1 ) * (indentSize - 0.2)) +
                 'em;">' + this._numLOC + this._options.lineNumberPunc + '</span>');
-            this._body.push('<span class="ps-line-content" style="margin-left:' +
-                ( /*( this._blockLevel - 1 ) * indentSize*/ 0 )+ 'em;">');
         }
-        else
-            this._body.push('<span class="ps-line-content">');
     }
     // if this line is for pre-conditions (e.g. \REQUIRE)
     else {
         this._body.push('<p class="ps-line" style="text-indent:' +
                         (-indentSize) + 'em;padding-left: ' + indentSize +'em;">');
-        this._body.push('<span class="ps-line-content">');
     }
 }
 

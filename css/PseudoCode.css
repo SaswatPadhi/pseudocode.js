@@ -14,15 +14,13 @@
 .pseudo .ps-algorithm.with-caption > .ps-line:first-child {
     border-bottom: 2px solid black;
 }
+.pseudo .katex {
+    text-indent: 0;
+}
 .pseudo .ps-line {
     margin: 0; padding: 0;
 }
-/* line-content is where indent is added to */
-.pseudo .ps-line-content {
-    line-height: 1.452;
-    text-indent: 0em;
-}
-.pseudo .ps-line-content > span {
+.pseudo .ps-line > span {
     font-size: 1.21em;
     line-height: 1.2;
 }
@@ -42,11 +40,14 @@
 .pseudo .ps-linenum {
     font-size: 0.8em;
     line-height: 1em;
-    width: 2em;
+    width: 1.6em;
     text-align: right;
     display: inline-block;
     position: relative;
 }
 .pseudo .ps-algorithmic.with-linenum .ps-line.ps-code {
-    text-indent: -1.8em;
+    text-indent: -2.2em;
+}
+.pseudo .ps-algorithmic.with-linenum .ps-line.ps-code > span{
+    text-indent: 0em;
 }
