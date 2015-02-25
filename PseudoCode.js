@@ -77,7 +77,6 @@ closely mirrors that of the grammar.
 
 TODO:
     * comment
-    * noend
     * color{#FF0000}{text}
     * line number every k lines: \begin{algorithmic}[k]
     * caption without the number: \caption*{}
@@ -359,7 +358,7 @@ Parser.prototype._parseAlgorithmicInner = function() {
     while (true) {
         var node;
         if (!(node = this._parseCommand(CONDITION_COMMANDS)) &&
-            !(node = this._parseBlock())) break;
+            !((node = this._parseBlock()).children.length > 0)) break;
 
         algmicNode.addChild(node);
     }
@@ -400,7 +399,7 @@ Parser.prototype._parseBlock = function() {
         break;
     }
 
-    return blockNode.children.length > 0 ? blockNode : null;
+    return blockNode;
 };
 
 Parser.prototype._parseControl = function() {
@@ -630,10 +629,20 @@ RendererOptions.prototype._parseEmVal = function(emVal) {
         color -
         variant - none, small-caps
 */
-function TextStyle(outerTextStyle) {
+function TextStyle(outerFontSize) {
     this._css = {};
-    this._fontSize = 1.0;
-    this._outerFontSize = outerTextStyle ? outerTextStyle.fontSize() : 1.0;
+
+    this._fontSize = this._outerFontSize
+                   = outerFontSize != null ? outerFontSize : 1.0;
+}
+
+TextStyle.prototype.outerFontSize = function(size) {
+    if (size != null) this._outerFontSize = size;
+    return this._outerFontSize;
+}
+
+TextStyle.prototype.fontSize = function() {
+    return this._fontSize;
 }
 
 /* Update the font state by TeX command
@@ -688,10 +697,6 @@ TextStyle.prototype._sizingScalesTable = {
     Huge:           2.28
 };
 
-TextStyle.prototype.fontSize = function() {
-    return this._fontSize;
-}
-
 TextStyle.prototype.updateByCommand = function(cmd) {
     // Font command
     var cmdStyles = this._fontCommandTable[cmd];
@@ -704,9 +709,8 @@ TextStyle.prototype.updateByCommand = function(cmd) {
     // Sizing command
     var fontSize = this._sizingScalesTable[cmd];
     if (fontSize !== undefined) {
-        var scale = fontSize / this._outerFontSize;
-        this._css['font-size'] = scale + 'em';
-        this._fontSize = this._outerFontSize = fontSize;
+        this._outerFontSize = this._fontSize;
+        this._fontSize = fontSize;
         return;
     }
 
@@ -719,6 +723,9 @@ TextStyle.prototype.toCSS = function() {
         var val = this._css[attr];
         if (val == null) continue;
         cssStr += attr + ':' + this._css[attr] + ';';
+    }
+    if (this._fontSize !== this._outerFontSize) {
+        cssStr += 'font-size:' + (this._fontSize / this._outerFontSize) + 'em;';
     }
     return cssStr;
 };
@@ -743,6 +750,10 @@ TextEnvironment.prototype.renderToHTML = function() {
             var mathHTML = katex.renderToString(math);
             this._html.putSpan(mathHTML);
             break;
+        case 'bool':
+            var text = node.value.toLowerCase();
+            this._html.beginSpan('ps-keyword').putText(text).endSpan();
+            break;
         case 'special':
             var escapedStr = node.value;
             var replace = {
@@ -759,7 +770,7 @@ TextEnvironment.prototype.renderToHTML = function() {
             this._html.putText(replaceStr);
             break;
         case 'close-text':
-            var newTextStyle = new TextStyle();
+            var newTextStyle = new TextStyle(this._textStyle.fontSize());
             var textEnv = new TextEnvironment(node.children, newTextStyle);
             this._html.putSpan(textEnv.renderToHTML());
             break;
@@ -795,7 +806,7 @@ TextEnvironment.prototype.renderToHTML = function() {
             if (textNode.type !== 'close-text') continue;
 
             var cmdName = node.value;
-            var innerTextStyle = new TextStyle();
+            var innerTextStyle = new TextStyle(this._textStyle.fontSize());
             innerTextStyle.updateByCommand(cmdName);
             this._html.beginSpan(null, innerTextStyle.toCSS());
             var textEnv = new TextEnvironment(textNode.children, innerTextStyle);
@@ -806,6 +817,7 @@ TextEnvironment.prototype.renderToHTML = function() {
             throw new ParseError('Unexpected ParseNode of type ' + node.type);
         }
     }
+
 
     return this._html.toMarkup();
 };
@@ -981,6 +993,9 @@ Renderer.prototype._newLine = function() {
     this._closeLineIfAny();
 
     this._openLine = true;
+
+    // For every new line, reset the relative sizing of text style
+    this._globalTextStyle.outerFontSize(1.0);
 
     var indentSize = this._options.indentSize;
     // if this line is for code (e.g. \STATE)
@@ -1240,7 +1255,8 @@ Renderer.prototype._buildTree = function(node) {
         this._html.putSpan(textEnv.renderToHTML());
         break;
     case 'close-text':
-        var newTextStyle = new TextStyle();
+        var outerFontSize = this._globalTextStyle.fontSize();
+        var newTextStyle = new TextStyle(outerFontSize);
         var textEnv = new TextEnvironment(node.children, newTextStyle);
         this._html.putSpan(textEnv.renderToHTML());
         break;
