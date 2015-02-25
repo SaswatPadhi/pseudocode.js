@@ -15,13 +15,13 @@ in a context-free grammar:
     <algorithm>     :== \begin{algorithm}
                         + ( <caption> | <algorithmic> )[0..n]
                         \end{algorithm}
-    <caption>       :== \caption{ <text> }
+    <caption>       :== \caption{ <close-text> }
 
     <algorithmic>   :== \begin{algorithmic}
                         + ( <ensure> | <require> | <block> )[0..n]
                         + \end{algorithmic}
-    <require>       :== \REQUIRE + <text>
-    <ensure>        :== \ENSURE + <text>
+    <require>       :== \REQUIRE + <open-text>
+    <ensure>        :== \ENSURE + <open-text>
 
     <block>         :== ( <control> | <function>
                         | <statement> | <comment> | <call> )[0..n]
@@ -38,16 +38,17 @@ in a context-free grammar:
                         (same for <procedure>)
 
     <statement>     :== <state> |  <return> | <print>
-    <state>         :== \STATE + <text>
-    <return>        :== \RETURN + <text>
-    <print>         :== \PRINT + <text>
+    <state>         :== \STATE + <open-text>
+    <return>        :== \RETURN + <open-text>
+    <print>         :== \PRINT + <open-text>
 
-    <comment>       :== \COMMENT{<text>}
+    <comment>       :== \COMMENT{<close-text>}
 
-    <call>          :== \CALL{<text>}
+    <call>          :== \CALL{<close-text>}
 
-    <cond>          :== <text>
-    <text>          :== <symbol> + <text> | { <text> } | <empty>
+    <cond>          :== <close-text>
+    <open-text>     :== <symbol> + <open-text> | { <close-text> } | <empty>
+    <close-text>    :== <symbol> + <close-text> | { <close-text> } | <empty>
 
     <symbol>        :== <ordinary>[1..n] | <special>
                         | <size> | <font> | <bool> | <math>
@@ -57,8 +58,11 @@ in a context-free grammar:
     <math>          :== \( + ... + \) | $ ... $
                                                 --- to be handled by KaTeX
 
-    <size>          :== \large | \tiny | ...
-    <font>          :== \rm | \sl | \bf | \it
+    <size>          :== \tiny | \scriptsize | \footnotesize | \small
+                        | \normalsize | \large | \Large | \LARGE | \huge
+                        | \HUGE
+    <font>          :== \rmfamily | \sffamily | \ttfamily
+                        | \upshape | \itshape | \slshape | \scshape
     <ordinary>      :== not any of \ { } $ & # % _
     <empty>         :==
 
@@ -75,7 +79,6 @@ TODO:
     * comment
     * fonts: \bf, \textbf{} ...
     * size: \large, ...
-    * command name case-insensitive
     * noend
     * line number every k lines: \begin{algorithmic}[k]
     * caption without the number: \caption*{}
@@ -238,8 +241,6 @@ Lexer.prototype.next = function() {
             this._pos, this._input);
 };
 
-
-
 /* Check whether the text of the next symbol matches */
 Lexer.prototype._matchText = function(text) {
     // don't need to match
@@ -358,7 +359,7 @@ Parser.prototype._parseAlgorithmicInner = function() {
     var algmicNode = new ParseNode('algorithmic');
     while (true) {
         var node;
-        if (!(node = this._parseCommand(['ENSURE', 'REQUIRE'])) &&
+        if (!(node = this._parseCommand(CONDITION_COMMANDS)) &&
             !(node = this._parseBlock())) break;
 
         algmicNode.addChild(node);
@@ -372,7 +373,7 @@ Parser.prototype._parseCaption = function() {
 
     var captionNode = new ParseNode('caption');
     lexer.expect('open');
-    captionNode.addChild(this._parseText());
+    captionNode.addChild(this._parseCloseText());
     lexer.expect('close');
 
     return captionNode;
@@ -388,7 +389,7 @@ Parser.prototype._parseBlock = function() {
         var functionNode = this._parseFunction();
         if (functionNode) { blockNode.addChild(functionNode); continue; }
 
-        var commandNode = this._parseCommand(['STATE', 'PRINT', 'RETURN']);
+        var commandNode = this._parseCommand(STATEMENT_COMMANDS);
         if (commandNode) { blockNode.addChild(commandNode); continue; }
 
         var commentNode = this._parseComment();
@@ -419,7 +420,7 @@ Parser.prototype._parseFunction = function() {
     var funcName = lexer.expect('ordinary');
     lexer.expect('close');
     lexer.expect('open');
-    var argsNode = this._parseText();
+    var argsNode = this._parseCloseText();
     lexer.expect('close');
     // <block>
     var blockNode = this._parseBlock();
@@ -486,13 +487,15 @@ Parser.prototype._parseLoop = function() {
     return loopNode;
 };
 
+var CONDITION_COMMANDS = ['ENSURE', 'REQUIRE'];
+var STATEMENT_COMMANDS = ['STATE', 'PRINT', 'RETURN'];
 Parser.prototype._parseCommand = function(acceptCommands) {
     if (!this._lexer.accept('func', acceptCommands))
         return null;
 
     var cmdName = this._lexer.text();
     var cmdNode = new ParseNode('command', cmdName);
-    cmdNode.addChild(this._parseText());
+    cmdNode.addChild(this._parseOpenText());
     return cmdNode;
 };
 
@@ -503,7 +506,7 @@ Parser.prototype._parseComment = function() {
 
     // { \text }
     this._lexer.expect('open');
-    commentNode.addChild(this._parseText());
+    commentNode.addChild(this._parseCloseText());
     this._lexer.expect('close');
 
     return commentNode;
@@ -518,7 +521,7 @@ Parser.prototype._parseCall = function() {
     var funcName = lexer.expect('ordinary');
     lexer.expect('close');
     lexer.expect('open');
-    var argsNode = this._parseText();
+    var argsNode = this._parseOpenText();
     lexer.expect('close');
 
     var callNode = new ParseNode('call');
@@ -528,8 +531,15 @@ Parser.prototype._parseCall = function() {
 };
 
 Parser.prototype._parseCond =
-Parser.prototype._parseText = function() {
-    var textNode = new ParseNode('text');
+Parser.prototype._parseCloseText = function() {
+    return this._parseText('close');
+};
+Parser.prototype._parseOpenText = function() {
+    return this._parseText('open');
+};
+
+Parser.prototype._parseText = function(openOrClose) {
+    var textNode = new ParseNode(openOrClose + '-text');
 
     var symbolNode;
     while (true) {
@@ -540,7 +550,7 @@ Parser.prototype._parseText = function() {
         }
 
         if (this._lexer.accept('open')) {
-            var subTextNode = this._parseText();
+            var subTextNode = this._parseCloseText();
             textNode.addChild(subTextNode);
             this._lexer.expect('close');
             continue;
@@ -551,7 +561,6 @@ Parser.prototype._parseText = function() {
 
     return textNode;
 };
-
 
 Parser.prototype._parseSymbol = function() {
     var symbol;
@@ -572,13 +581,15 @@ Parser.prototype._parseSymbol = function() {
     }
     else if (text = this._lexer.accept('func',
         ['large', 'tiny'])) {
-        return new ParseNode('size', text);
+        return new ParseNode('sizing-dclr', text);
     }
     else if (text = this._lexer.accept('func',
-        ['rm', 'sl', 'bf', 'it'])) {
-        return new ParseNode('font', text);
+        ['rmfamily', 'sffamily', 'ttfamily',
+         'upshape', 'itshape', 'slshape', 'scshape',
+         'bfseries', 'mdseries', 'lfseries',
+         'uppercase', 'lowercase'])) {
+        return new ParseNode('font-dclr', text);
     }
-
     return null;
 }
 
@@ -590,9 +601,8 @@ Parser.prototype._parseSymbol = function() {
 function BuilderOptions(options) {
     options = options || {};
     this.indentSize = options.indentSize ?
-                        this._parseEmVal(options.indentSize) : 1.4;
+                        this._parseEmVal(options.indentSize) : 1.2;
     this.commentSymbol = options.commentSymbol || '//';
-    // TODO: HTML-escape
     this.lineNumberPunc = options.lineNumberPunc || ':';
     this.lineNumber = options.lineNumber != null ? options.lineNumber : false;
 }
@@ -604,140 +614,408 @@ BuilderOptions.prototype._parseEmVal = function(emVal) {
     return Number(emVal.substring(0, emVal.length - 2));
 }
 
-function Builder(parser, options) {
-    this._root = parser.parse();
-    this._options = new BuilderOptions(options);
-    this._blockLevel = 0;
-    this._openLine = false;
-    console.log(this._root.toString());
+/*
+   The font information used by builder to render the ouput HTML
+
+   options - set attributes of font, null value means default
+        family - roman, sans serif, teletype
+        size - ..., small, normalsize, large, Large, ...
+        weight - normal, bold
+        color -
+        variant - none, small-caps
+*/
+function TextStyle() {
+    this._css = {};
 }
 
-Builder.prototype._captionCount = 0;
+/* Update the font state by TeX command
+    cmd - the name of TeX command that alters current font
+*/
+TextStyle.prototype._textStyleCommandTable = {
+    // font-family
+    rmfamily: { 'font-family': 'KaTeX_Main' },
+    sffamily: { 'font-family': 'KaTeX_SansSerif'},
+    ttfamily: { 'font-family': 'KaTeX_Typewriter'},
+    // weight
+    bfseries: { 'font-weight': 'bold'},
+    mdseries: { 'font-weight': 'medium'},
+    lfseries: { 'font-weight': 'lighter'},
+    // shape
+    upshape: { 'font-style': 'normal', 'font-variant': 'normal'},
+    itshape: { 'font-style': 'italic', 'font-variant': 'normal'},
+    scshape: { 'font-style': 'normal', 'font-variant': 'small-caps'},
+    slshape: { 'font-style': 'oblique', 'font-variant': 'normal'},
+    // case
+    uppercase: { 'text-transform': 'uppercase'},
+    lowercase: { 'text-transform': 'lowercase'}
+};
 
-Builder.prototype.toMarkup = function() {
+TextStyle.prototype.updateByCommand = function(cmd) {
+    var cmdStyles = this._textStyleCommandTable[cmd];
+    if (!cmdStyles) throw new ParserError('unrecogniazed text-style command');
+
+    for (var attr in cmdStyles)
+        this._css[attr] = cmdStyles[attr];
+};
+
+TextStyle.prototype.toCSS = function() {
+    var cssStr = '';
+    for (var attr in this._css) {
+        var val = this._css[attr];
+        if (val == null) continue;
+        cssStr += attr + ':' + this._css[attr] + ';';
+    }
+    return cssStr;
+};
+
+function TextEnvironment(node, open, outerTextStyle) {
+    this._node = node;
+    this._outerTextStyle = outerTextStyle;
+
+    // For an close text environment, text-style changes should only take
+    // effect inside the environment. Thus, we should NOT modify
+    // `outerTextStyle`. In contrast, for an open text environment, we make all
+    // the updates on outerTextStyle directly.
+    this._textStyle = open ? outerTextStyle : new TextStyle();
+}
+
+TextEnvironment.prototype.renderToHTML = function() {
+    this._html = new HTMLBuilder();
+    this._numTextStyleUpdates = 0;
+    this._html.beginSpan(null, this._outerTextStyle.toCSS());
+    var children = this._node.children;
+    for (var ci = 0; ci < children.length; ci++)
+        this._buildTree(children[ci]);
+    while (this._numTextStyleUpdates) {
+        this._html.endSpan();
+        this._numTextStyleUpdates--;
+    }
+    this._html.endSpan();
+    return this._html.toMarkup();
+};
+
+TextEnvironment.prototype._buildTree = function(node) {
+    switch(node.type) {
+    case 'close-text':
+        var textEnv = new TextEnvironment(node, false, this._textStyle);
+        this._html.putSpan(textEnv.renderToHTML());
+        break;
+    case 'ordinary':
+        var text = node.value;
+        this._html.putText(text);
+        break;
+    case 'math':
+        var math = node.value;
+        var mathHTML = katex.renderToString(math);
+        this._html.putSpan(mathHTML);
+        break;
+    case 'special':
+        var escapedStr = node.value;
+        var replace = {
+            '\\\\': '<br/>',
+            '\\{': '{',
+            '\\}': '}',
+            '\\$': '$',
+            '\\&': '&',
+            '\\#': '#',
+            '\\%': '%',
+            '\\_': '_'
+        };
+        var replaceStr = replace[escapedStr];
+        this._html.putText(replaceStr);
+        break;
+    // There are two kinds of typestyle commands:
+    //      command (e.g. \textrm{...}).
+    // and
+    //      declaration (e.g. { ... \rmfamily ... })
+    //
+    // For typestyle commands, it works as following:
+    //      \textsf     --> create a new typestyle
+    //      {           --> save the current typestyle, and then use the new one
+    //      ...         --> the new typestyle is in use
+    //      }           --> restore the last typestyle
+    //
+    // For typestyle declaration, it works a little bit diferrently:
+    //      {           --> save the current typestyle, and then create and use
+    //                      an identical one
+    //      ...         --> the new typestyle is in use
+    //      \rmfamily   --> create a new typestyle
+    //      ...         --> the new typestyle is in use
+    //      }           --> restore the last typestyle
+    // case 'font':
+    case 'font-dclr':
+    case 'sizing-dclr':
+        var cmdName = node.value;
+        this._textStyle.updateByCommand(cmdName);
+        this._numTextStyleUpdates++;
+        this._html.beginSpan(null, this._textStyle.toCSS());
+        break;
+    default:
+        throw new ParseError('Unexpected ParseNode of type ' + node.type);
+    }
+}
+
+
+
+/* HTMLBuilder - A helper class for constructing HTML */
+function HTMLBuilder() {
     this._body = [];
-    this._buildTree(this._root);
+    this._textBuf = [];
+    this._textLevel = -1;
+}
+
+HTMLBuilder.prototype.beginDiv = function(className, style, extraStyle) {
+    return this._beginTag('div', className, style, extraStyle);
+};
+
+HTMLBuilder.prototype.endDiv = function() {
+    return this._endTag('div');
+};
+
+HTMLBuilder.prototype.beginP = function(className, style, extraStyle) {
+    return this._beginTag('p', className, style, extraStyle);
+};
+
+HTMLBuilder.prototype.endP = function() {
+    return this._endTag('p');
+};
+
+HTMLBuilder.prototype.beginSpan = function(className, style, extraStyle) {
+    this._textLevel++;
+    this._flushText();
+    return this._beginTag('span', className, style, extraStyle);
+};
+
+HTMLBuilder.prototype.endSpan = function() {
+    this._flushText();
+    this._textLevel--;
+    return this._endTag('span');
+}
+
+HTMLBuilder.prototype.putSpan = function(spanHTML) {
+    this._flushText();
+    this._body.push(spanHTML);
+    return this;
+}
+
+HTMLBuilder.prototype.putText = function(text) {
+    if (this._textLevel < 0)
+        throw new ParseError('putText must be called between ' +
+                            'beginSpan and endSpan');
+
+    this._textBuf.push(text);
+    return this;
+}
+
+HTMLBuilder.prototype.write = function(html) {
+    this._body.push(html);
+}
+
+HTMLBuilder.prototype.toMarkup = function() {
     var html = this._body.join('\n');
-    delete this._body;
     return html;
 }
 
-Builder.prototype.toDOM = function() {
+HTMLBuilder.prototype.toDOM = function() {
     var html = this.toMarkup();
     var div = document.createElement('div');
     div.innerHTML = html;
     return div.firstChild;
 }
 
-Builder.prototype._beginDiv = function(className) {
-    this._body.push('<div class="' + className + '">');
+HTMLBuilder.prototype._flushText = function(text) {
+    if (this._textLevel >= 0 && this._textBuf.length == 0) return;
+
+    var text = this._textBuf.join('');
+    this._body.push(text);
+    this._textBuf = [];
 }
 
-Builder.prototype._endDiv = function() {
-    this._body.push('</div>');
+/* Write the beginning of a DOM element
+    tag - the tag of the element
+    className - the className for the tag
+    style - CSS style that applies directly on the tag. This parameter can be
+            either a string, e.g., 'color:red', or an object, e.g.
+            { color: 'red', margin-left: '1em'}
+*/
+HTMLBuilder.prototype._beginTag = function(tag, className, style, extraStyle) {
+    var spanHTML = '<' + tag;
+    if (className) spanHTML += ' class="' + className + '"';
+    if (style) {
+        var styleCode;
+        if (isString(style)) styleCode = style;
+        else { // style
+            styleCode = '';
+            for (var attrName in style) {
+                attrVal = style[attrName];
+                styleCode += attrName + ':' + attrVal + ';';
+            }
+        }
+        if (extraStyle) styleCode += extraStyle;
+        spanHTML += ' style="' + styleCode + '"';
+    }
+    spanHTML += '>';
+    this._body.push(spanHTML);
+    return this;
 }
 
-Builder.prototype._beginBlock = function() {
-    if (this._openLine) this._endLine();
+HTMLBuilder.prototype._endTag = function(tag) {
+    this._body.push('</' + tag + '>');
+    return this;
+}
 
+/*
+    The renderer converts a parse tree to HTML.
+
+    There are three levels in renderer:
+        Group (Block), Line and Segment,
+    which are rendered to HTML tag, <div>, <p>, and <span>, respectively.
+
+*/
+function Renderer(parser, options) {
+    this._root = parser.parse();
+    // debug
+    console.log(this._root.toString());
+    this._options = new BuilderOptions(options);
+    this._openLine = false;
+    this._blockLevel = 0;
+    this._textLevel = -1;
+    this._globalTextStyle = new TextStyle();
+}
+
+/*  The global counter for the numbering of the algorithm environment */
+Renderer.prototype._captionCount = 0;
+
+Renderer.prototype.toMarkup = function() {
+    var html = this._html = new HTMLBuilder();
+    this._buildTree(this._root);
+    delete this._html;
+    return html.toMarkup();
+}
+
+Renderer.prototype.toDOM = function() {
+    var html = this.toMarkup();
+    var div = document.createElement('div');
+    div.innerHTML = html;
+    return div.firstChild;
+}
+
+Renderer.prototype._beginGroup = function(name, extraClass, style) {
+    this._closeLineIfAny();
+    this._html.beginDiv('ps-' + name + (extraClass ? ' ' + extraClass : ''),
+                        style);
+}
+
+Renderer.prototype._endGroup = function(name) {
+    this._closeLineIfAny();
+    this._html.endDiv();
+}
+
+Renderer.prototype._beginBlock = function() {
+    // The first block have to extra left margin when line number are displayed
     var extraIndentForFirstBlock =
         this._options.lineNumber && this._blockLevel == 0 ? 0.6 : 0;
     var blockIndent = this._options.indentSize + extraIndentForFirstBlock;
-    this._body.push('<div class="ps-block" style="margin-left:' +
-                    blockIndent+ 'em;">');
+
+    this._beginGroup('block', null, {
+        'margin-left': blockIndent + 'em'
+    });
     this._blockLevel++;
 }
 
-Builder.prototype._endBlock = function() {
-    if (this._openLine) this._endLine();
-    this._body.push('</div>');
+Renderer.prototype._endBlock = function() {
+    this._closeLineIfAny();
+    this._endGroup();
     this._blockLevel--;
 }
 
-Builder.prototype._newLine = function() {
-    if (this._openLine) this._endLine();
-    this._openLine = true;
-    this._beginLine();
-}
+Renderer.prototype._newLine = function() {
+    this._closeLineIfAny();
 
-Builder.prototype._beginLine = function() {
+    this._openLine = true;
+
     var indentSize = this._options.indentSize;
     // if this line is for code (e.g. \STATE)
     if (this._blockLevel > 0) {
         this._numLOC++;
 
-        this._body.push('<p class="ps-line ps-code">');
+        this._html.beginP('ps-line ps-code');
         if (this._options.lineNumber) {
-            this._body.push('<span class="ps-linenum" ' +
-                'style="left:-' + ( ( this._blockLevel - 1 ) * (indentSize - 0.2)) +
-                'em;">' + this._numLOC + this._options.lineNumberPunc + '</span>');
+            this._html.beginSpan('ps-linenum', {
+                'left': - ((this._blockLevel - 1)*(indentSize - 0.2)) + 'em'
+            })
+            .putText(this._numLOC + this._options.lineNumberPunc)
+            .endSpan();
         }
     }
     // if this line is for pre-conditions (e.g. \REQUIRE)
     else {
-        this._body.push('<p class="ps-line" style="text-indent:' +
-                        (-indentSize) + 'em;padding-left: ' + indentSize +'em;">');
+        this._html.beginP('ps-line', {
+            'text-indent': (-indentSize) + 'em',
+            'padding-left': indentSize + 'em'
+        });
     }
 }
 
-Builder.prototype._endLine = function() {
-    this._flushText();
-    this._body.push('</span>')
-    this._body.push('</p>');
+Renderer.prototype._closeLineIfAny = function() {
+    if (!this._openLine) return;
+
+    this._html.endP();
+
     this._openLine = false;
 }
 
-Builder.prototype._typeKeyword = function(keyword) {
+Renderer.prototype._typeKeyword = function(keyword) {
+    this._html.beginSpan('ps-keyword').putText(keyword).endSpan();
+}
+
+Renderer.prototype._typeFuncName = function(funcName) {
+    this._html.beginSpan('ps-funcname').putText(funcName).endSpan();
+}
+
+Renderer.prototype._typeText = function(text) {
+    this._html.write(text);
+}
+
+Renderer.prototype._beginText = function(openOrClose) {
     this._flushText();
-    this._body.push('<span class="ps-keyword">' + keyword + '</span>');
-}
 
-Builder.prototype._typeFuncName = function(funcName) {
-    this._flushText();
-    this._body.push('<span class="ps-funcname">' + funcName + '</span>');
-}
+    this._beginSpan(null, this._fontState.toCSS());
 
-Builder.prototype._typeMath = function(math) {
-    this._flushText();
-    this._body.push(math);
-}
-
-Builder.prototype._typeText = function(text) {
-    if (this._textBuf == undefined) this._textBuf = [];
-    this._textBuf.push(text);
-}
-
-Builder.prototype._flushText = function() {
-    if (this._textBuf !== undefined && this._textBuf.length >= 0) {
-        // TODO: HTML escape the string
-        var text = this._textBuf.join('');
-        this._body.push(text);
-        delete this._textBuf;
+    if (openOrClose === 'close') {
+        this._fontStateStack.push(this._fontState);
+        this._fontState = new TextStyle();
     }
 }
 
-Builder.prototype._beginText = function() {
+Renderer.prototype._endText = function(openOrClose) {
     this._flushText();
-    this._body.push('<span>');
+
+    while (this._fontState.numUpdates) {
+        this._fontState.numUpdates--;
+        this._endSpan();
+    }
+
+    this._endSpan();
+
+    if (openOrClose === 'close')
+        this._fontState = this._fontStateStack.pop();
 }
 
-Builder.prototype._endText = function() {
-    this._flushText();
-    this._body.push('</span>');
-}
-
-Builder.prototype._buildTreeForAllChildren = function(node) {
+Renderer.prototype._buildTreeForAllChildren = function(node) {
     var children = node.children;
     for (var ci = 0; ci < children.length; ci++)
         this._buildTree(children[ci]);
 }
 
-Builder.prototype._buildTree = function(node) {
+Renderer.prototype._buildTree = function(node) {
     switch(node.type) {
+    // The hierarchicy of build tree: Group (Block) > Line > Text
+    // ----------------- Groups -------------------------------------
     case 'root':
-        this._beginDiv('pseudo');
+        this._beginGroup('root');
         this._buildTreeForAllChildren(node);
-        this._endDiv();
+        this._endGroup();
         break;
     case 'algorithm':
         // First, decide the caption if any
@@ -749,35 +1027,31 @@ Builder.prototype._buildTree = function(node) {
             this._captionCount++;
         }
         // Then, build the header for algorithm
-        var className = 'ps-algorithm';
-        if (lastCaptionNode) className += ' with-caption';
-        this._beginDiv(className);
-        if (lastCaptionNode) this._buildTree(lastCaptionNode);
+        if (lastCaptionNode) {
+            this._beginGroup('algorithm', 'with-caption');
+            this._buildTree(lastCaptionNode);
+        }
+        else {
+            this._beginGroup('algorithm');
+        }
         // Then, build other nodes
         for (var ci = 0; ci < node.children.length; ci++) {
             var child = node.children[ci];
             if (child.type === 'caption') continue;
             this._buildTree(child);
         }
-
-        this._endDiv();
-        break;
-    case 'caption':
-        this._beginLine();
-        this._typeKeyword('Algorithm ' + this._captionCount);
-        var textNode = node.children[0];
-        this._buildTree(textNode);
-        this._endLine();
+        this._endGroup();
         break;
     case 'algorithmic':
-        var className = 'ps-algorithmic';
         if (this._options.lineNumber) {
-            className += ' with-linenum';
+            this._beginGroup('algorithmic', 'with-linenum');
             this._numLOC = 0;
         }
-        this._beginDiv(className);
+        else {
+            this._beginGroup('algorithmic');
+        }
         this._buildTreeForAllChildren(node);
-        this._endDiv();
+        this._endGroup();
         break;
     case 'block':
         // node: <block>
@@ -787,6 +1061,7 @@ Builder.prototype._buildTree = function(node) {
         this._buildTreeForAllChildren(node);
         this._endBlock();
         break;
+    // ----------------- Mixture (Groups + Lines) -------------------
     case 'function':
         // \FUNCTION{<ordinary>}{<text>} <block> \ENDFUNCTION
         // ==>
@@ -866,7 +1141,6 @@ Builder.prototype._buildTree = function(node) {
         // ENDIF
         this._newLine();
         this._typeKeyword('end if');
-
         break;
     case 'loop':
         // \FOR{<cond>} or \WHILE{<cond>}
@@ -894,8 +1168,8 @@ Builder.prototype._buildTree = function(node) {
         // </p>
         this._newLine();
         this._typeKeyword('end ' + loopName);
-
         break;
+    // ------------------- Lines -------------------
     case 'command':
         // commands: \STATE, \ENSURE, \PRINT, \RETURN, etc.
         var cmdName = node.value;
@@ -911,7 +1185,12 @@ Builder.prototype._buildTree = function(node) {
         if (displayName) this._typeKeyword(displayName);
         var text = node.children[0];
         this._buildTree(text);
-
+        break;
+    case 'caption':
+        this._newLine();
+        this._typeKeyword('Algorithm ' + this._captionCount);
+        var textNode = node.children[0];
+        this._buildTree(textNode);
         break;
     // 'comment':
     //     break;
@@ -926,35 +1205,14 @@ Builder.prototype._buildTree = function(node) {
         this._buildTree(argsNode);
         this._typeText(')');
         break;
-    case 'cond':
-    case 'text':
-        this._beginText();
-        this._buildTreeForAllChildren(node);
-        this._endText();
+    // ------------------- Text -------------------
+    case 'open-text':
+        var textEnv = new TextEnvironment(node, true, this._globalTextStyle);
+        this._html.putSpan(textEnv.renderToHTML());
         break;
-    case 'ordinary':
-        var text = node.value;
-        this._typeText(text);
-        break;
-    case 'math':
-        var math = node.value;
-        var mathHTML = katex.renderToString(math);
-        this._typeMath(mathHTML);
-        break;
-    case 'special':
-        var escapedStr = node.value;
-        var replace = {
-            '\\\\': '<br/>',
-            '\\{': '{',
-            '\\}': '}',
-            '\\$': '$',
-            '\\&': '&',
-            '\\#': '#',
-            '\\%': '%',
-            '\\_': '_'
-        };
-        var replaceStr = replace[escapedStr];
-        this._typeText(replaceStr);
+    case 'close-text':
+        var textEnv = new TextEnvironment(node, false, this._globalTextStyle);
+        this._html.putSpan(textEnv.renderToHTML());
         break;
     default:
         throw new ParseError('Unexpected ParseNode of type ' + node.type);
@@ -964,23 +1222,22 @@ Builder.prototype._buildTree = function(node) {
 // ===========================================================================
 //  Entry points
 // ===========================================================================
-
 parentModule.PseudoCode = {
     renderToString: function(input, options) {
         if (input == null) throw 'input cannot be empty';
 
         var lexer = new Lexer(input);
         var parser = new Parser(lexer);
-        var builder = new Builder(parser, options);
-        return builder.toMarkup();
+        var renderer = new Renderer(parser, options);
+        return renderer.toMarkup();
     },
     render: function(input, baseDomEle, options) {
         if (input == null || baseDomEle == null) throw 'argument cannot be null';
 
         var lexer = new Lexer(input);
         var parser = new Parser(lexer);
-        var builder = new Builder(parser, options);
-        var ele = builder.toDOM();
+        var renderer = new Renderer(parser, options);
+        var ele = renderer.toDOM();
         baseDomEle.appendChild(ele);
         return ele;
     }
