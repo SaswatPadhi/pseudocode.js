@@ -22,15 +22,19 @@
     margin: 0; padding: 0;
     line-height: 1.2;
 }
-.ps-root .ps-line > span {
-}
 .ps-root .ps-funcname {
     font-family: serif;
+    font-weight: normal;
     font-variant: small-caps;
+    font-style: normal;
+    text-transform: none;
 }
-/* keyword */
 .ps-root .ps-keyword {
-    font-weight: 700;
+    font-family: KaTeX_Main;
+    font-weight: bold;
+    font-variant: normal;
+    font-style: normal;
+    text-transform: none;
     margin: 0 0.25em;
 }
 .ps-root .ps-keyword:first-child{

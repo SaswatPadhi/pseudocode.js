@@ -77,9 +77,8 @@ closely mirrors that of the grammar.
 
 TODO:
     * comment
-    * fonts: \bf, \textbf{} ...
-    * size: \large, ...
     * noend
+    * color{#FF0000}{text}
     * line number every k lines: \begin{algorithmic}[k]
     * caption without the number: \caption*{}
     * rename: e.g. require --> input, ensure --> output
@@ -587,9 +586,14 @@ Parser.prototype._parseSymbol = function() {
     else if (text = this._lexer.accept('func',
         ['rmfamily', 'sffamily', 'ttfamily',
          'upshape', 'itshape', 'slshape', 'scshape',
-         'bfseries', 'mdseries', 'lfseries',
-         'uppercase', 'lowercase'])) {
+         'bfseries', 'mdseries', 'lfseries'])) {
         return new ParseNode('font-dclr', text);
+    }
+    else if (text = this._lexer.accept('func',
+        ['textnormal', 'textrm', 'textsf', 'texttt', 'textup', 'textit',
+        'textsl', 'textsc', 'uppercase', 'lowercase', 'textbf', 'textmd',
+        'textlf'])) {
+        return new ParseNode('font-cmd', text);
     }
     return null;
 }
@@ -635,8 +639,9 @@ function TextStyle(outerTextStyle) {
     cmd - the name of TeX command that alters current font
 */
 TextStyle.prototype._fontCommandTable = {
+    // -------------- declaration --------------
     // font-family
-    rmfamily: { 'font-family': 'KaTeX_Main' },
+    rmfamily: { 'font-family': 'KaTeX_Main'},
     sffamily: { 'font-family': 'KaTeX_SansSerif'},
     ttfamily: { 'font-family': 'KaTeX_Typewriter'},
     // weight
@@ -648,6 +653,20 @@ TextStyle.prototype._fontCommandTable = {
     itshape: { 'font-style': 'italic', 'font-variant': 'normal'},
     scshape: { 'font-style': 'normal', 'font-variant': 'small-caps'},
     slshape: { 'font-style': 'oblique', 'font-variant': 'normal'},
+    // -------------- command --------------
+    // font-family
+    textrm: { 'font-family': 'KaTeX_Main'},
+    textsf: { 'font-family': 'KaTeX_SansSerif'},
+    texttt: { 'font-family': 'KaTeX_Typewriter'},
+    // weight
+    textbf: { 'font-weight': 'bold'},
+    textmd: { 'font-weight': 'medium'},
+    textlf: { 'font-weight': 'lighter'},
+    // shape
+    textup: { 'font-style': 'normal', 'font-variant': 'normal'},
+    textit: { 'font-style': 'italic', 'font-variant': 'normal'},
+    textsc: { 'font-style': 'normal', 'font-variant': 'small-caps'},
+    textsl: { 'font-style': 'oblique', 'font-variant': 'normal'},
     // case
     uppercase: { 'text-transform': 'uppercase'},
     lowercase: { 'text-transform': 'lowercase'}
@@ -701,15 +720,9 @@ TextStyle.prototype.toCSS = function() {
     return cssStr;
 };
 
-function TextEnvironment(nodes, open, outerTextStyle) {
+function TextEnvironment(nodes, textStyle) {
     this._nodes = nodes;
-    this._outerTextStyle = outerTextStyle;
-
-    // For an close text environment, text-style changes should only take
-    // effect inside the environment. Thus, we should NOT modify
-    // `outerTextStyle`. In contrast, for an open text environment, we make all
-    // the updates on outerTextStyle directly.
-    this._textStyle = open ? outerTextStyle : new TextStyle(outerTextStyle);
+    this._textStyle = textStyle;
 }
 
 TextEnvironment.prototype.renderToHTML = function() {
@@ -743,7 +756,8 @@ TextEnvironment.prototype.renderToHTML = function() {
             this._html.putText(replaceStr);
             break;
         case 'close-text':
-            var textEnv = new TextEnvironment(node.children, false, this._textStyle);
+            var newTextStyle = new TextStyle();
+            var textEnv = new TextEnvironment(node.children, newTextStyle);
             this._html.putSpan(textEnv.renderToHTML());
             break;
         // There are two kinds of typestyle commands:
@@ -769,7 +783,19 @@ TextEnvironment.prototype.renderToHTML = function() {
             var cmdName = node.value;
             this._textStyle.updateByCommand(cmdName);
             this._html.beginSpan(null, this._textStyle.toCSS());
-            var textEnv = new TextEnvironment(this._nodes, true, this._textStyle);
+            var textEnv = new TextEnvironment(this._nodes, this._textStyle);
+            this._html.putSpan(textEnv.renderToHTML());
+            this._html.endSpan();
+            break;
+        case 'font-cmd':
+            var textNode = this._nodes[0];
+            if (textNode.type !== 'close-text') continue;
+
+            var cmdName = node.value;
+            var innerTextStyle = new TextStyle();
+            innerTextStyle.updateByCommand(cmdName);
+            this._html.beginSpan(null, innerTextStyle.toCSS());
+            var textEnv = new TextEnvironment(textNode.children, innerTextStyle);
             this._html.putSpan(textEnv.renderToHTML());
             this._html.endSpan();
             break;
@@ -1201,11 +1227,12 @@ Renderer.prototype._buildTree = function(node) {
         break;
     // ------------------- Text -------------------
     case 'open-text':
-        var textEnv = new TextEnvironment(node.children, true, this._globalTextStyle);
+        var textEnv = new TextEnvironment(node.children, this._globalTextStyle);
         this._html.putSpan(textEnv.renderToHTML());
         break;
     case 'close-text':
-        var textEnv = new TextEnvironment(node.children, false, this._globalTextStyle);
+        var newTextStyle = new TextStyle();
+        var textEnv = new TextEnvironment(node.children, newTextStyle);
         this._html.putSpan(textEnv.renderToHTML());
         break;
     default:
