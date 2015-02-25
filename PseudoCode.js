@@ -584,7 +584,7 @@ Parser.prototype._parseSymbol = function() {
         return new ParseNode('sizing-dclr', text);
     }
     else if (text = this._lexer.accept('func',
-        ['rmfamily', 'sffamily', 'ttfamily',
+        ['normalfont', 'rmfamily', 'sffamily', 'ttfamily',
          'upshape', 'itshape', 'slshape', 'scshape',
          'bfseries', 'mdseries', 'lfseries'])) {
         return new ParseNode('font-dclr', text);
@@ -603,16 +603,17 @@ Parser.prototype._parseSymbol = function() {
 //      The builder make use of KaTeX to render mathematical expressions.
 // ===========================================================================
 
-function BuilderOptions(options) {
+function RendererOptions(options) {
     options = options || {};
     this.indentSize = options.indentSize ?
                         this._parseEmVal(options.indentSize) : 1.2;
     this.commentSymbol = options.commentSymbol || '//';
     this.lineNumberPunc = options.lineNumberPunc || ':';
     this.lineNumber = options.lineNumber != null ? options.lineNumber : false;
+    this.noEnd = options.noEnd != null ? options.noEnd : false;
 }
 
-BuilderOptions.prototype._parseEmVal = function(emVal) {
+RendererOptions.prototype._parseEmVal = function(emVal) {
     var emVal = emVal.trim();
     if (emVal.indexOf('em') !== emVal.length - 2)
         throw 'Option unit error; no `em` found';
@@ -641,6 +642,7 @@ function TextStyle(outerTextStyle) {
 TextStyle.prototype._fontCommandTable = {
     // -------------- declaration --------------
     // font-family
+    normalfont: { 'font-family': 'KaTeX_Main'},
     rmfamily: { 'font-family': 'KaTeX_Main'},
     sffamily: { 'font-family': 'KaTeX_SansSerif'},
     ttfamily: { 'font-family': 'KaTeX_Typewriter'},
@@ -655,6 +657,7 @@ TextStyle.prototype._fontCommandTable = {
     slshape: { 'font-style': 'oblique', 'font-variant': 'normal'},
     // -------------- command --------------
     // font-family
+    textnormal: { 'font-family': 'KaTeX_Main'},
     textrm: { 'font-family': 'KaTeX_Main'},
     textsf: { 'font-family': 'KaTeX_SansSerif'},
     texttt: { 'font-family': 'KaTeX_Typewriter'},
@@ -921,7 +924,7 @@ function Renderer(parser, options) {
     this._root = parser.parse();
     // debug
     console.log(this._root.toString());
-    this._options = new BuilderOptions(options);
+    this._options = new RendererOptions(options);
     this._openLine = false;
     this._blockLevel = 0;
     this._textLevel = -1;
@@ -1101,8 +1104,10 @@ Renderer.prototype._buildTree = function(node) {
 
         this._buildTree(blockNode);
 
-        this._newLine();
-        this._typeKeyword('end ' + funcType);
+        if (!this._options.noEnd) {
+            this._newLine();
+            this._typeKeyword('end ' + funcType);
+        }
         break;
     case 'if':
         // \IF { <cond> }
@@ -1158,9 +1163,11 @@ Renderer.prototype._buildTree = function(node) {
             this._buildTree(elseBlock);
         }
 
-        // ENDIF
-        this._newLine();
-        this._typeKeyword('end if');
+        if (!this._options.noEnd) {
+            // ENDIF
+            this._newLine();
+            this._typeKeyword('end if');
+        }
         break;
     case 'loop':
         // \FOR{<cond>} or \WHILE{<cond>}
@@ -1181,13 +1188,15 @@ Renderer.prototype._buildTree = function(node) {
         var block = node.children[1];
         this._buildTree(block);
 
-        // \ENDFOR or \ENDWHILE
-        // ==>
-        // <p class="ps-line">
-        //      <span class="ps-keyword">end for</span>
-        // </p>
-        this._newLine();
-        this._typeKeyword('end ' + loopName);
+        if (!this._options.noEnd) {
+            // \ENDFOR or \ENDWHILE
+            // ==>
+            // <p class="ps-line">
+            //      <span class="ps-keyword">end for</span>
+            // </p>
+            this._newLine();
+            this._typeKeyword('end ' + loopName);
+        }
         break;
     // ------------------- Lines -------------------
     case 'command':
