@@ -25,6 +25,9 @@
         \STATE different shapes: {\itshape itshape \scshape Small-Caps \slshape slshape \upshape upshape}
         \STATE {normal text vs. \slshape after slshape}
         \STATE {\uppercase all is uppercase} vs. {\lowercase ALL lOWER Case}
+        \STATE sizing {\tiny tiny \scriptsize scriptsize \footnotesize
+            footnotesize \small small \normalsize normal \large large \Large Large
+            \LARGE LARGE \huge huge \Huge Huge}
         \STATE $X \leftarrow x$
         \STATE $N \leftarrow n$
         \WHILE{$N \neq 0$}
@@ -57,6 +60,12 @@
             \ENDIF
         \ENDWHILE
         \ENDPROCEDURE
+        \end{algorithmic}
+    </pre>
+    <pre id="code2" style="display:none">
+        \begin{algorithmic}
+        \STATE sizing {\tiny tiny {\scriptsize scriptsize {\normalsize normalsize}}}
+        \STATE sizing {normalsize \large large \Large Large \LARGE LARGE \huge huge \Huge Huge}
         \end{algorithmic}
     </pre>
     <script type="text/javascript">

@@ -580,7 +580,8 @@ Parser.prototype._parseSymbol = function() {
         return new ParseNode('bool', text);
     }
     else if (text = this._lexer.accept('func',
-        ['large', 'tiny'])) {
+        ['tiny', 'scriptsize', 'footnotesize', 'small', 'normalsize',
+        'large', 'Large', 'LARGE', 'huge', 'Huge'])) {
         return new ParseNode('sizing-dclr', text);
     }
     else if (text = this._lexer.accept('func',
@@ -624,14 +625,16 @@ BuilderOptions.prototype._parseEmVal = function(emVal) {
         color -
         variant - none, small-caps
 */
-function TextStyle() {
+function TextStyle(outerTextStyle) {
     this._css = {};
+    this._fontSize = 1.0;
+    this._outerFontSize = outerTextStyle ? outerTextStyle.fontSize() : 1.0;
 }
 
 /* Update the font state by TeX command
     cmd - the name of TeX command that alters current font
 */
-TextStyle.prototype._textStyleCommandTable = {
+TextStyle.prototype._fontCommandTable = {
     // font-family
     rmfamily: { 'font-family': 'KaTeX_Main' },
     sffamily: { 'font-family': 'KaTeX_SansSerif'},
@@ -650,12 +653,42 @@ TextStyle.prototype._textStyleCommandTable = {
     lowercase: { 'text-transform': 'lowercase'}
 };
 
-TextStyle.prototype.updateByCommand = function(cmd) {
-    var cmdStyles = this._textStyleCommandTable[cmd];
-    if (!cmdStyles) throw new ParserError('unrecogniazed text-style command');
+TextStyle.prototype._sizingScalesTable = {
+    tiny:           0.68,
+    scriptsize:     0.80,
+    footnotesize:   0.85,
+    small:          0.92,
+    normalsize:     1.00,
+    large:          1.17,
+    Large:          1.41,
+    LARGE:          1.58,
+    huge:           1.90,
+    Huge:           2.28
+};
 
-    for (var attr in cmdStyles)
-        this._css[attr] = cmdStyles[attr];
+TextStyle.prototype.fontSize = function() {
+    return this._fontSize;
+}
+
+TextStyle.prototype.updateByCommand = function(cmd) {
+    // Font command
+    var cmdStyles = this._fontCommandTable[cmd];
+    if (cmdStyles !== undefined) {
+        for (var attr in cmdStyles)
+            this._css[attr] = cmdStyles[attr];
+        return;
+    }
+
+    // Sizing command
+    var fontSize = this._sizingScalesTable[cmd];
+    if (fontSize !== undefined) {
+        var scale = fontSize / this._outerFontSize;
+        this._css['font-size'] = scale + 'em';
+        this._fontSize = this._outerFontSize = fontSize;
+        return;
+    }
+
+    throw new ParserError('unrecogniazed text-style command');
 };
 
 TextStyle.prototype.toCSS = function() {
@@ -668,100 +701,90 @@ TextStyle.prototype.toCSS = function() {
     return cssStr;
 };
 
-function TextEnvironment(node, open, outerTextStyle) {
-    this._node = node;
+function TextEnvironment(nodes, open, outerTextStyle) {
+    this._nodes = nodes;
     this._outerTextStyle = outerTextStyle;
 
     // For an close text environment, text-style changes should only take
     // effect inside the environment. Thus, we should NOT modify
     // `outerTextStyle`. In contrast, for an open text environment, we make all
     // the updates on outerTextStyle directly.
-    this._textStyle = open ? outerTextStyle : new TextStyle();
+    this._textStyle = open ? outerTextStyle : new TextStyle(outerTextStyle);
 }
 
 TextEnvironment.prototype.renderToHTML = function() {
     this._html = new HTMLBuilder();
-    this._numTextStyleUpdates = 0;
-    this._html.beginSpan(null, this._outerTextStyle.toCSS());
-    var children = this._node.children;
-    for (var ci = 0; ci < children.length; ci++)
-        this._buildTree(children[ci]);
-    while (this._numTextStyleUpdates) {
-        this._html.endSpan();
-        this._numTextStyleUpdates--;
+
+    var node;
+    while (node = this._nodes.shift()) {
+        switch(node.type) {
+        case 'ordinary':
+            var text = node.value;
+            this._html.putText(text);
+            break;
+        case 'math':
+            var math = node.value;
+            var mathHTML = katex.renderToString(math);
+            this._html.putSpan(mathHTML);
+            break;
+        case 'special':
+            var escapedStr = node.value;
+            var replace = {
+                '\\\\': '<br/>',
+                '\\{': '{',
+                '\\}': '}',
+                '\\$': '$',
+                '\\&': '&',
+                '\\#': '#',
+                '\\%': '%',
+                '\\_': '_'
+            };
+            var replaceStr = replace[escapedStr];
+            this._html.putText(replaceStr);
+            break;
+        case 'close-text':
+            var textEnv = new TextEnvironment(node.children, false, this._textStyle);
+            this._html.putSpan(textEnv.renderToHTML());
+            break;
+        // There are two kinds of typestyle commands:
+        //      command (e.g. \textrm{...}).
+        // and
+        //      declaration (e.g. { ... \rmfamily ... })
+        //
+        // For typestyle commands, it works as following:
+        //      \textsf     --> create a new typestyle
+        //      {           --> save the current typestyle, and then use the new one
+        //      ...         --> the new typestyle is in use
+        //      }           --> restore the last typestyle
+        //
+        // For typestyle declaration, it works a little bit diferrently:
+        //      {           --> save the current typestyle, and then create and use
+        //                      an identical one
+        //      ...         --> the new typestyle is in use
+        //      \rmfamily   --> create a new typestyle
+        //      ...         --> the new typestyle is in use
+        //      }           --> restore the last typestyle
+        case 'font-dclr':
+        case 'sizing-dclr':
+            var cmdName = node.value;
+            this._textStyle.updateByCommand(cmdName);
+            this._html.beginSpan(null, this._textStyle.toCSS());
+            var textEnv = new TextEnvironment(this._nodes, true, this._textStyle);
+            this._html.putSpan(textEnv.renderToHTML());
+            this._html.endSpan();
+            break;
+        default:
+            throw new ParseError('Unexpected ParseNode of type ' + node.type);
+        }
     }
-    this._html.endSpan();
+
     return this._html.toMarkup();
 };
-
-TextEnvironment.prototype._buildTree = function(node) {
-    switch(node.type) {
-    case 'close-text':
-        var textEnv = new TextEnvironment(node, false, this._textStyle);
-        this._html.putSpan(textEnv.renderToHTML());
-        break;
-    case 'ordinary':
-        var text = node.value;
-        this._html.putText(text);
-        break;
-    case 'math':
-        var math = node.value;
-        var mathHTML = katex.renderToString(math);
-        this._html.putSpan(mathHTML);
-        break;
-    case 'special':
-        var escapedStr = node.value;
-        var replace = {
-            '\\\\': '<br/>',
-            '\\{': '{',
-            '\\}': '}',
-            '\\$': '$',
-            '\\&': '&',
-            '\\#': '#',
-            '\\%': '%',
-            '\\_': '_'
-        };
-        var replaceStr = replace[escapedStr];
-        this._html.putText(replaceStr);
-        break;
-    // There are two kinds of typestyle commands:
-    //      command (e.g. \textrm{...}).
-    // and
-    //      declaration (e.g. { ... \rmfamily ... })
-    //
-    // For typestyle commands, it works as following:
-    //      \textsf     --> create a new typestyle
-    //      {           --> save the current typestyle, and then use the new one
-    //      ...         --> the new typestyle is in use
-    //      }           --> restore the last typestyle
-    //
-    // For typestyle declaration, it works a little bit diferrently:
-    //      {           --> save the current typestyle, and then create and use
-    //                      an identical one
-    //      ...         --> the new typestyle is in use
-    //      \rmfamily   --> create a new typestyle
-    //      ...         --> the new typestyle is in use
-    //      }           --> restore the last typestyle
-    // case 'font':
-    case 'font-dclr':
-    case 'sizing-dclr':
-        var cmdName = node.value;
-        this._textStyle.updateByCommand(cmdName);
-        this._numTextStyleUpdates++;
-        this._html.beginSpan(null, this._textStyle.toCSS());
-        break;
-    default:
-        throw new ParseError('Unexpected ParseNode of type ' + node.type);
-    }
-}
-
-
 
 /* HTMLBuilder - A helper class for constructing HTML */
 function HTMLBuilder() {
     this._body = [];
     this._textBuf = [];
-    this._textLevel = -1;
 }
 
 HTMLBuilder.prototype.beginDiv = function(className, style, extraStyle) {
@@ -777,18 +800,17 @@ HTMLBuilder.prototype.beginP = function(className, style, extraStyle) {
 };
 
 HTMLBuilder.prototype.endP = function() {
+    this._flushText();
     return this._endTag('p');
 };
 
 HTMLBuilder.prototype.beginSpan = function(className, style, extraStyle) {
-    this._textLevel++;
     this._flushText();
     return this._beginTag('span', className, style, extraStyle);
 };
 
 HTMLBuilder.prototype.endSpan = function() {
     this._flushText();
-    this._textLevel--;
     return this._endTag('span');
 }
 
@@ -799,10 +821,6 @@ HTMLBuilder.prototype.putSpan = function(spanHTML) {
 }
 
 HTMLBuilder.prototype.putText = function(text) {
-    if (this._textLevel < 0)
-        throw new ParseError('putText must be called between ' +
-                            'beginSpan and endSpan');
-
     this._textBuf.push(text);
     return this;
 }
@@ -812,6 +830,7 @@ HTMLBuilder.prototype.write = function(html) {
 }
 
 HTMLBuilder.prototype.toMarkup = function() {
+    this._flushText();
     var html = this._body.join('\n');
     return html;
 }
@@ -824,7 +843,7 @@ HTMLBuilder.prototype.toDOM = function() {
 }
 
 HTMLBuilder.prototype._flushText = function(text) {
-    if (this._textLevel >= 0 && this._textBuf.length == 0) return;
+    if (this._textBuf.length == 0) return;
 
     var text = this._textBuf.join('');
     this._body.push(text);
@@ -939,7 +958,7 @@ Renderer.prototype._newLine = function() {
     if (this._blockLevel > 0) {
         this._numLOC++;
 
-        this._html.beginP('ps-line ps-code');
+        this._html.beginP('ps-line ps-code', this._globalTextStyle.toCSS());
         if (this._options.lineNumber) {
             this._html.beginSpan('ps-linenum', {
                 'left': - ((this._blockLevel - 1)*(indentSize - 0.2)) + 'em'
@@ -953,7 +972,7 @@ Renderer.prototype._newLine = function() {
         this._html.beginP('ps-line', {
             'text-indent': (-indentSize) + 'em',
             'padding-left': indentSize + 'em'
-        });
+        }, this._globalTextStyle.toCSS());
     }
 }
 
@@ -975,31 +994,6 @@ Renderer.prototype._typeFuncName = function(funcName) {
 
 Renderer.prototype._typeText = function(text) {
     this._html.write(text);
-}
-
-Renderer.prototype._beginText = function(openOrClose) {
-    this._flushText();
-
-    this._beginSpan(null, this._fontState.toCSS());
-
-    if (openOrClose === 'close') {
-        this._fontStateStack.push(this._fontState);
-        this._fontState = new TextStyle();
-    }
-}
-
-Renderer.prototype._endText = function(openOrClose) {
-    this._flushText();
-
-    while (this._fontState.numUpdates) {
-        this._fontState.numUpdates--;
-        this._endSpan();
-    }
-
-    this._endSpan();
-
-    if (openOrClose === 'close')
-        this._fontState = this._fontStateStack.pop();
 }
 
 Renderer.prototype._buildTreeForAllChildren = function(node) {
@@ -1207,11 +1201,11 @@ Renderer.prototype._buildTree = function(node) {
         break;
     // ------------------- Text -------------------
     case 'open-text':
-        var textEnv = new TextEnvironment(node, true, this._globalTextStyle);
+        var textEnv = new TextEnvironment(node.children, true, this._globalTextStyle);
         this._html.putSpan(textEnv.renderToHTML());
         break;
     case 'close-text':
-        var textEnv = new TextEnvironment(node, false, this._globalTextStyle);
+        var textEnv = new TextEnvironment(node.children, false, this._globalTextStyle);
         this._html.putSpan(textEnv.renderToHTML());
         break;
     default:
