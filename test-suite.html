@@ -19,7 +19,7 @@
             \STATE should be normal size
         \end{algorithmic}
     </pre>
-    <pre id="test1" style="display:none">
+    <pre id="test-basics" style="display:none">
         \begin{algorithm}
         \caption{Test text-style}
         \begin{algorithmic}
@@ -51,7 +51,40 @@
         \end{algorithmic}
         \end{algorithm}
     </pre>
-    <pre id="test2" style="display:none">
+    <pre id="test-codes" style="display:none">
+        \begin{algorithm}
+        \caption{Test control blocks}
+        \begin{algorithmic}
+        \PROCEDURE{Test-If}{}
+            \IF{&lt;cond&gt;}
+                \STATE &lt;block&gt;
+            \ELIF{&lt;cond&gt;}
+                \STATE &lt;block&gt;
+            \ELSE
+                \STATE &lt;block&gt;
+            \ENDIF
+        \ENDPROCEDURE
+        \PROCEDURE{Test-For}{$n$}
+            \STATE $i \gets 0$
+            \FOR{$i < n$}
+                \PRINT $i$
+                \STATE $i \gets i + 1$
+            \ENDFOR
+        \ENDPROCEDURE
+        \PROCEDURE{Test-For-All}{$n$}
+            \FORALL{$i \in \{0, 1, \cdots, n\}$}
+                \PRINT $i$
+            \ENDFOR
+        \ENDPROCEDURE
+        \PROCEDURE{Test-While}{$n$}
+            \STATE $i \gets 0$
+            \WHILE{$i < n$}
+                \PRINT $i$
+                \STATE $i \gets i + 1$
+            \ENDWHILE
+        \ENDPROCEDURE
+        \end{algorithmic}
+        \end{algorithm}
     </pre>
     <pre id="code" style="display:none">
         \begin{algorithm}
@@ -104,19 +137,15 @@
         \ENDPROCEDURE
         \end{algorithmic}
     </pre>
-    <pre id="code2" style="display:none">
-        \begin{algorithmic}
-        \STATE sizing {\tiny tiny {\scriptsize scriptsize {\normalsize normalsize}}}
-        \STATE sizing {normalsize \large large \Large Large \LARGE LARGE \huge huge \Huge Huge}
-        \end{algorithmic}
-    </pre>
     <script type="text/javascript">
-        var code = document.getElementById("test1").textContent;
-        // var html = PseudoCode.renderToString(code);
-        // console.log(html);
-        PseudoCode.render(code, document.body, {
+        var testBasics = document.getElementById("test-basics").textContent;
+        PseudoCode.render(testBasics, document.body, {
             lineNumber: false,
-            noEnd: true
+        });
+        var testCodes = document.getElementById("test-codes").textContent;
+        PseudoCode.render(testCodes, document.body, {
+            lineNumber: false,
+            noEnd: false
         });
     </script>
 </body>

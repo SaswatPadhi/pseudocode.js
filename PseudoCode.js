@@ -108,6 +108,21 @@ function toString(obj) {
     return parts.join(', ');
 }
 
+var entityMap = {
+   "&": "&amp;",
+   "<": "&lt;",
+   ">": "&gt;",
+   '"': '&quot;',
+   "'": '&#39;',
+   "/": '&#x2F;'
+ };
+
+function escapeHtml(string) {
+   return String(string).replace(/[&<>"'\/]/g, function (s) {
+     return entityMap[s];
+   });
+ }
+
 // ===========================================================================
 //  Error handling
 // ===========================================================================
@@ -447,9 +462,9 @@ Parser.prototype._parseIf = function() {
     var numElif = 0;
     while (this._lexer.accept('func', 'ELIF')) {
         this._lexer.expect('open');
-        elifsNode.addChild(this._parseCond());
+        ifNode.addChild(this._parseCond());
         this._lexer.expect('close');
-        elifsNode.addChild(this._parseBlock());
+        ifNode.addChild(this._parseBlock());
         numElif++;
     }
 
@@ -468,7 +483,7 @@ Parser.prototype._parseIf = function() {
 };
 
 Parser.prototype._parseLoop = function() {
-    if (!this._lexer.accept('func', ['FOR', 'WHILE'])) return null;
+    if (!this._lexer.accept('func', ['FOR', 'FORALL', 'WHILE'])) return null;
 
     var loopName = this._lexer.text();
     var loopNode = new ParseNode('loop', loopName);
@@ -480,7 +495,8 @@ Parser.prototype._parseLoop = function() {
     loopNode.addChild(this._parseBlock());
 
     // \ENDFOR
-    this._lexer.expect('func', 'END' + loopName);
+    var endLoop = loopName !== 'FORALL' ? 'END' + loopName : 'ENDFOR';
+    this._lexer.expect('func', endLoop);
 
     return loopNode;
 };
@@ -756,8 +772,11 @@ TextEnvironment.prototype.renderToHTML = function() {
             break;
         case 'special':
             var escapedStr = node.value;
+            if (escapedStr === '\\\\') {
+                this._html.putHTML('<br/>');
+                break;
+            }
             var replace = {
-                '\\\\': '<br/>',
                 '\\{': '{',
                 '\\}': '}',
                 '\\$': '$',
@@ -855,9 +874,10 @@ HTMLBuilder.prototype.endSpan = function() {
     return this._endTag('span');
 }
 
-HTMLBuilder.prototype.putSpan = function(spanHTML) {
+HTMLBuilder.prototype.putHTML =
+HTMLBuilder.prototype.putSpan = function(html) {
     this._flushText();
-    this._body.push(spanHTML);
+    this._body.push(html);
     return this;
 }
 
@@ -887,7 +907,8 @@ HTMLBuilder.prototype._flushText = function(text) {
     if (this._textBuf.length == 0) return;
 
     var text = this._textBuf.join('');
-    this._body.push(text);
+    this._body.push(escapeHtml(text));
+    // this._body.push(text);
     this._textBuf = [];
 }
 
@@ -944,7 +965,7 @@ function Renderer(parser, options) {
 }
 
 /*  The global counter for the numbering of the algorithm environment */
-Renderer.prototype._captionCount = 0;
+Renderer._captionCount = 0;
 
 Renderer.prototype.toMarkup = function() {
     var html = this._html = new HTMLBuilder();
@@ -1062,7 +1083,7 @@ Renderer.prototype._buildTree = function(node) {
             var child = node.children[ci];
             if (child.type !== 'caption') continue;
             lastCaptionNode = child;
-            this._captionCount++;
+            Renderer._captionCount++;
         }
         // Then, build the header for algorithm
         if (lastCaptionNode) {
@@ -1152,7 +1173,7 @@ Renderer.prototype._buildTree = function(node) {
             //      <span class="ps-keyword">then</span>
             // </p>
             this._newLine();
-            this._typeKeyword('if');
+            this._typeKeyword('else if');
             var elifCond = node.children[2 + 2 * ei];
             this._buildTree(elifCond);
             this._typeKeyword('then');
@@ -1192,9 +1213,14 @@ Renderer.prototype._buildTree = function(node) {
         //      ...
         //      <span class="ps-keyword">do</span>
         // </p>
-        var loopName = node.value.toLowerCase();
         this._newLine();
-        this._typeKeyword(loopName);
+        var loopType = node.value;
+        var displayLoopName = {
+            'FOR': 'for',
+            'FORALL': 'for all',
+            'WHILE': 'while'
+        };
+        this._typeKeyword(displayLoopName[loopType]);
         var cond = node.children[0];
         this._buildTree(cond);
         this._typeKeyword('do');
@@ -1210,7 +1236,8 @@ Renderer.prototype._buildTree = function(node) {
             //      <span class="ps-keyword">end for</span>
             // </p>
             this._newLine();
-            this._typeKeyword('end ' + loopName);
+            var endLoopName = loopType === 'while' ? 'end while' : 'end for';
+            this._typeKeyword(endLoopName);
         }
         break;
     // ------------------- Lines -------------------
@@ -1232,7 +1259,7 @@ Renderer.prototype._buildTree = function(node) {
         break;
     case 'caption':
         this._newLine();
-        this._typeKeyword('Algorithm ' + this._captionCount);
+        this._typeKeyword('Algorithm ' + Renderer._captionCount);
         var textNode = node.children[0];
         this._buildTree(textNode);
         break;
