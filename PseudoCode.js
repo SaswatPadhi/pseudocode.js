@@ -862,20 +862,28 @@ function HTMLBuilder() {
 }
 
 HTMLBuilder.prototype.beginDiv = function(className, style, extraStyle) {
-    return this._beginTag('div', className, style, extraStyle);
+    this._beginTag('div', className, style, extraStyle);
+    this._body.push('\n'); // make the generated HTML more human friendly
+    return this;
 };
 
 HTMLBuilder.prototype.endDiv = function() {
-    return this._endTag('div');
+    this._endTag('div');
+    this._body.push('\n'); // make the generated HTML more human friendly
+    return this;
 };
 
 HTMLBuilder.prototype.beginP = function(className, style, extraStyle) {
-    return this._beginTag('p', className, style, extraStyle);
+    this._beginTag('p', className, style, extraStyle);
+    this._body.push('\n'); // make the generated HTML more human friendly
+    return this;
 };
 
 HTMLBuilder.prototype.endP = function() {
     this._flushText();
-    return this._endTag('p');
+    this._endTag('p');
+    this._body.push('\n'); // make the generated HTML more human friendly
+    return this;
 };
 
 HTMLBuilder.prototype.beginSpan = function(className, style, extraStyle) {
@@ -906,7 +914,7 @@ HTMLBuilder.prototype.write = function(html) {
 
 HTMLBuilder.prototype.toMarkup = function() {
     this._flushText();
-    var html = this._body.join('\n');
+    var html = this._body.join('');
     return html;
 }
 
