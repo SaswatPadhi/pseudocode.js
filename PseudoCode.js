@@ -47,17 +47,19 @@ in a context-free grammar:
     <call>          :== \CALL{<close-text>}
 
     <cond>          :== <close-text>
-    <open-text>     :== <symbol> + <open-text> | { <close-text> } | <empty>
-    <close-text>    :== <symbol> + <close-text> | { <close-text> } | <empty>
+    <open-text>     :== <atom> + <open-text> | { <close-text> } | <empty>
+    <close-text>    :== <atom> + <close-text> | { <close-text> } | <empty>
 
-    <symbol>        :== <ordinary>[1..n] | <special>
+    <atom>          :== <ordinary>[1..n] | <special> | <symbol>
                         | <size> | <font> | <bool> | <math>
 
     <special>       :== \\ | \{ | \} | \$ | \& | \# | \% | \_
     <bool>          :== \AND | \OR | \NOT | \TRUE | \FALSE
+    <text-symbol>   :== \textbackslash
+    (More LaTeX symbols can be added if necessary. See
+    http://get-software.net/info/symbols/comprehensive/symbols-a4.pdf.)
     <math>          :== \( + ... + \) | $ ... $
-                                                --- to be handled by KaTeX
-
+    (Math are handled by KaTeX)
     <size>          :== \tiny | \scriptsize | \footnotesize | \small
                         | \normalsize | \large | \Large | \LARGE | \huge
                         | \HUGE
@@ -166,7 +168,7 @@ var mathPattern = {
         return [str.substring(0, pos + 1), str.substring(1, pos)];
     }
 };
-var symbolRegex = {
+var atomRegex = {
     // TODO: which is correct? func: /^\\(?:[a-zA-Z]+|.)/,
     special: /^(\\\\|\\{|\\}|\\\$|\\&|\\#|\\%|\\_)/,
     func: /^\\([a-zA-Z]+)/,
@@ -181,14 +183,14 @@ var Lexer = function(input) {
     this._input = input;
     this._remain = input;
     this._pos = 0;
-    this._symbol = { type: null, text: null };
+    this._atom = { type: null, text: null };
     this._lastText = null;
     this.next();
 };
 
 Lexer.prototype.accept = function(type, text) {
-    if (this._symbol.type === type && this._matchText(text)) {
-        var text = this._lastText = this._symbol.text;
+    if (this._atom.type === type && this._matchText(text)) {
+        var text = this._lastText = this._atom.text;
         this.next();
         return text;
     }
@@ -196,16 +198,16 @@ Lexer.prototype.accept = function(type, text) {
 };
 
 Lexer.prototype.expect = function(type, text) {
-    var symbol = this._symbol;
-    // The symbol is NOT of the right type
-    if (symbol.type !== type)
-        throw new ParseError('Expect a symbol of ' + type + ' but received ' +
-            symbol.type, this._pos, this._input);
+    var atom = this._atom;
+    // The atom is NOT of the right type
+    if (atom.type !== type)
+        throw new ParseError('Expect a atom of ' + type + ' but received ' +
+            atom.type, this._pos, this._input);
     // Check whether the text is exactly the same
     if (!this._matchText(text))
-            throw new ParseError('Expect `' + text + '` but received `' + symbol.text + '`', this._pos, this._input);
+            throw new ParseError('Expect `' + text + '` but received `' + atom.text + '`', this._pos, this._input);
 
-    var text =this._lastText = this._symbol.text;
+    var text =this._lastText = this._atom.text;
     this.next();
     return text;
 };
@@ -214,25 +216,25 @@ Lexer.prototype.text = function() {
     return this._lastText;
 };
 
-/* Get the next symbol */
+/* Get the next atom */
 Lexer.prototype.next = function() {
     // Skip whitespace (zero or more)
     var whitespaceLen = whitespaceRegex.exec(this._remain)[0].length;
     this._pos += whitespaceLen;
     this._remain = this._remain.slice(whitespaceLen);
 
-    var symbol = this._symbol;
+    var atom = this._atom;
 
     // Reach the end of string
     if (this._remain === '') {
-        symbol.type = 'EOF';
-        symbol.text = null;
+        atom.type = 'EOF';
+        atom.text = null;
         return null;
     }
 
-    // Try all kinds of symbols
-    for (var type in symbolRegex) {
-        var regex = symbolRegex[type];
+    // Try all kinds of atoms
+    for (var type in atomRegex) {
+        var regex = atomRegex[type];
 
         var match = regex.exec(this._remain);
         if (!match) continue; // not matched
@@ -241,8 +243,8 @@ Lexer.prototype.next = function() {
         var matchText = match[0];
         var usefulText = match[1] ? match[1] : matchText;
 
-        this._symbol.type = type;
-        this._symbol.text = usefulText;
+        this._atom.type = type;
+        this._atom.text = usefulText;
 
         this._pos += matchText.length;
         this._remain = this._remain.slice(match[0].length);
@@ -250,19 +252,19 @@ Lexer.prototype.next = function() {
         return true;
     }
 
-    throw new ParseError('Unrecoganizable symbol',
+    throw new ParseError('Unrecoganizable atom',
             this._pos, this._input);
 };
 
-/* Check whether the text of the next symbol matches */
+/* Check whether the text of the next atom matches */
 Lexer.prototype._matchText = function(text) {
     // don't need to match
     if (text === undefined) return true;
 
     if (isString(text)) // is a string, exactly the same?
-        return text === this._symbol.text;
+        return text === this._atom.text;
     else // is a list, match any of them?
-        return text.indexOf(this._symbol.text) >= 0;
+        return text.indexOf(this._atom.text) >= 0;
 };
 
 // ===========================================================================
@@ -555,11 +557,11 @@ Parser.prototype._parseOpenText = function() {
 Parser.prototype._parseText = function(openOrClose) {
     var textNode = new ParseNode(openOrClose + '-text');
 
-    var symbolNode;
+    var atomNode;
     while (true) {
-        symbolNode = this._parseSymbol();
-        if (symbolNode) {
-            textNode.addChild(symbolNode);
+        atomNode = this._parseAtom();
+        if (atomNode) {
+            textNode.addChild(atomNode);
             continue;
         }
 
@@ -576,8 +578,8 @@ Parser.prototype._parseText = function(openOrClose) {
     return textNode;
 };
 
-Parser.prototype._parseSymbol = function() {
-    var symbol;
+Parser.prototype._parseAtom = function() {
+    var atom;
 
     var text;
     if (text = this._lexer.accept('ordinary')) {
@@ -609,6 +611,10 @@ Parser.prototype._parseSymbol = function() {
         'textsl', 'textsc', 'uppercase', 'lowercase', 'textbf', 'textmd',
         'textlf'])) {
         return new ParseNode('font-cmd', text);
+    }
+    else if (text = this._lexer.accept('func',
+        ['textbackslash'])) {
+        return new ParseNode('text-symbol', text);
     }
     return null;
 }
@@ -831,6 +837,14 @@ TextEnvironment.prototype.renderToHTML = function() {
             var textEnv = new TextEnvironment(textNode.children, innerTextStyle);
             this._html.putSpan(textEnv.renderToHTML());
             this._html.endSpan();
+            break;
+        case 'text-symbol':
+            var symbolName = node.value;
+            var name2Values = {
+                'textbackslash': '\\'
+            };
+            var symbolValue = name2Values[symbolName];
+            this._html.putText(symbolValue);
             break;
         default:
             throw new ParseError('Unexpected ParseNode of type ' + node.type);
