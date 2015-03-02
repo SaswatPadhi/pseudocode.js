@@ -86,57 +86,40 @@
         \end{algorithmic}
         \end{algorithm}
     </pre>
-    <pre id="code" style="display:none">
+    <pre id="test-examples" style="display:none">
         \begin{algorithm}
-        \caption{123!}
-        \caption{123!tate}
+        \caption{Quicksort}
         \begin{algorithmic}
-        \REQUIRE  {asd}{jios}{adf} jioasdfjioas aijosfaisjo asjdf asjoi asdfasdf jo asdjd j asdjo $n \geq 0$
-        \ENSURE $y = x^n$
-        \STATE pre \textbf{bold text} after
-        \STATE pre \texttt{typewriter} after
-        \STATE  asjo aosd j asodij jdsf $y \leftarrow 1$ a js j djioas jo j
-        \STATE Test text-style commands:
-        \STATE {normal text vs. \slshape after slshape}
-        \STATE \uppercase{ all is uppercase} vs. \lowercase{ ALL lOWER Case}
-        \STATE sizing {\tiny tiny \scriptsize scriptsize \footnotesize
-            footnotesize \small small \normalsize normal \large large \Large Large
-            \LARGE LARGE \huge huge \Huge Huge}
-        \STATE from here, everything is \ttfamily ttfamily
-        \STATE $X \leftarrow x$
-        \STATE $N \leftarrow n$
-        \WHILE{$N \neq 0$}
-        \IF{$N$ is even}
-        \STATE $X \leftarrow X \times X$
-        \STATE $N \leftarrow N / 2$
-        \ELSE
-        \STATE $y \leftarrow y \times X$
-        \STATE $N \leftarrow N - 1$
-        \STATE \{\}\$\&\\\#\%\_
-        \STATE {a {b c} a}{a a}
-        \PRINT 'hellow world!'
-        \RETURN 1
-        \ENDIF
-        \ENDWHILE
-        \end{algorithmic}
-        \end{algorithm}
-        \begin{algorithmic}
-        \PROCEDURE{Simple}{}
-        \STATE bigger
-        \WHILE{1+1}
-            \IF{n < 10}
-                \STATE n++
-            \ELSE
-                \STATE m+1
-                \STATE $ f(x) = \int_{-\infty}^\infty
-    \hat f(\xi)\,e^{2 \pi i \xi x}
-    \,d\xi $
-                \STATE $m \gets$ \CALL{Simple}{}
+        \PROCEDURE{Quicksort}{$A, p, r$}
+            \IF{$p < r$} 
+                \STATE $q = $ \CALL{Partition}{$A, p, r$}
+                \STATE \CALL{Quicksort}{$A, p, q - 1$}
+                \STATE \CALL{Quicksort}{$A, q + 1, r$}
             \ENDIF
-        \ENDWHILE
+        \ENDPROCEDURE
+        \PROCEDURE{Partition}{$A, p, r$}
+            \STATE $x = A[r]$
+            \STATE $i = p - 1$
+            \FOR{$j = p$ \TO $r - 1$}
+                \IF{$A[j] < x$}
+                    \STATE $i = i + 1$
+                    \STATE exchange
+                    $A[i]$ with     $A[j]$
+                \ENDIF
+                \STATE exchange $A[i]$ with $A[r]$
+            \ENDFOR
         \ENDPROCEDURE
         \end{algorithmic}
+        \end{algorithm}
     </pre>
+    <!-- 
+        \IF{$p \lt r$} 
+            \STATE $q = $ \CALL{Partition}{$A, p, r$}
+            \STATE \CALL{Quicksort}{$A, p, q - 1$}
+            \STATE \CALL{Quicksort}{$A, q + 1, r$}
+        \ENDIF
+    
+    -->
     <script type="text/javascript">
         var testBasics = document.getElementById("test-basics").textContent;
         PseudoCode.render(testBasics, document.body, {
@@ -144,6 +127,11 @@
         });
         var testCodes = document.getElementById("test-codes").textContent;
         PseudoCode.render(testCodes, document.body, {
+            lineNumber: false,
+            noEnd: false
+        });
+        var testExamples = document.getElementById("test-examples").textContent;
+        PseudoCode.render(testExamples, document.body, {
             lineNumber: false,
             noEnd: false
         });

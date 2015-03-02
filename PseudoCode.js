@@ -36,7 +36,7 @@ represented in a context-free grammar:
 
     <comment>       :== \COMMENT{<close-text>}
 
-    <call>          :== \CALL{<close-text>}
+    <call>          :== \CALL{<name>}({<close-text>})[0..1]
 
     <cond>          :== <close-text>
     <open-text>     :== <atom> + <open-text> | { <close-text> } | <empty>
@@ -44,9 +44,10 @@ represented in a context-free grammar:
 
     <atom>          :== <ordinary>[1..n] | <special> | <symbol>
                         | <size> | <font> | <bool> | <math>
+    <name>          :== <ordinary>
 
     <special>       :== \\ | \{ | \} | \$ | \& | \# | \% | \_
-    <bool>          :== \AND | \OR | \NOT | \TRUE | \FALSE
+    <cond-symbol>   :== \AND | \OR | \NOT | \TRUE | \FALSE | \TO
     <text-symbol>   :== \textbackslash
     (More LaTeX symbols can be added if necessary. See
     http://get-software.net/info/symbols/comprehensive/symbols-a4.pdf.)
@@ -166,7 +167,7 @@ var atomRegex = {
     func: /^\\([a-zA-Z]+)/,
     open: /^\{/,
     close: /^\}/,
-    ordinary: /^[^\\{}$&#%_]+/,
+    ordinary: /^[^\\{}$&#%_\s]+/,
     math: mathPattern ///^\$.*\$/
 };
 var whitespaceRegex = /^\s*/;
@@ -175,37 +176,35 @@ var Lexer = function(input) {
     this._input = input;
     this._remain = input;
     this._pos = 0;
-    this._atom = { type: null, text: null };
-    this._lastText = null;
-    this.next();
+    this._nextAtom = this._currentAtom = null;
+    this.next(); // get the next atom
 };
 
 Lexer.prototype.accept = function(type, text) {
-    if (this._atom.type === type && this._matchText(text)) {
-        var text = this._lastText = this._atom.text;
+    if (this._nextAtom.type === type && this._matchText(text)) {
         this.next();
-        return text;
+        return this._currentAtom.text;
     }
-    return false;
+    return null;
 };
 
 Lexer.prototype.expect = function(type, text) {
-    var atom = this._atom;
-    // The atom is NOT of the right type
-    if (atom.type !== type)
-        throw new ParseError('Expect a atom of ' + type + ' but received ' +
-            atom.type, this._pos, this._input);
+    var nextAtom = this._nextAtom;
+    // The next atom is NOT of the right type
+    if (nextAtom.type !== type)
+        throw new ParseError('Expect an atom of ' + type + ' but received ' +
+                             nextAtom.type, this._pos, this._input);
     // Check whether the text is exactly the same
     if (!this._matchText(text))
-            throw new ParseError('Expect `' + text + '` but received `' + atom.text + '`', this._pos, this._input);
+            throw new ParseError('Expect `' + text + '` but received `' +
+                                 nextAtom.text + '`', this._pos, this._input);
 
-    var text =this._lastText = this._atom.text;
     this.next();
-    return text;
+    return this._currentAtom.text;
 };
 
-Lexer.prototype.text = function() {
-    return this._lastText;
+Lexer.prototype.get = function() {
+    return this._currentAtom;
 };
 
 /* Get the next atom */
@@ -215,13 +214,17 @@ Lexer.prototype.next = function() {
     this._pos += whitespaceLen;
     this._remain = this._remain.slice(whitespaceLen);
 
-    var atom = this._atom;
+    // Remember the current atom
+    this._currentAtom = this._nextAtom;
 
     // Reach the end of string
     if (this._remain === '') {
-        atom.type = 'EOF';
-        atom.text = null;
-        return null;
+        this._nextAtom = {
+            type: 'EOF',
+            text: null,
+            whitespace: false
+        };
+        return false;
     }
 
     // Try all kinds of atoms
@@ -235,8 +238,12 @@ Lexer.prototype.next = function() {
         var matchText = match[0];
         var usefulText = match[1] ? match[1] : matchText;
 
-        this._atom.type = type;
-        this._atom.text = usefulText;
+        this._nextAtom = {
+            type: type, /* special, func, open, close, ordinary, math */
+            text: usefulText, /* the text value of the atom */
+            whitespace: whitespaceLen > 0 /* any whitespace before the atom */
+        };
+        console.log('type: ' + type + ', text: ' + usefulText);
 
         this._pos += matchText.length;
         this._remain = this._remain.slice(match[0].length);
@@ -244,8 +251,7 @@ Lexer.prototype.next = function() {
         return true;
     }
 
-    throw new ParseError('Unrecoganizable atom',
-            this._pos, this._input);
+    throw new ParseError('Unrecoganizable atom', this._pos, this._input);
 };
 
 /* Check whether the text of the next atom matches */
@@ -254,9 +260,9 @@ Lexer.prototype._matchText = function(text) {
     if (text === undefined) return true;
 
     if (isString(text)) // is a string, exactly the same?
-        return text === this._atom.text;
+        return text === this._nextAtom.text;
     else // is a list, match any of them?
-        return text.indexOf(this._atom.text) >= 0;
+        return text.indexOf(this._nextAtom.text) >= 0;
 };
 
 // ===========================================================================
@@ -279,9 +285,11 @@ ParseNode.prototype.toString = function(level) {
     if (this.value) res += ' (' + toString(this.value) + ')';
     res += '\n';
 
-    for (var ci = 0; ci < this.children.length; ci++) {
-        var child = this.children[ci];
-        res += child.toString(level + 1);
+    if (this.children) {
+        for (var ci = 0; ci < this.children.length; ci++) {
+            var child = this.children[ci];
+            res += child.toString(level + 1);
+        }
     }
 
     return res;
@@ -291,6 +299,16 @@ ParseNode.prototype.addChild = function(childNode) {
     if (!childNode) throw 'argument cannot be null';
     this.children.push(childNode);
 };
+
+/* AtomNode is the leaf node of parse tree */
+var AtomNode = function(type, value, whitespace) {
+    // ParseNode.call(this, type, val);
+    this.type = type;
+    this.value = value;
+    this.children = null; // leaf node, thus no children
+    this.whitespace = !!whitespace; // is there any whitespace before the atom
+}
+AtomNode.prototype = ParseNode.prototype;
 
 var Parser = function(lexer) {
     this._lexer = lexer;
@@ -422,7 +440,7 @@ Parser.prototype._parseFunction = function() {
     if (!lexer.accept('func', ['FUNCTION', 'PROCEDURE'])) return null;
 
     // \FUNCTION{funcName}{funcArgs}
-    var funcType = this._lexer.text(); // FUNCTION or PROCEDURE
+    var funcType = this._lexer.get().text; // FUNCTION or PROCEDURE
     lexer.expect('open');
     var funcName = lexer.expect('ordinary');
     lexer.expect('close');
@@ -479,7 +497,7 @@ Parser.prototype._parseIf = function() {
 Parser.prototype._parseLoop = function() {
     if (!this._lexer.accept('func', ['FOR', 'FORALL', 'WHILE'])) return null;
 
-    var loopName = this._lexer.text();
+    var loopName = this._lexer.get().text;
     var loopNode = new ParseNode('loop', loopName);
 
     // { <cond> } <block>
@@ -501,14 +519,14 @@ Parser.prototype._parseCommand = function(acceptCommands) {
     if (!this._lexer.accept('func', acceptCommands))
         return null;
 
-    var cmdName = this._lexer.text();
+    var cmdName = this._lexer.get().text;
     var cmdNode = new ParseNode('command', cmdName);
     cmdNode.addChild(this._parseOpenText());
     return cmdNode;
 };
 
 Parser.prototype._parseComment = function() {
-    if (this._lexer.text() !== 'COMMENT') return null;
+    if (this._lexer.get().text !== 'COMMENT') return null;
 
     var commentNode = new ParseNode('comment');
 
@@ -524,17 +542,18 @@ Parser.prototype._parseCall = function() {
     var lexer = this._lexer;
     if (!lexer.accept('func', 'CALL')) return null;
 
-    // \CALL { <ordinary> } { <text> }
+    // \CALL { <ordinary> } ({ <text> })[0..1]
     lexer.expect('open');
     var funcName = lexer.expect('ordinary');
-    lexer.expect('close');
-    lexer.expect('open');
-    var argsNode = this._parseOpenText();
     lexer.expect('close');
 
     var callNode = new ParseNode('call');
     callNode.value = funcName;
+
+    lexer.expect('open');
+    var argsNode = this._parseCloseText();
     callNode.addChild(argsNode);
+    lexer.expect('close');
     return callNode;
 };
 
@@ -575,38 +594,46 @@ Parser.prototype._parseAtom = function() {
 
     var text;
     if (text = this._lexer.accept('ordinary')) {
-        return new ParseNode('ordinary', text);
+        var whitespace = this._lexer.get().whitespace;
+        return new AtomNode('ordinary', text, whitespace);
     }
     else if (text = this._lexer.accept('math')) {
-        return new ParseNode('math', text);
+        var whitespace = this._lexer.get().whitespace;
+        return new AtomNode('math', text, whitespace);
     }
     else if (text = this._lexer.accept('special')) {
-        return new ParseNode('special', text);
+        var whitespace = this._lexer.get().whitespace;
+        return new AtomNode('special', text, whitespace);
     }
     else if (text = this._lexer.accept('func',
-        ['AND', 'OR', 'NOT', 'TRUE', 'FALSE'])) {
-        return new ParseNode('bool', text);
+        ['AND', 'OR', 'NOT', 'TRUE', 'FALSE', 'TO'])) {
+        var whitespace = this._lexer.get().whitespace;
+        return new AtomNode('cond-symbol', text, whitespace);
     }
     else if (text = this._lexer.accept('func',
         ['tiny', 'scriptsize', 'footnotesize', 'small', 'normalsize',
         'large', 'Large', 'LARGE', 'huge', 'Huge'])) {
-        return new ParseNode('sizing-dclr', text);
+        var whitespace = this._lexer.get().whitespace;
+        return new AtomNode('sizing-dclr', text, whitespace);
     }
     else if (text = this._lexer.accept('func',
         ['normalfont', 'rmfamily', 'sffamily', 'ttfamily',
          'upshape', 'itshape', 'slshape', 'scshape',
          'bfseries', 'mdseries', 'lfseries'])) {
-        return new ParseNode('font-dclr', text);
+        var whitespace = this._lexer.get().whitespace;
+        return new AtomNode('font-dclr', text, whitespace);
     }
     else if (text = this._lexer.accept('func',
         ['textnormal', 'textrm', 'textsf', 'texttt', 'textup', 'textit',
         'textsl', 'textsc', 'uppercase', 'lowercase', 'textbf', 'textmd',
         'textlf'])) {
-        return new ParseNode('font-cmd', text);
+        var whitespace = this._lexer.get().whitespace;
+        return new AtomNode('font-cmd', text, whitespace);
     }
     else if (text = this._lexer.accept('func',
         ['textbackslash'])) {
-        return new ParseNode('text-symbol', text);
+        var whitespace = this._lexer.get().whitespace;
+        return new AtomNode('text-symbol', text, whitespace);
     }
     return null;
 }
@@ -754,7 +781,12 @@ TextEnvironment.prototype.renderToHTML = function() {
 
     var node;
     while (node = this._nodes.shift()) {
-        switch(node.type) {
+        var type = node.type;
+
+        // Insert whitespace before the atom if necessary
+        if (node.whitespace) this._html.putText(' ');
+
+        switch(type) {
         case 'ordinary':
             var text = node.value;
             this._html.putText(text);
@@ -764,7 +796,7 @@ TextEnvironment.prototype.renderToHTML = function() {
             var mathHTML = katex.renderToString(math);
             this._html.putSpan(mathHTML);
             break;
-        case 'bool':
+        case 'cond-symbol':
             var text = node.value.toLowerCase();
             this._html.beginSpan('ps-keyword').putText(text).endSpan();
             break;
@@ -785,6 +817,14 @@ TextEnvironment.prototype.renderToHTML = function() {
             };
             var replaceStr = replace[escapedStr];
             this._html.putText(replaceStr);
+            break;
+        case 'text-symbol':
+            var symbolName = node.value;
+            var name2Values = {
+                'textbackslash': '\\'
+            };
+            var symbolValue = name2Values[symbolName];
+            this._html.putText(symbolValue);
             break;
         case 'close-text':
             var newTextStyle = new TextStyle(this._textStyle.fontSize());
@@ -829,14 +869,6 @@ TextEnvironment.prototype.renderToHTML = function() {
             var textEnv = new TextEnvironment(textNode.children, innerTextStyle);
             this._html.putSpan(textEnv.renderToHTML());
             this._html.endSpan();
-            break;
-        case 'text-symbol':
-            var symbolName = node.value;
-            var name2Values = {
-                'textbackslash': '\\'
-            };
-            var symbolValue = name2Values[symbolName];
-            this._html.putText(symbolValue);
             break;
         default:
             throw new ParseError('Unexpected ParseNode of type ' + node.type);
@@ -1284,6 +1316,7 @@ Renderer.prototype._buildTree = function(node) {
         // funcName(funcArgs)
         var funcName = node.value;
         var argsNode = node.children[0];
+
         this._typeFuncName(funcName);
         this._typeText('(');
         this._buildTree(argsNode);
