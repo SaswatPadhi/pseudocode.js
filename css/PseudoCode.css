@@ -34,10 +34,13 @@
     font-variant: normal;
     font-style: normal;
     text-transform: none;
-    margin: 0 0.25em;
 }
-.ps-root .ps-keyword:first-child{
-    margin: 0 0.25em 0 0;
+.ps-root .ps-comment {
+    font-family: KaTeX_Main;
+    font-weight: normal;
+    font-variant: normal;
+    font-style: normal;
+    text-transform: none;
 }
 /* line number support */
 .ps-root .ps-linenum {

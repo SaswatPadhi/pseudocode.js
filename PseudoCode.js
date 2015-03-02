@@ -516,8 +516,7 @@ Parser.prototype._parseLoop = function() {
 var CONDITION_COMMANDS = ['ENSURE', 'REQUIRE'];
 var STATEMENT_COMMANDS = ['STATE', 'PRINT', 'RETURN'];
 Parser.prototype._parseCommand = function(acceptCommands) {
-    if (!this._lexer.accept('func', acceptCommands))
-        return null;
+    if (!this._lexer.accept('func', acceptCommands)) return null;
 
     var cmdName = this._lexer.get().text;
     var cmdNode = new ParseNode('command', cmdName);
@@ -526,7 +525,7 @@ Parser.prototype._parseCommand = function(acceptCommands) {
 };
 
 Parser.prototype._parseComment = function() {
-    if (this._lexer.get().text !== 'COMMENT') return null;
+    if (!this._lexer.accept('func', 'COMMENT')) return null;
 
     var commentNode = new ParseNode('comment');
 
@@ -647,7 +646,7 @@ function RendererOptions(options) {
     options = options || {};
     this.indentSize = options.indentSize ?
                         this._parseEmVal(options.indentSize) : 1.2;
-    this.commentSymbol = options.commentSymbol || '//';
+    this.commentSymbol = options.commentSymbol || ' // ';
     this.lineNumberPunc = options.lineNumberPunc || ':';
     this.lineNumber = options.lineNumber != null ? options.lineNumber : false;
     this.noEnd = options.noEnd != null ? options.noEnd : false;
@@ -1177,7 +1176,7 @@ Renderer.prototype._buildTree = function(node) {
         var textNode = node.children[0];
         var blockNode = node.children[1];
         this._newLine();
-        this._typeKeyword(funcType);
+        this._typeKeyword(funcType + ' ');
         this._typeFuncName(funcName);
         this._typeText('(');
         this._buildTree(textNode);
@@ -1199,10 +1198,10 @@ Renderer.prototype._buildTree = function(node) {
         //      <span class="ps-keyword">then</span>
         // </p>
         this._newLine();
-        this._typeKeyword('if');
+        this._typeKeyword('if ');
         var cond = node.children[0];
         this._buildTree(cond);
-        this._typeKeyword('then');
+        this._typeKeyword(' then');
         // <block>
         var ifBlock = node.children[1];
         this._buildTree(ifBlock);
@@ -1218,10 +1217,10 @@ Renderer.prototype._buildTree = function(node) {
             //      <span class="ps-keyword">then</span>
             // </p>
             this._newLine();
-            this._typeKeyword('else if');
+            this._typeKeyword('else if ');
             var elifCond = node.children[2 + 2 * ei];
             this._buildTree(elifCond);
-            this._typeKeyword('then');
+            this._typeKeyword(' then');
 
             // <block>
             var elifBlock = node.children[2 + 2 * ei + 1];
@@ -1265,10 +1264,10 @@ Renderer.prototype._buildTree = function(node) {
             'FORALL': 'for all',
             'WHILE': 'while'
         };
-        this._typeKeyword(displayLoopName[loopType]);
+        this._typeKeyword(displayLoopName[loopType] + ' ');
         var cond = node.children[0];
         this._buildTree(cond);
-        this._typeKeyword('do');
+        this._typeKeyword(' do');
 
         // <block>
         var block = node.children[1];
@@ -1304,19 +1303,23 @@ Renderer.prototype._buildTree = function(node) {
         break;
     case 'caption':
         this._newLine();
-        this._typeKeyword('Algorithm ' + Renderer._captionCount);
+        this._typeKeyword('Algorithm ' + Renderer._captionCount + ' ');
         var textNode = node.children[0];
         this._buildTree(textNode);
         break;
-    // 'comment':
-    //     break;
+    case 'comment':
+        var textNode = node.children[0];
+        this._html.beginSpan('ps-comment');
+        this._html.putText(this._options.commentSymbol);
+        this._buildTree(textNode);
+        this._html.endSpan();
+        break;
     case 'call':
         // \CALL{funcName}{funcArgs}
         // ==>
         // funcName(funcArgs)
         var funcName = node.value;
         var argsNode = node.children[0];
-
         this._typeFuncName(funcName);
         this._typeText('(');
         this._buildTree(argsNode);
