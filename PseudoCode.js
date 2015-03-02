@@ -1,14 +1,6 @@
 /*
-
-Pseudocode formater that uses a TeX-style grammar
-
-As stated in the manual of Algorithms package, `Because the mechanisms used to
-build the various algorithmic structures make it difficult to` use the most
-intuitive grammar in ... we shall NOT strictly follow the format of our TeX
-counterpart. Some details are improved to make it more natural.
-
-The TeX-style pseudocode language (follows **algoritmic** environment) represented
-in a context-free grammar:
+The TeX-style pseudocode language (follows **algoritmic** environment)
+represented in a context-free grammar:
 
     <pseudo>        :== ( <algorithm> | <algorithmic> )[0..n]
 
@@ -850,7 +842,6 @@ TextEnvironment.prototype.renderToHTML = function() {
             throw new ParseError('Unexpected ParseNode of type ' + node.type);
         }
     }
-
 
     return this._html.toMarkup();
 };
