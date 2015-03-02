@@ -541,12 +541,15 @@ Parser.prototype._parseCall = function() {
     var lexer = this._lexer;
     if (!lexer.accept('func', 'CALL')) return null;
 
+    var anyWhitespace = lexer.get().whitespace;
+
     // \CALL { <ordinary> } ({ <text> })[0..1]
     lexer.expect('open');
     var funcName = lexer.expect('ordinary');
     lexer.expect('close');
 
     var callNode = new ParseNode('call');
+    callNode.whitespace = anyWhitespace;
     callNode.value = funcName;
 
     lexer.expect('open');
@@ -1320,6 +1323,7 @@ Renderer.prototype._buildTree = function(node) {
         // funcName(funcArgs)
         var funcName = node.value;
         var argsNode = node.children[0];
+        if (node.whitespace) this._typeText(' ');
         this._typeFuncName(funcName);
         this._typeText('(');
         this._buildTree(argsNode);
