@@ -6,9 +6,9 @@ setup:
 	npm install
 	mkdir -p build
 
-# watch the changes to js source code and update the target js code
+# Watch the changes to js source code and update the target js code
 watch-js: pseudocode.js $(wildcard src/*.js)
-	./node_modules/.bin/watchify $< --standalone pseudocode -o build/pseudocode.js
+	./node_modules/.bin/watchify $< --exclude katex --standalone pseudocode -o build/pseudocode.js
 
 clean:
 	rm -rf build/*
@@ -18,8 +18,11 @@ zip: build/pseudocode-js.tar.gz build/pseudocode-js.zip
 lint: pseudocode.js $(wildcard src/*.js)
 	./node_modules/.bin/jshint $^
 
+# although pseudocode.js depends on katex, pseudocode.js will not be 
+# bundled with katex, as users are likely to have katex.js loade in a separate 
+# file by browser
 build/pseudocode.js: pseudocode.js $(wildcard src/*.js)
-	./node_modules/.bin/browserify $< --standalone pseudocode -o $@
+	./node_modules/.bin/browserify $< --exclude katex --standalone pseudocode -o $@
 
 build/pseudocode.min.js: build/pseudocode.js
 	./node_modules/.bin/uglifyjs --mangle --beautify beautify=false < $< > $@

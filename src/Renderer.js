@@ -1,7 +1,9 @@
 /*
  * TODO: rename commentSymbol to commentDelimiters
 * */
-var katex = require('katex');
+/* katex package may either be defined in a separate js file loaded by browser
+ * or imported by node.js.
+* */
 var utils = require('./utils');
 
 /*
@@ -155,6 +157,7 @@ TextEnvironment.prototype.renderToHTML = function() {
             this._html.putText(text);
             break;
         case 'math':
+            if (!katex) katex = require('katex');
             var mathHTML = katex.renderToString(text);
             this._html.putSpan(mathHTML);
             break;
