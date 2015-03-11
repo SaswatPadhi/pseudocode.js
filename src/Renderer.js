@@ -518,6 +518,16 @@ Renderer.prototype._buildTreeForAllChildren = function(node) {
         this._buildTree(children[ci]);
 };
 
+// The comment nodes at the beginning of blockNode are comments for controls
+// Thus they should be rendered out of block
+Renderer.prototype._buildCommentsFromBlock = function(blockNode) {
+    var children = blockNode.children;
+    while (children.length > 0 && children[0].type === 'comment') {
+        var commentNode = children.shift();
+        this._buildTree(commentNode);
+    }
+}
+
 Renderer.prototype._buildTree = function(node) {
     var ci, child, textNode;
     switch(node.type) {
@@ -590,6 +600,7 @@ Renderer.prototype._buildTree = function(node) {
         this._buildTree(textNode);
         this._typeText(')');
 
+        this._buildCommentsFromBlock(blockNode);
         this._buildTree(blockNode);
 
         if (!this._options.noEnd) {
@@ -612,6 +623,7 @@ Renderer.prototype._buildTree = function(node) {
         this._typeKeyword(' then');
         // <block>
         var ifBlock = node.children[1];
+        this._buildCommentsFromBlock(ifBlock);
         this._buildTree(ifBlock);
 
         // ( \ELIF {<cond>} <block> )[0..n]
@@ -632,6 +644,7 @@ Renderer.prototype._buildTree = function(node) {
 
             // <block>
             var elifBlock = node.children[2 + 2 * ei + 1];
+            this._buildCommentsFromBlock(elifBlock);
             this._buildTree(elifBlock);
         }
 
@@ -648,6 +661,7 @@ Renderer.prototype._buildTree = function(node) {
 
             // <block>
             var elseBlock = node.children[node.children.length - 1];
+            this._buildCommentsFromBlock(elseBlock);
             this._buildTree(elseBlock);
         }
 
@@ -679,6 +693,7 @@ Renderer.prototype._buildTree = function(node) {
 
         // <block>
         var block = node.children[1];
+        this._buildCommentsFromBlock(block);
         this._buildTree(block);
 
         if (!this._options.noEnd) {

@@ -85,12 +85,22 @@
         \end{algorithmic}
         \end{algorithm}
         \begin{algorithm}
-        \caption{Test statements}
+        \caption{Test statements and comments}
         \begin{algorithmic}
-        \STATE this is a normal statement
-        \PRINT \texttt{this is print statement}
-        \RETURN $retval$
-        
+        \PROCEDURE{Test-Statements}{}
+            \STATE this is a normal statement
+            \PRINT \texttt{this is print statement}
+            \RETURN $retval$        
+        \ENDPROCEDURE
+        \PROCEDURE{Test-Comments}{} \COMMENT{comment for procedure}
+            \STATE a statement \COMMENT{inline comment}
+            \STATE \COMMENT{line comment}
+            \IF{some condition}\COMMENT{comment for if}
+                \RETURN \TRUE \COMMENT{another inline comment}
+            \ELSE \COMMENT{comment for else}
+                \RETURN \FALSE \COMMENT{yet another inline comment}
+            \ENDIF
+        \ENDPROCEDURE
         \end{algorithmic}
         \end{algorithm}
     </pre>

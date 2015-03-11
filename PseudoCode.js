@@ -1,3 +1,12 @@
+/*
+ * The entry point of pseudocode-js
+ *
+ * TODO:
+ *      * demo
+ *      * Support color
+ *      * Support TeX comment
+ **/
+
 var ParseError = require('./src/ParseError');
 var Lexer = require('./src/Lexer');
 var Parser = require('./src/Parser');

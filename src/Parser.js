@@ -34,14 +34,14 @@
  *     <function>      :== \FUNCTION{<name>}{<params>} <block> \ENDFUNCTION
  *                         (same for <procedure>)
  *
- *     <statement>     :== <state> |  <return> | <print>
+ *     <statement>     :== <state> | <return> | <print>
  *     <state>         :== \STATE + <open-text>
  *     <return>        :== \RETURN + <open-text>
  *     <print>         :== \PRINT + <open-text>
  *
  *     <comment>       :== \COMMENT{<close-text>}
  *
- *     <call>          :== \CALL{<name>}({<close-text>})[0..1]
+ *     <call>          :== \CALL{<name>}({<close-text>})
  *
  *     <cond>          :== <close-text>
  *     <open-text>     :== <atom> + <open-text> | { <close-text> } | <empty>
