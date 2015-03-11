@@ -52,7 +52,7 @@
     position: relative;
 }
 .ps-root .ps-algorithmic.with-linenum .ps-line.ps-code {
-    text-indent: -2.2em;
+    text-indent: -1.6em;
 }
 .ps-root .ps-algorithmic.with-linenum .ps-line.ps-code > span{
     text-indent: 0em;

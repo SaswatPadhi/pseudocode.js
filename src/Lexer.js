@@ -66,20 +66,22 @@ var atomRegex = {
     ordinary: /^[^\\{}$&#%_\s]+/,
     math: mathPattern ///^\$.*\$/,
 };
-var commentRegex = /^%.*/
+var commentRegex = /^%.*/;
 var whitespaceRegex = /^\s+/;
 
 Lexer.prototype._skip = function(len) {
     this._pos += len;
     this._remain = this._remain.slice(len);
-}
+};
 
 /* Get the next atom */
 Lexer.prototype._next = function() {
+    var anyWhitespace = false;
     while (1) {
         // Skip whitespace (one or more)
         var whitespaceMatch = whitespaceRegex.exec(this._remain);
         if (whitespaceMatch) {
+            anyWhitespace = true;
             var whitespaceLen = whitespaceMatch[0].length;
             this._skip(whitespaceLen);
         }
@@ -118,7 +120,7 @@ Lexer.prototype._next = function() {
         this._nextAtom = {
             type: type, /* special, func, open, close, ordinary, math */
             text: usefulText, /* the text value of the atom */
-            whitespace: whitespaceLen > 0 /* any whitespace before the atom */
+            whitespace: anyWhitespace /* any whitespace before the atom */
         };
 
         this._pos += matchText.length;

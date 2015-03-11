@@ -309,7 +309,7 @@ HTMLBuilder.prototype.write = function(html) {
 HTMLBuilder.prototype.toMarkup = function() {
     this._flushText();
     var html = this._body.join('');
-    return html;
+    return html.trim();
 };
 
 HTMLBuilder.prototype.toDOM = function() {
@@ -485,9 +485,9 @@ Renderer.prototype._newLine = function() {
         this._html.beginP('ps-line ps-code', this._globalTextStyle.toCSS());
         if (this._options.lineNumber) {
             this._html.beginSpan('ps-linenum', {
-                'left': - ((this._blockLevel - 1)*(indentSize - 0.2)) + 'em'
+                'left': - ((this._blockLevel - 1)*(indentSize* 1.25)) + 'em'
             })
-            .putText(this._numLOC + this._options.lineNumberPunc)
+            .putText(this._numLOC + this._options.lineNumberPunc + ' ')
             .endSpan();
         }
     }
@@ -534,7 +534,7 @@ Renderer.prototype._buildCommentsFromBlock = function(blockNode) {
         var commentNode = children.shift();
         this._buildTree(commentNode);
     }
-}
+};
 
 Renderer.prototype._buildTree = function(node) {
     var ci, child, textNode;

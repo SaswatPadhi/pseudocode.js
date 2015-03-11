@@ -36,6 +36,7 @@
             \STATE \uppercase{uppercase,} \lowercase{LOWERCASE.}
         \ENDPROCEDURE
         \PROCEDURE{Test-Colors}{}
+        % feature not implemented
         \ENDPROCEDURE
         \end{algorithmic}
         \end{algorithm}
@@ -119,6 +120,7 @@
             \ENDIF
         \ENDPROCEDURE
         \PROCEDURE{Partition}{$A, p, r$}
+            \STATE someting
             \STATE $x = A[r]$
             \STATE $i = p - 1$
             \FOR{$j = p$ \TO $r - 1$}
@@ -145,7 +147,7 @@
         });
         var testExamples = document.getElementById("test-examples").textContent;
         pseudocode.render(testExamples, document.body, {
-            lineNumber: false,
+            lineNumber: true,
             noEnd: false
         });
     </script>

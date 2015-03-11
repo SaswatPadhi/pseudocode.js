@@ -4,7 +4,6 @@
  * TODO:
  *      * demo
  *      * Support color
- *      * Support TeX comment
  **/
 
 var ParseError = require('./src/ParseError');
