@@ -139,6 +139,14 @@ function TextEnvironment(nodes, textStyle) {
     this._textStyle = textStyle;
 }
 
+TextEnvironment.prototype._renderCloseText = function(node) {
+    var newTextStyle = new TextStyle(this._textStyle.fontSize());
+    var closeTextEnv = new TextEnvironment(
+                            node.children, newTextStyle);
+    if (node.whitespace) this._html.putText(' ');
+    this._html.putSpan(closeTextEnv.renderToHTML());
+}
+
 TextEnvironment.prototype.renderToHTML = function() {
     this._html = new HTMLBuilder();
 
@@ -197,12 +205,18 @@ TextEnvironment.prototype.renderToHTML = function() {
             var realQuote = quoteReplace[text];
             this._html.putText(realQuote);
             break;
+        case 'call':
+            // \CALL{funcName}{funcArgs}
+            // ==>
+            // funcName(funcArgs)
+            this._html.beginSpan('ps-funcname').putText(text).endSpan()
+            this._html.write('(');
+            var argsTextNode = node.children[0];
+            this._renderCloseText(argsTextNode);
+            this._html.write(')');
+            break;
         case 'close-text':
-            var newTextStyle = new TextStyle(this._textStyle.fontSize());
-            var closeTextEnv = new TextEnvironment(
-                                    node.children, newTextStyle);
-            if (node.whitespace) this._html.putText(' ');
-            this._html.putSpan(closeTextEnv.renderToHTML());
+            this._renderCloseText(node);
             break;
         // There are two kinds of typestyle commands:
         //      command (e.g. \textrm{...}).
@@ -721,10 +735,10 @@ Renderer.prototype._buildTree = function(node) {
         var cmdName = node.value;
         var displayName = {
             'STATE': '',
-            'ENSURE': 'Ensure:',
-            'REQUIRE': 'Require:',
-            'PRINT': 'print',
-            'RETURN': 'return'
+            'ENSURE': 'Ensure: ',
+            'REQUIRE': 'Require: ',
+            'PRINT': 'print ',
+            'RETURN': 'return '
         }[cmdName];
 
         this._newLine();
@@ -744,18 +758,6 @@ Renderer.prototype._buildTree = function(node) {
         this._html.putText(this._options.commentSymbol);
         this._buildTree(textNode);
         this._html.endSpan();
-        break;
-    case 'call':
-        // \CALL{funcName}{funcArgs}
-        // ==>
-        // funcName(funcArgs)
-        var callFuncName = node.value;
-        var argsNode = node.children[0];
-        if (node.whitespace) this._typeText(' ');
-        this._typeFuncName(callFuncName);
-        this._typeText('(');
-        this._buildTree(argsNode);
-        this._typeText(')');
         break;
     // ------------------- Text -------------------
     case 'open-text':

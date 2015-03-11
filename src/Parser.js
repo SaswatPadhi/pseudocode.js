@@ -20,8 +20,8 @@
  *     <require>       :== \REQUIRE + <open-text>
  *     <ensure>        :== \ENSURE + <open-text>
  *
- *     <block>         :== ( <control> | <function>
- *                         | <statement> | <comment> | <call> )[0..n]
+ *     <block>         :== ( <control> | <function> | <statement> |
+ *                           <comment> )[0..n]
  *
  *     <control>       :== <if> | <for> | <while>
  *     <if>            :== \IF{<cond>} + <block>
@@ -41,16 +41,17 @@
  *
  *     <comment>       :== \COMMENT{<close-text>}
  *
- *     <call>          :== \CALL{<name>}({<close-text>})
- *
  *     <cond>          :== <close-text>
- *     <open-text>     :== <atom> + <open-text> | { <close-text> } | <empty>
- *     <close-text>    :== <atom> + <close-text> | { <close-text> } | <empty>
+ *     <open-text>     :== ( <atom> | <call> ) + <open-text> |
+ *                         { <close-text> } | <empty>
+ *     <close-text>    :== ( <atom> | <call> ) + <close-text> |
+ *                         { <close-text> } | <empty>
  *
  *     <atom>          :== <ordinary>[1..n] | <special> | <symbol>
  *                         | <size> | <font> | <bool> | <math>
  *     <name>          :== <ordinary>
  *
+ *     <call>          :== \CALL{<name>}({<close-text>})
  *     <special>       :== \\ | \{ | \} | \$ | \& | \# | \% | \_
  *     <cond-symbol>   :== \AND | \OR | \NOT | \TRUE | \FALSE | \TO
  *     <text-symbol>   :== \textbackslash
@@ -239,9 +240,6 @@ Parser.prototype._parseBlock = function() {
         var commentNode = this._parseComment();
         if (commentNode) { blockNode.addChild(commentNode); continue; }
 
-        var callNode = this._parseCall();
-        if (callNode) { blockNode.addChild(callNode); continue; }
-
         break;
     }
 
@@ -390,17 +388,19 @@ Parser.prototype._parseText = function(openOrClose) {
     var textNode = new ParseNode(openOrClose + '-text');
     // any whitespace between Atom and CloseText
     var anyWhitespace = false;
-    var atomNode;
+    var subTextNode;
     while (true) {
-        atomNode = this._parseAtom();
-        if (atomNode) {
-            if (anyWhitespace) atomNode.whitespace |= anyWhitespace;
-            textNode.addChild(atomNode);
+        // atom or call
+        subTextNode = this._parseAtom() || this._parseCall();
+        if (subTextNode) {
+            if (anyWhitespace) subTextNode.whitespace |= anyWhitespace;
+            textNode.addChild(subTextNode);
             continue;
         }
 
+        // or close text
         if (this._lexer.accept('open')) {
-            var subTextNode = this._parseCloseText();
+            subTextNode = this._parseCloseText();
 
             anyWhitespace = this._lexer.get().whitespace;
             subTextNode.whitespace = anyWhitespace;
