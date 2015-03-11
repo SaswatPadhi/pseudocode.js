@@ -9,14 +9,10 @@ the algorithm packages can easily adopt PseduoCode.js.
 ## Demo
 
 ## Usage
-Download PseudoCodo.js and KaTeX, and host them on your server. KaTeX is 
-required as PseudoCode.js relies on KaTeX to render TeX's math formulas. 
-And then include the these `js` and `css` files in your HTML files as 
-follows:
+Download PseudoCodo, and host the files on your server.
+And then include the `js` and `css` files in your HTML files:
 
 ```html
-<link rel="stylesheet" href="//path/to/katex/katex.min.css">
-<script src="//path/to/katex/katex.min.js"></script>
 <link rel="stylesheet" href="//path/to/pseudocode/pseudocode.min.css">
 <script src="//path/to/pseudocode/pseudocode.min.js"></script>
 ```

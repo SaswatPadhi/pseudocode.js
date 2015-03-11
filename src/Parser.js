@@ -387,19 +387,26 @@ Parser.prototype._parseOpenText = function() {
 
 Parser.prototype._parseText = function(openOrClose) {
     var textNode = new ParseNode(openOrClose + '-text');
-
+    // any whitespace between Atom and CloseText
+    var anyWhitespace = false;
     var atomNode;
     while (true) {
         atomNode = this._parseAtom();
         if (atomNode) {
+            if (anyWhitespace) atomNode.whitespace |= anyWhitespace;
             textNode.addChild(atomNode);
             continue;
         }
 
         if (this._lexer.accept('open')) {
             var subTextNode = this._parseCloseText();
+
+            anyWhitespace = this._lexer.get().whitespace;
+            subTextNode.whitespace = anyWhitespace;
+
             textNode.addChild(subTextNode);
             this._lexer.expect('close');
+            anyWhitespace = this._lexer.get().whitespace;
             continue;
         }
 

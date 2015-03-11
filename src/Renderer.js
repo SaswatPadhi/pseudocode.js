@@ -1,9 +1,7 @@
 /*
  * TODO: rename commentSymbol to commentDelimiters
 * */
-/* katex package may either be defined in a separate js file loaded by browser
- * or imported by node.js.
-* */
+var katex = require('katex');
 var utils = require('./utils');
 
 /*
@@ -157,7 +155,6 @@ TextEnvironment.prototype.renderToHTML = function() {
             this._html.putText(text);
             break;
         case 'math':
-            if (!katex) katex = require('katex');
             var mathHTML = katex.renderToString(text);
             this._html.putSpan(mathHTML);
             break;
@@ -194,6 +191,7 @@ TextEnvironment.prototype.renderToHTML = function() {
             var newTextStyle = new TextStyle(this._textStyle.fontSize());
             var closeTextEnv = new TextEnvironment(
                                     node.children, newTextStyle);
+            if (node.whitespace) this._html.putText(' ');
             this._html.putSpan(closeTextEnv.renderToHTML());
             break;
         // There are two kinds of typestyle commands:

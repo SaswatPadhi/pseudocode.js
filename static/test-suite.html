@@ -2,9 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.1.1/katex.min.css">
-    <script src="http://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.1.1/katex.min.js"></script>
-    <link href="pseudocode.css" type="text/css" rel="stylesheet">
+    <link rel="stylesheet" href="../build/pseudocode.css" type="text/css">
     <script src="../build/pseudocode.js" type="text/javascript"></script>
     <title>Test suite of PseudoCode.js</title>
 </head>
@@ -24,7 +22,8 @@
         \begin{algorithmic}
         \PROCEDURE{Test-Declarations}{}
             \STATE font families: {\sffamily sffamily, \ttfamily ttfamily, \normalfont normalfont, \rmfamily rmfamily.}
-            \STATE font weights: {normal weight, \bfseries bold, \mdseries medium, \lfseries lighter.}
+            \STATE font weights: {normal weight, \bfseries bold, \mdseries 
+            medium, \lfseries lighter. }after braces
             \STATE font shapes: {\itshape itshape \scshape Small-Caps \slshape slshape \upshape upshape.}
             \STATE font sizings:  \tiny tiny \scriptsize scriptsize \footnotesize
             footnotesize \small small \normalsize normal \large large \Large Large
@@ -83,6 +82,15 @@
                 \STATE $i \gets i + 1$
             \ENDWHILE
         \ENDPROCEDURE
+        \end{algorithmic}
+        \end{algorithm}
+        \begin{algorithm}
+        \caption{Test statements}
+        \begin{algorithmic}
+        \STATE this is a normal statement
+        \PRINT \texttt{this is print statement}
+        \RETURN $retval$
+        
         \end{algorithmic}
         \end{algorithm}
     </pre>
