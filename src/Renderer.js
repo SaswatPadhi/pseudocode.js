@@ -187,6 +187,16 @@ TextEnvironment.prototype.renderToHTML = function() {
             var symbolValue = name2Values[text];
             this._html.putText(symbolValue);
             break;
+        case 'quote-symbol':
+            var quoteReplace = {
+                '`': '‘',
+                '``': '“',
+                '\'': '’',
+                '\'\'': '”'
+            };
+            var realQuote = quoteReplace[text];
+            this._html.putText(realQuote);
+            break;
         case 'close-text':
             var newTextStyle = new TextStyle(this._textStyle.fontSize());
             var closeTextEnv = new TextEnvironment(
@@ -406,8 +416,6 @@ RendererOptions.prototype._parseEmVal = function(emVal) {
  **/
 function Renderer(parser, options) {
     this._root = parser.parse();
-    // debug
-    console.log(this._root.toString());
     this._options = new RendererOptions(options);
     this._openLine = false;
     this._blockLevel = 0;

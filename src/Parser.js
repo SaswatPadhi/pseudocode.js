@@ -54,6 +54,7 @@
  *     <special>       :== \\ | \{ | \} | \$ | \& | \# | \% | \_
  *     <cond-symbol>   :== \AND | \OR | \NOT | \TRUE | \FALSE | \TO
  *     <text-symbol>   :== \textbackslash
+ *     <quote-symbol>  :== ` | `` | ' | ''
  *     (More LaTeX symbols can be added if necessary. See
  *     http://get-software.net/info/symbols/comprehensive/symbols-a4.pdf.)
  *     <math>          :== \( + ... + \) | $ ... $
@@ -424,6 +425,9 @@ var ACCEPTED_TOKEN_BY_ATOM = {
     'cond-symbol': {
         tokenType: 'func',
         tokenValues: ['AND', 'OR', 'NOT', 'TRUE', 'FALSE', 'TO']
+    },
+    'quote-symbol': {
+        tokenType: 'quote'
     },
     'sizing-dclr': {
         tokenType: 'func',

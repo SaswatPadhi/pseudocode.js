@@ -62,6 +62,7 @@ var atomRegex = {
     func: /^\\([a-zA-Z]+)/,
     open: /^\{/,
     close: /^\}/,
+    quote: /^(`|``|'|'')/,
     ordinary: /^[^\\{}$&#%_\s]+/,
     math: mathPattern ///^\$.*\$/,
 };
@@ -119,7 +120,6 @@ Lexer.prototype._next = function() {
             text: usefulText, /* the text value of the atom */
             whitespace: whitespaceLen > 0 /* any whitespace before the atom */
         };
-        console.log('type: ' + type + ', text: ' + usefulText);
 
         this._pos += matchText.length;
         this._remain = this._remain.slice(match[0].length);
