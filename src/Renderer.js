@@ -403,6 +403,7 @@ HTMLBuilder.prototype._escapeHtml = function(string) {
  *          value: ':'.
  *      noEnd - Whether block ending, like `end if`, end procedure`, etc., are
  *          showned. Default value: false.
+ *      captionCount - Set the caption counter to this new value.
  *
  **/
 function RendererOptions(options) {

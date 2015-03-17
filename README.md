@@ -1,15 +1,19 @@
-# PseudoCode.js - Beautiful pseudocode for the Web
+# Pseudocode.js - Beautiful pseudocode for the Web
 
-PseudoCode.js is a JavaScript library that renders pseudocode beautifully to 
-HTML. The grammar of pseudocode specified by PseudoCode.js
-resembles that of Tex/LaTeX and its algorithm packages. TeX allows simple 
-construction of math formulas. And LaTeX users who are already familiar with 
-the algorithm packages can easily adopt PseduoCode.js.
+Pseudocode.js is a JavaScript library that typesets pseudocode beautifully to 
+HTML.
+
+Pseudocode.js accepts a TeX-style input that borrows the algorithmic constructs
+from LaTeX's algorithm packages and produces a HTML output that looks (almost) 
+identical to its LaTeX's counterpart. The usage of a TeX-style grammar enables   
+simple construction of math formulas. And any user who already has some LaTeX 
+experience should find pseudocode.js very intuitive.
 
 ## Demo
+Visit the [project website](http://www.tatetian.me/pseudocode.js) for a live demo.
 
 ## Usage
-Download PseudoCodo, and host the files on your server.
+Download [pseudocode.js](), and host the files on your server.
 And then include the `js` and `css` files in your HTML files:
 
 ```html
@@ -17,7 +21,7 @@ And then include the `js` and `css` files in your HTML files:
 <script src="//path/to/pseudocode/pseudocode.min.js"></script>
 ```
 
-Assume your to-be-renderd pseudocode is in an `<pre>` DOM element:
+Assume your pseudocode is in an `<pre>` DOM element:
 ```html
 <pre id="hello-world-code" style="display:hidden;">
 \begin{algorithmc}
@@ -27,29 +31,170 @@ Assume your to-be-renderd pseudocode is in an `<pre>` DOM element:
 ```
 
 To render the above code as a HTML element and append to a parent DOM element, 
-call `PseudoCode.render`:
+call `pseudocode.render`:
 ```js
 var code = document.getElementById("hello-world-code").textContent;
 var parentEl = document.body;
-var options = {lineNumber: true};
-PseudoCode.render(code, parentEl, options);
+var options = {
+    lineNumber: true
+};
+pseudocode.render(code, parentEl, options);
 ```
 
-To generate a string of rendered HTML, call `PseudoCode.renderToString`:
+To generate a string of rendered HTML, call `pseudocode.renderToString`:
 ```js
 var code = document.getElementById("hello-world-code").textContent;
-var options = {lineNumber: true};
-var htmlStr = PseudoCode.renderToString(code, options);
+var options = {
+    lineNumber: true
+};
+var htmlStr = pseudocode.renderToString(code, options);
 console.log(htmlStr);
 ```
 
 ## Features
+There are several packages for typesetting algorithms in LaTeX, among which 
+[`algorithmic`](http://mirror.ctan.org/tex-archive/macros/latex/contrib/algorithms/algorithms.pdf)
+package is the most simple and intuitive, and is chosen by IEEE in its 
+[LaTeX template file](http://www.ctan.org/tex-archive/macros/latex/contrib/IEEEtran). 
+The grammar of Pseudocode.js is mostly compatible with `algorithmic` package with 
+a few improvement to make it even more easier to use.
+
+### Example
+
+```tex
+% This quicksort algorithm is extracted from Chapter 7, Introduction to Algorithms (3rd edition)
+\begin{algorithm}
+\caption{Quicksort}
+\begin{algorithmic}
+\PROCEDURE{Quicksort}{$A, p, r$}
+    \IF{$p < r$} 
+        \STATE $q = $ \CALL{Partition}{$A, p, r$}
+        \STATE \CALL{Quicksort}{$A, p, q - 1$}
+        \STATE \CALL{Quicksort}{$A, q + 1, r$}
+    \ENDIF
+\ENDPROCEDURE
+\PROCEDURE{Partition}{$A, p, r$}
+    \STATE $x = A[r]$
+    \STATE $i = p - 1$
+    \FOR{$j = p$ \TO $r - 1$}
+        \IF{$A[j] < x$}
+            \STATE $i = i + 1$
+            \STATE exchange
+            $A[i]$ with $A[j]$
+        \ENDIF
+        \STATE exchange $A[i]$ with $A[r]$
+    \ENDFOR
+\ENDPROCEDURE
+\end{algorithmic}
+\end{algorithm}</textarea>
+```
 
 
-## TeX suport
-Pseudocode.js is by no means a full-featured TeX implementation in JavaScript.
-It only support a subset of TeX/LaTeX commands that are supposed to be 
-more likely to be used in an algorithm environtment. 
+### Grammar
+
+Commands for typesetting algorithms must be enclosed in an `algorithmic` environment:
+```tex
+\begin{algorithmic}
+# A precondition is optional
+\REQUIRE <text>
+# A postcondition is optional
+\ENSURE <text>
+# The body of your code is a <block>
+\STATE ...
+\end{algorithmic}
+```
+
+`<block>` can include zero or more `<statement>`, `<control>`,  `<comment>` 
+and `<function>`:
+```tex
+# A <statement> can be:
+\STATE <text>
+\RETURN <text>
+\PRINT <text>
+
+# A <control> can be:
+# A conditional
+\IF{<condition>}
+    <block>
+\ELIF{<condition>}
+    <block>
+\ELSE
+    <block>
+\ENDIF
+# Or a loop: \WHILE, \FOR or \FORALL
+\WHILE{<condition>}
+    <block>
+\ENDWHILE
+
+# A <function> can by defined by either \FUNCTION or \PROCEDURE
+# Both are exactly the same
+\FUNCTION{<name>}{<params>}
+    <block> 
+\ENDFUNCTION
+
+# A <comment> is:
+\COMMENT{<text>}
+```
+
+A `<text>` (or `<condition>`) can include the following:
+```tex
+# Normal characters
+Hello world
+# Escaped characters
+\\, \{, \}, \$, \&, \#, \% and \_
+# Math formula
+$i \gets i + 1$
+# Function call
+\CALL{<func>}{<args>}
+# Keywords
+\AND, \OR, \XOR, \NOT, \TO, \TRUE, \FALSE
+# LaTeX's sizing commands
+\tiny, \scriptsize, \footnotesize, \small \normalsize, \large, \Large, \LARGE, 
+\huge, \HUGE
+# LaTeX's font declarations
+\rmfamily, \sffamily, \ttfamily
+\upshape, \itshape, \slshape, \scshape
+\bfseries, \mdseries, \lfseries
+# LaTeX's font commands
+\textnormal, \textrm, \textsf, \texttt
+\textup, \textit, \textsl, \textsc
+\uppercase, \lowercase
+\textbf, \textmd, \textlf
+# And it's possible to group text with braces
+normal text {\small the size gets smaller} back to normal again
+```
+
+Note that although Pseudocode.js recognizes some LaTeX commands, it is by no 
+means a full-featured LaTeX implementation in JavaScript.
+It only support a subset of LaTeX commands that are most relevant to 
+typesetting algorithms.
+
+
+To display the caption of an algorithm, use `algorithm` environtment as a 'float' wrapper :
+```tex
+\begin{algorithm}
+\caption{The caption of your algorithm}
+\begin{algorithmic}
+\STATE ...
+\end{algorithmic}
+\end{algorithm}
+```
+
+### Options
+Function `pseudocode.renderToString` and `pseudocode.renderToString` accepts 
+an option as the last argument. 
+
+ * `indentSize`: The indent size of inside a control block, e.g. if, for,
+        etc. The unit must be in 'em'. Default value: '1.2em'.
+ * `commentSymbol`: The delimiters used to start and end a comment region.
+        Note that only line comments are supported. Default value: '//'.
+ * `lineNumber`: Whether line numbering is enabled. Default value: false.
+ * `lineNumberPunc`: The punctuation that follows line number. Default
+        value: ':'.
+ * `noEnd`: Whether block ending, like `end if`, end procedure`, etc., are
+        showned. Default value: false.
+ * `captionCount`: Set the caption counter to this new value.
+
 
 ## Acknowledgement
-Pseudocode.js is powered by KaTeX to render math expressions.
+Pseudocode.js is powered by [KaTeX](http://khan.github.io/KaTeX) to render math formulas.
