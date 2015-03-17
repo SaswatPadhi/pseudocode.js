@@ -145,7 +145,7 @@ TextEnvironment.prototype._renderCloseText = function(node) {
                             node.children, newTextStyle);
     if (node.whitespace) this._html.putText(' ');
     this._html.putSpan(closeTextEnv.renderToHTML());
-}
+};
 
 TextEnvironment.prototype.renderToHTML = function() {
     this._html = new HTMLBuilder();
@@ -209,7 +209,7 @@ TextEnvironment.prototype.renderToHTML = function() {
             // \CALL{funcName}{funcArgs}
             // ==>
             // funcName(funcArgs)
-            this._html.beginSpan('ps-funcname').putText(text).endSpan()
+            this._html.beginSpan('ps-funcname').putText(text).endSpan();
             this._html.write('(');
             var argsTextNode = node.children[0];
             this._renderCloseText(argsTextNode);
@@ -413,6 +413,8 @@ function RendererOptions(options) {
     this.lineNumberPunc = options.lineNumberPunc || ':';
     this.lineNumber = options.lineNumber !== undefined ? options.lineNumber : false;
     this.noEnd = options.noEnd !== undefined ? options.noEnd : false;
+    if (options.captionCount !== undefined)
+        Renderer.captionCount = options.captionCount;
 }
 
 RendererOptions.prototype._parseEmVal = function(emVal) {
@@ -438,7 +440,7 @@ function Renderer(parser, options) {
 }
 
 /*  The global counter for the numbering of the algorithm environment */
-Renderer._captionCount = 0;
+Renderer.captionCount = 0;
 
 Renderer.prototype.toMarkup = function() {
     var html = this._html = new HTMLBuilder();
@@ -567,7 +569,7 @@ Renderer.prototype._buildTree = function(node) {
             child = node.children[ci];
             if (child.type !== 'caption') continue;
             lastCaptionNode = child;
-            Renderer._captionCount++;
+            Renderer.captionCount++;
         }
         // Then, build the header for algorithm
         if (lastCaptionNode) {
@@ -748,7 +750,7 @@ Renderer.prototype._buildTree = function(node) {
         break;
     case 'caption':
         this._newLine();
-        this._typeKeyword('Algorithm ' + Renderer._captionCount + ' ');
+        this._typeKeyword('Algorithm ' + Renderer.captionCount + ' ');
         textNode = node.children[0];
         this._buildTree(textNode);
         break;
