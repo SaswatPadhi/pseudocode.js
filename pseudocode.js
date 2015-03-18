@@ -4,7 +4,6 @@
  * TODO:
  *      * Test on IE8 - IE10
  *      * Support color
- *      * Math environment using \(, \)
  **/
 
 var ParseError = require('./src/ParseError');

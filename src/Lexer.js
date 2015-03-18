@@ -46,25 +46,50 @@ Lexer.prototype.get = function() {
 */
 var mathPattern = {
     exec: function(str) {
-        if (str.indexOf('$') !== 0) return null;
+        var delimiters = [
+            {start: '$', end: '$'},
+            {start: '\\(', end: '\\)'}
+        ];
+        var totalLen = str.length;
 
-        var pos = 1;
-        var len = str.length;
-        while (pos < len && ( str[pos] != '$' || str[pos - 1] == '\\' ) ) pos++;
+        for (var di = 0; di < delimiters.length; di++) {
+            var startDel = delimiters[di].start;
+            if (str.indexOf(startDel) !== 0) continue;
 
-        if (pos === len) return null;
-        return [str.substring(0, pos + 1), str.substring(1, pos)];
+            var endDel = delimiters[di].end;
+            var endPos = startDel.length;
+            var remain = str.slice(endPos);
+            while (endPos < totalLen) {
+                var pos = remain.indexOf(endDel);
+                if (pos < 0)
+                    throw new ParseError('Math environment is not closed', this._pos, this._input);
+
+                // false positive, it's escaped, not a match
+                if (pos > 0 && remain[pos - 1] === '\\') {
+                    var skipLen = pos + endDel.length;
+                    remain = remain.slice(skipLen);
+                    endPos += skipLen;
+                    continue;
+                }
+
+                var res = [str.slice(0, endPos + pos + endDel.length),
+                        str.slice(startDel.length, endPos + pos)];
+                return res;
+            }
+        }
+
+        return null;
     }
 };
 var atomRegex = {
     // TODO: which is correct? func: /^\\(?:[a-zA-Z]+|.)/,
     special: /^(\\\\|\\{|\\}|\\\$|\\&|\\#|\\%|\\_)/,
+    math: mathPattern, ///^\$.*\$/
     func: /^\\([a-zA-Z]+)/,
     open: /^\{/,
     close: /^\}/,
     quote: /^(`|``|'|'')/,
-    ordinary: /^[^\\{}$&#%_\s]+/,
-    math: mathPattern ///^\$.*\$/,
+    ordinary: /^[^\\{}$&#%_\s]+/
 };
 var commentRegex = /^%.*/;
 var whitespaceRegex = /^\s+/;
