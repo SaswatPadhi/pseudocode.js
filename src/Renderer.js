@@ -1,5 +1,4 @@
 /*
- * TODO: rename commentSymbol to commentDelimiters
 * */
 var katex = require('katex');
 var utils = require('./utils');
@@ -396,7 +395,7 @@ HTMLBuilder.prototype._escapeHtml = function(string) {
  * The following are possible options:
  *      indentSize - The indent size of inside a control block, e.g. if, for,
  *          etc. The unit must be in 'em'. Default value: '1.2em'.
- *      commentSymbol - The delimiters used to start and end a comment region.
+ *      commentDelimiter  - The delimiters used to start and end a comment region.
  *          Note that only line comments are supported. Default value: '//'.
  *      lineNumber - Whether line numbering is enabled. Default value: false.
  *      lineNumberPunc - The punctuation that follows line number. Default
@@ -410,7 +409,7 @@ function RendererOptions(options) {
     options = options || {};
     this.indentSize = options.indentSize ?
                         this._parseEmVal(options.indentSize) : 1.2;
-    this.commentSymbol = options.commentSymbol || ' // ';
+    this.commentDelimiter  = options.commentDelimiter  || ' // ';
     this.lineNumberPunc = options.lineNumberPunc || ':';
     this.lineNumber = options.lineNumber !== undefined ? options.lineNumber : false;
     this.noEnd = options.noEnd !== undefined ? options.noEnd : false;
@@ -758,7 +757,7 @@ Renderer.prototype._buildTree = function(node) {
     case 'comment':
         textNode = node.children[0];
         this._html.beginSpan('ps-comment');
-        this._html.putText(this._options.commentSymbol);
+        this._html.putText(this._options.commentDelimiter);
         this._buildTree(textNode);
         this._html.endSpan();
         break;

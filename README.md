@@ -5,23 +5,24 @@ HTML.
 
 Pseudocode.js accepts a TeX-style input that borrows the algorithmic constructs
 from LaTeX's algorithm packages and produces a HTML output that looks (almost) 
-identical to its LaTeX's counterpart. The usage of a TeX-style grammar enables   
+identical to its LaTeX counterpart. The usage of a TeX-style grammar enables   
 simple construction of math formulas. And any user who already has some LaTeX 
 experience should find pseudocode.js very intuitive.
 
 ## Demo
-Visit the [project website](http://www.tatetian.me/pseudocode.js) for a live demo.
+Visit the [project website](http://www.tatetian.me/pseudocode.js) for demo.
 
 ## Usage
-Download [pseudocode.js](), and host the files on your server.
-And then include the `js` and `css` files in your HTML files:
+Download [pseudocode.js](https://github.com/tatetian/pseudocode.js/releases), 
+and host the files on your server. And then include the `js` and `css` files in 
+your HTML files:
 
 ```html
 <link rel="stylesheet" href="//path/to/pseudocode/pseudocode.min.css">
 <script src="//path/to/pseudocode/pseudocode.min.js"></script>
 ```
 
-Assume your pseudocode is in an `<pre>` DOM element:
+Assume the pseudocode to be rendered is in a `<pre>` DOM element:
 ```html
 <pre id="hello-world-code" style="display:hidden;">
 \begin{algorithmc}
@@ -60,7 +61,8 @@ The grammar of Pseudocode.js is mostly compatible with `algorithmic` package wit
 a few improvement to make it even more easier to use.
 
 ### Example
-
+To give you a sense of the grammar for pseudocode, here is an example that 
+illustrates a quicksort algorithm:
 ```tex
 % This quicksort algorithm is extracted from Chapter 7, Introduction to Algorithms (3rd edition)
 \begin{algorithm}
@@ -88,7 +90,6 @@ a few improvement to make it even more easier to use.
 \end{algorithmic}
 \end{algorithm}</textarea>
 ```
-
 
 ### Grammar
 
@@ -156,9 +157,9 @@ $i \gets i + 1$
 \upshape, \itshape, \slshape, \scshape
 \bfseries, \mdseries, \lfseries
 # LaTeX's font commands
-\textnormal, \textrm, \textsf, \texttt
-\textup, \textit, \textsl, \textsc
-\uppercase, \lowercase
+\textnormal{<text>}, \textrm{<text>}, \textsf{<text>}, \texttt{<text>}
+\textup{<text>}, \textit{<text>}, \textsl{<text>}, \textsc{<text>}
+\uppercase{<text>}, \lowercase{<text>}
 \textbf, \textmd, \textlf
 # And it's possible to group text with braces
 normal text {\small the size gets smaller} back to normal again
@@ -181,20 +182,30 @@ To display the caption of an algorithm, use `algorithm` environtment as a 'float
 ```
 
 ### Options
-Function `pseudocode.renderToString` and `pseudocode.renderToString` accepts 
+Function `pseudocode.renderToString` and `pseudocode.renderToString` can accept 
 an option as the last argument. 
 
  * `indentSize`: The indent size of inside a control block, e.g. if, for,
-        etc. The unit must be in 'em'. Default value: '1.2em'.
- * `commentSymbol`: The delimiters used to start and end a comment region.
-        Note that only line comments are supported. Default value: '//'.
- * `lineNumber`: Whether line numbering is enabled. Default value: false.
- * `lineNumberPunc`: The punctuation that follows line number. Default
-        value: ':'.
+        etc. The unit must be in 'em'.
+ * `commentDelimiter`: The delimiters used to start and end a comment region.
+        Note that only line comments are supported.
+ * `lineNumber`: Whether line numbering is enabled.
+ * `lineNumberPunc`: The punctuation that follows line number.
  * `noEnd`: Whether block ending, like `end if`, end procedure`, etc., are
-        showned. Default value: false.
- * `captionCount`: Set the caption counter to this new value.
+        showned.
+ * `captionCount`: Reset the caption counter to this number.
 
+The values of the options, if not reset specifically, are:
+```js
+var DEFAULT_OPTIONS = {
+    indentSize: '1.2em',
+    commentDelimiter: '//'
+    lineNumber: false,
+    lineNumberPunc: ':',
+    noEnd: false,
+    captionCount: undefined
+};
+```
 
 ## Acknowledgement
 Pseudocode.js is powered by [KaTeX](http://khan.github.io/KaTeX) to render math formulas.

@@ -4,6 +4,8 @@
  * TODO:
  *      * demo
  *      * Support color
+ *      * Case-insensitive
+ *      * elsif
  **/
 
 var ParseError = require('./src/ParseError');
