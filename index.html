@@ -9,13 +9,12 @@
     <link rel="stylesheet" href="stylesheets/pygment_trac.css">
     <link rel="stylesheet" href="font-awesome/css/font-awesome.min.css">
     <link rel="stylesheet" href="pseudocode/pseudocode.min.css">
-    <script src="javascripts/autosize.js"></script>
+    <!--[if lt IE 9]>
+    <script src="javascripts/html5.js"></script>
+    <![endif]-->
+    <script src="javascripts/autosize.min.js"></script>
     <script src="pseudocode/pseudocode.min.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-    <!--[if lt IE 9]>
-    <!-- TODO: do not rely on google -->
-    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
     <style type="text/css"> 
         body {
             color: #333;
@@ -164,7 +163,7 @@
             <li><strong>Print quality:</strong>
             The HTML output produced by pseudocode.js is (almost) identical 
             with the pretty algorithms printed on publications that
-            are typesetted by LaTeX.</li>
+            are typeset by LaTeX.</li>
             <li><strong>Math formula support:</strong>
             Inserting math formulas in pseudocode.js is as easy as LaTeX. Just
             enclose math expression in <code>$...$</code> or 
@@ -215,13 +214,16 @@ pseudocode.render(code, parentEl, options);</code></pre>
         <a href="https://github.com/tatetian/pseudocode.js#features">features section of README</a>.
         </p>
 
-        <h3>Author and Acknowledgement</h3>
+        <h3>Author</h3>
         <p>Tate Tian(<a href="https://github.com/tatetian" 
-        class="user-mention">@tatetian</a>) creates Pseudocode.js. Any suggestions 
-        are welcome.</p>
+        class="user-mention">@tatetian</a>) creates pseudocode.js. Any suggestions 
+        and bug reports are welcome.</p>
 
-        <p>Pseudocode.js is inspired by <a href="khan.github.io/KaTeX/">KaTeX</a> and 
-        relies on it to render math formulas. 
+        <h3>Acknowledgement</h3>
+        <p>Pseudocode.js is partially inspired by <a href="khan.github.io/KaTeX/">KaTeX</a> and 
+        relies on it to render math formulas.
+        Thanks Emily Eisenberg(<a href="https://github.com/xymostech">@xymostech</a>)
+        and other contributers for building such a wonderful project.
         </p>
     </section>
 
@@ -245,7 +247,7 @@ pseudocode.render(code, parentEl, options);</code></pre>
         var resultEl = document.getElementsByClassName('demo-result')[0];
         resultEl.innerHTML = '';
         var options = {
-            algNum: 0,
+            captionCount: 0,
             lineNumber: true
         };
         pseudocode.render(code, resultEl, options);
