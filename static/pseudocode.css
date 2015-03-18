@@ -50,6 +50,7 @@
     text-align: right;
     display: inline-block;
     position: relative;
+    padding-right: 0.3em;
 }
 .ps-root .ps-algorithmic.with-linenum .ps-line.ps-code {
     text-indent: -1.6em;

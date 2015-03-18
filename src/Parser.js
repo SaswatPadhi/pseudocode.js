@@ -254,7 +254,7 @@ Parser.prototype._parseControl = function() {
 
 Parser.prototype._parseFunction = function() {
     var lexer = this._lexer;
-    if (!lexer.accept('func', ['FUNCTION', 'PROCEDURE'])) return null;
+    if (!lexer.accept('func', ['function', 'procedure'])) return null;
 
     // \FUNCTION{funcName}{funcArgs}
     var funcType = this._lexer.get().text; // FUNCTION or PROCEDURE
@@ -267,7 +267,7 @@ Parser.prototype._parseFunction = function() {
     // <block>
     var blockNode = this._parseBlock();
     // \ENDFUNCTION
-    lexer.expect('func', 'END' + funcType);
+    lexer.expect('func', 'end' + funcType);
 
     var functionNode = new ParseNode('function',
                         {type: funcType, name: funcName});
@@ -277,7 +277,7 @@ Parser.prototype._parseFunction = function() {
 };
 
 Parser.prototype._parseIf = function() {
-    if (!this._lexer.accept('func', 'IF')) return null;
+    if (!this._lexer.accept('func', 'if')) return null;
 
     var ifNode = new ParseNode('if');
 
@@ -289,7 +289,7 @@ Parser.prototype._parseIf = function() {
 
     // ( \ELIF { <cond> } <block> )[0...n]
     var numElif = 0;
-    while (this._lexer.accept('func', 'ELIF')) {
+    while (this._lexer.accept('func', ['elif', 'elsif', 'elseif'])) {
         this._lexer.expect('open');
         ifNode.addChild(this._parseCond());
         this._lexer.expect('close');
@@ -299,13 +299,13 @@ Parser.prototype._parseIf = function() {
 
     // ( \ELSE <block> )[0..1]
     var hasElse = false;
-    if (this._lexer.accept('func', 'ELSE')) {
+    if (this._lexer.accept('func', 'else')) {
         hasElse = true;
         ifNode.addChild(this._parseBlock());
     }
 
     // \ENDIF
-    this._lexer.expect('func', 'ENDIF');
+    this._lexer.expect('func', 'endif');
 
     ifNode.value = {numElif: numElif, hasElse: hasElse};
     return ifNode;
@@ -314,7 +314,7 @@ Parser.prototype._parseIf = function() {
 Parser.prototype._parseLoop = function() {
     if (!this._lexer.accept('func', ['FOR', 'FORALL', 'WHILE'])) return null;
 
-    var loopName = this._lexer.get().text;
+    var loopName = this._lexer.get().text.toLowerCase();
     var loopNode = new ParseNode('loop', loopName);
 
     // { <cond> } <block>
@@ -324,25 +324,25 @@ Parser.prototype._parseLoop = function() {
     loopNode.addChild(this._parseBlock());
 
     // \ENDFOR
-    var endLoop = loopName !== 'FORALL' ? 'END' + loopName : 'ENDFOR';
+    var endLoop = loopName !== 'forall' ? 'end' + loopName : 'endfor';
     this._lexer.expect('func', endLoop);
 
     return loopNode;
 };
 
-var INPUTS_OUTPUTS_COMMANDS = ['ENSURE', 'REQUIRE'];
-var STATEMENT_COMMANDS = ['STATE', 'PRINT', 'RETURN'];
+var INPUTS_OUTPUTS_COMMANDS = ['ensure', 'require'];
+var STATEMENT_COMMANDS = ['state', 'print', 'return'];
 Parser.prototype._parseCommand = function(acceptCommands) {
     if (!this._lexer.accept('func', acceptCommands)) return null;
 
-    var cmdName = this._lexer.get().text;
+    var cmdName = this._lexer.get().text.toLowerCase();
     var cmdNode = new ParseNode('command', cmdName);
     cmdNode.addChild(this._parseOpenText());
     return cmdNode;
 };
 
 Parser.prototype._parseComment = function() {
-    if (!this._lexer.accept('func', 'COMMENT')) return null;
+    if (!this._lexer.accept('func', 'comment')) return null;
 
     var commentNode = new ParseNode('comment');
 
@@ -356,7 +356,7 @@ Parser.prototype._parseComment = function() {
 
 Parser.prototype._parseCall = function() {
     var lexer = this._lexer;
-    if (!lexer.accept('func', 'CALL')) return null;
+    if (!lexer.accept('func', 'call')) return null;
 
     var anyWhitespace = lexer.get().whitespace;
 
@@ -424,7 +424,7 @@ var ACCEPTED_TOKEN_BY_ATOM = {
     'special': { tokenType: 'special' },
     'cond-symbol': {
         tokenType: 'func',
-        tokenValues: ['AND', 'OR', 'NOT', 'TRUE', 'FALSE', 'TO']
+        tokenValues: ['and', 'or', 'not', 'true', 'false', 'to']
     },
     'quote-symbol': {
         tokenType: 'quote'
@@ -461,7 +461,7 @@ Parser.prototype._parseAtom = function() {
         if (tokenText === null) continue;
 
         var anyWhitespace = this._lexer.get().whitespace;
-        return new AtomNode(atomType, tokenText, anyWhitespace);
+        return new AtomNode(atomType, tokenText.toLowerCase(), anyWhitespace);
     }
     return null;
 };

@@ -137,10 +137,13 @@ Lexer.prototype._matchText = function(text) {
     // don't need to match
     if (text === null || text === undefined) return true;
 
+    // string comparisons are case-insensitive
     if (utils.isString(text)) // is a string, exactly the same?
-        return text === this._nextAtom.text;
-    else // is a list, match any of them?
-        return text.indexOf(this._nextAtom.text) >= 0;
+        return text.toLowerCase() === this._nextAtom.text.toLowerCase();
+    else {// is a list, match any of them?
+        text = text.map(function(str) { return str.toLowerCase(); });
+        return text.indexOf(this._nextAtom.text.toLowerCase()) >= 0;
+    }
 };
 
 module.exports = Lexer;

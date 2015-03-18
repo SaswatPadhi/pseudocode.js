@@ -1,8 +1,7 @@
 /*
- * The entry point of pseudocode-js
+ * The entry points of pseudocode-js
  *
  * TODO:
- *      * demo
  *      * Support color
  *      * Case-insensitive
  *      * elsif

@@ -503,7 +503,7 @@ Renderer.prototype._newLine = function() {
             this._html.beginSpan('ps-linenum', {
                 'left': - ((this._blockLevel - 1)*(indentSize* 1.25)) + 'em'
             })
-            .putText(this._numLOC + this._options.lineNumberPunc + ' ')
+            .putText(this._numLOC + this._options.lineNumberPunc)
             .endSpan();
         }
     }
@@ -706,9 +706,9 @@ Renderer.prototype._buildTree = function(node) {
         this._newLine();
         var loopType = node.value;
         var displayLoopName = {
-            'FOR': 'for',
-            'FORALL': 'for all',
-            'WHILE': 'while'
+            'for': 'for',
+            'forall': 'for all',
+            'while': 'while'
         };
         this._typeKeyword(displayLoopName[loopType] + ' ');
         var loopCond = node.children[0];
@@ -736,11 +736,11 @@ Renderer.prototype._buildTree = function(node) {
         // commands: \STATE, \ENSURE, \PRINT, \RETURN, etc.
         var cmdName = node.value;
         var displayName = {
-            'STATE': '',
-            'ENSURE': 'Ensure: ',
-            'REQUIRE': 'Require: ',
-            'PRINT': 'print ',
-            'RETURN': 'return '
+            'state': '',
+            'ensure': 'Ensure: ',
+            'require': 'Require: ',
+            'print': 'print ',
+            'return': 'return '
         }[cmdName];
 
         this._newLine();
