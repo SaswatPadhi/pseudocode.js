@@ -40,10 +40,11 @@
             min-height: 60px;
             border: none;
             vertical-align: top;
-            font-size: 1em;
+            font-size: 0.8em;
             margin: 0.8em 0;
             border-top: 3px solid #000;
             border-bottom: 3px solid #000;
+            font-family: Courier New,Courier,Lucida Sans Typewriter,Lucida Typewriter,monospace; 
         }
         .demo-editor{
             display: none;
@@ -79,7 +80,7 @@
 <div class="wrapper">
     <header>
         <h1>Pseudocode.js</h1>
-        <p>Beautiful TeX-style pseudocode for the Web</p>
+        <p>Beautiful pseudocode for the Web</p>
 
         <p class="view">
             <a href="https://github.com/tatetian/pseudocode.js">
@@ -108,10 +109,10 @@
     </header>
 
     <section>
-        <h3>Live Demo</h3>
-        
-        <p>Pseudocode.js renders algorithms written in TeX to 
-        </p>
+        <h3>Demo</h3>
+
+        <p>To give you a sense of what pseudocode.js looks like, see the 
+        following demo: </p>
 
         <div class="demo-container">
             <a class="btn-edit" href="#" onClick="toggleEdit(event)"><div class="fa fa-edit button"></div></a>
@@ -145,51 +146,83 @@
 \end{algorithmic}
 \end{algorithm}</textarea>
         </div>
+        
+        <p> The demo above is editable. Feel free to experiment with it by clicking 
+        on the edit button. </p>
+        
+        <h3>Features</h3>
 
-        <h3>Welcome to GitHub Pages.</h3>
+        <p>Pseudocode.js is a JavaScript library that typesets pseudocode 
+        beautifully to HTML: </p>
+        
+        <ul>
+            <li><strong>Intuitive grammar:</strong>
+            Pseudocode.js takes a LaTeX-style input that supports the 
+            algorithmic constructs from LaTeX's algorithm packages. With or 
+            without LaTeX experience, a user should find the grammar fairly intuitive. 
+            </li>
+            <li><strong>Print quality:</strong>
+            The HTML output produced by pseudocode.js is (almost) identical 
+            with the pretty algorithms printed on publications that
+            are typesetted by LaTeX.</li>
+            <li><strong>Math formula support:</strong>
+            Inserting math formulas in pseudocode.js is as easy as LaTeX. Just
+            enclose math expression in <code>$...$</code> or 
+            <code>\(...\)</code>.
+            </li>
+        </ul>
+        </p>
 
-        <p>This automatic page generator is the easiest way to create beautiful
-pages for all of your projects. Author your page content here using GitHub
-Flavored Markdown, select a template crafted by a designer, and publish. After
-your page is generated, you can check out the new branch:</p>
+        <p>It supports all modern browsers, including Chrome, Safari, 
+        Firefox, Opera, and IE 8 - IE 11. </p>
+        
+        <h3>Usage</h3>
+        
+        <p>Download <a href="https://github.com/tatetian/pseudocode.js/releases">pseudocode.js</a>, 
+        and host the files on your server. And then include the js and css 
+        files in your HTML files:</p>
+        
+        <pre><code class="html hljs "><span class="hljs-tag">&lt;<span 
+class="hljs-title">link</span> <span class="hljs-attribute">rel</span>=<span 
+class="hljs-value">"stylesheet"</span> <span 
+class="hljs-attribute">href</span>=<span 
+class="hljs-value">"//path/to/pseudocode/pseudocode.min.css"</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-title">script</span> <span 
+class="hljs-attribute">src</span>=<span 
+class="hljs-value">"//path/to/pseudocode/pseudocode.min.js"</span>&gt;</span><span 
+class="javascript"></span><span class="hljs-tag">&lt;/<span 
+class="hljs-title">script</span>&gt;</span></code></pre>
 
-        <pre><code>$ cd your_repo_root/repo_name
-        $ git fetch origin
-        $ git checkout gh-pages
-        </code></pre>
+        <p>Assume the pseudocode to be rendered is in a <code>&lt;pre&gt;</code> DOM element:</p>
+        
+        <pre><code class="html hljs "><span class="hljs-tag">&lt;<span class="hljs-title">pre</span> <span class="hljs-attribute">id</span>=<span class="hljs-value">"hello-world-code"</span> <span class="hljs-attribute">style</span>=<span class="hljs-value">"display:hidden;"</span>&gt;</span>
+\begin{algorithmc}
+\PRINT \texttt{'hello world'}
+\end{algorithmc}
+<span class="hljs-tag">&lt;/<span class="hljs-title">pre</span>&gt;</span></code></pre>
 
-        <p>If you're using the GitHub for Mac, simply sync your repository and
-you'll see the new branch.</p>
+        <p>To render the above code as a HTML element and append to a parent 
+        DOM element, call <code>pseudocode.render</code>:</p>
 
-        <h3>
-        <a id="designer-templates" class="anchor" href="#designer-templates" aria-hidden="true"><span class="octicon octicon-link"></span></a>Designer Templates</h3>
+        <pre><code class="js hljs "><span class="hljs-keyword">var</span> code = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">"hello-world-code"</span>).textContent;
+<span class="hljs-keyword">var</span> parentEl = <span class="hljs-built_in">document</span>.body;
+<span class="hljs-keyword">var</span> options = {
+    lineNumber: <span class="hljs-literal">true</span>
+};
+pseudocode.render(code, parentEl, options);</code></pre>
 
-        <p>We've crafted some handsome templates for you to use. Go ahead and
-continue to layouts to browse through them. You can easily go back to edit your
-page before publishing. After publishing your page, you can revisit the page
-generator and switch to another theme. Your Page content will be preserved if
-it remained markdown format.</p>
+        <p>For more information on the grammar and options, read the 
+        <a href="https://github.com/tatetian/pseudocode.js#features">features section of README</a>.
+        </p>
 
-        <h3>
-        <a id="rather-drive-stick" class="anchor" href="#rather-drive-stick" aria-hidden="true"><span class="octicon octicon-link"></span></a>Rather Drive Stick?</h3>
+        <h3>Author and Acknowledgement</h3>
+        <p>Tate Tian(<a href="https://github.com/tatetian" 
+        class="user-mention">@tatetian</a>) creates Pseudocode.js. Any suggestions 
+        are welcome.</p>
 
-        <p>If you prefer to not use the automatic generator, push a branch
-named <code>gh-pages</code> to your repository to create a page manually. In
-addition to supporting regular HTML content, GitHub Pages support Jekyll, a
-simple, blog aware static site generator written by our own Tom Preston-Werner.
-Jekyll makes it easy to create site-wide headers and footers without having to
-copy them across every page. It also offers intelligent blog support and other
-advanced templating features.</p>
-
-        <h3>
-        <a id="authors-and-contributors" class="anchor" href="#authors-and-contributors" aria-hidden="true"><span class="octicon octicon-link"></span></a>Authors and Contributors</h3>
-
-        <p>You can <a href="https://github.com/blog/821" class="user-mention">@mention</a> a GitHub username to generate a link to their profile. The resulting <code>&lt;a&gt;</code> element will link to the contributor's GitHub Profile. For example: In 2007, Chris Wanstrath (<a href="https://github.com/defunkt" class="user-mention">@defunkt</a>), PJ Hyett (<a href="https://github.com/pjhyett" class="user-mention">@pjhyett</a>), and Tom Preston-Werner (<a href="https://github.com/mojombo" class="user-mention">@mojombo</a>) founded GitHub.</p>
-
-        <h3>
-        <a id="support-or-contact" class="anchor" href="#support-or-contact" aria-hidden="true"><span class="octicon octicon-link"></span></a>Support or Contact</h3>
-
-        <p>Having trouble with Pages? Check out the documentation at <a href="https://help.github.com/pages">https://help.github.com/pages</a> or contact <a href="mailto:support@github.com">support@github.com</a> and we’ll help you sort it out.</p>
+        <p>Pseudocode.js is inspired by <a href="khan.github.io/KaTeX/">KaTeX</a> and 
+        relies on it to render math formulas. 
+        </p>
     </section>
 
     <footer>
