@@ -2,9 +2,9 @@
  * The entry points of pseudocode-js
  *
  * TODO:
+ *      * Test on IE8 - IE10
  *      * Support color
- *      * Case-insensitive
- *      * elsif
+ *      * Math environment using \(, \)
  **/
 
 var ParseError = require('./src/ParseError');

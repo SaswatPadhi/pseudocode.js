@@ -3,16 +3,24 @@
 Pseudocode.js is a JavaScript library that typesets pseudocode beautifully to 
 HTML.
 
-Pseudocode.js accepts a TeX-style input that borrows the algorithmic constructs
-from LaTeX's algorithm packages and produces a HTML output that looks (almost) 
-identical to its LaTeX counterpart. The usage of a TeX-style grammar enables   
-simple construction of math formulas. And any user who already has some LaTeX 
-experience should find pseudocode.js very intuitive.
+* **Intuitive grammar**: Pseudocode.js takes a LaTeX-style input that supports 
+  the algorithmic constructs from LaTeX's algorithm packages. With or without 
+  LaTeX experience, a user should find the grammar fairly intuitive. 
+* **Print quality:** The HTML output produced by pseudocode.js is (almost) 
+  identical with the pretty algorithms printed on publications that are 
+  typeset by LaTeX.
+* **Math formula support:** Inserting math formulas in pseudocode.js is as easy 
+  as LaTeX. Just enclose math expression in `$...$` or `\(...\)`.
 
+It supports all modern browsers, including Chrome, Safari, 
+Firefox, Opera, and IE 8 - IE 11.
+        
 ## Demo
 Visit the [project website](http://www.tatetian.me/pseudocode.js) for demo.
 
 ## Usage
+
+### Basics
 Download [pseudocode.js](https://github.com/tatetian/pseudocode.js/releases), 
 and host the files on your server. And then include the `js` and `css` files in 
 your HTML files:
@@ -52,14 +60,6 @@ var htmlStr = pseudocode.renderToString(code, options);
 console.log(htmlStr);
 ```
 
-## Features
-There are several packages for typesetting algorithms in LaTeX, among which 
-[`algorithmic`](http://mirror.ctan.org/tex-archive/macros/latex/contrib/algorithms/algorithms.pdf)
-package is the most simple and intuitive, and is chosen by IEEE in its 
-[LaTeX template file](http://www.ctan.org/tex-archive/macros/latex/contrib/IEEEtran). 
-The grammar of Pseudocode.js is mostly compatible with `algorithmic` package with 
-a few improvement to make it even more easier to use.
-
 ### Example
 To give you a sense of the grammar for pseudocode, here is an example that 
 illustrates a quicksort algorithm:
@@ -92,6 +92,12 @@ illustrates a quicksort algorithm:
 ```
 
 ### Grammar
+There are several packages for typesetting algorithms in LaTeX, among which 
+[`algorithmic`](http://mirror.ctan.org/tex-archive/macros/latex/contrib/algorithms/algorithms.pdf)
+package is the most simple and intuitive, and is chosen by IEEE in its 
+[LaTeX template file](http://www.ctan.org/tex-archive/macros/latex/contrib/IEEEtran). 
+The grammar of pseudocode.js is mostly compatible with `algorithmic` package with 
+a few improvement to make it even more easier to use.
 
 Commands for typesetting algorithms must be enclosed in an `algorithmic` environment:
 ```tex
@@ -165,13 +171,13 @@ $i \gets i + 1$
 normal text {\small the size gets smaller} back to normal again
 ```
 
-Note that although Pseudocode.js recognizes some LaTeX commands, it is by no 
+Note that although pseudocode.js recognizes some LaTeX commands, it is by no 
 means a full-featured LaTeX implementation in JavaScript.
 It only support a subset of LaTeX commands that are most relevant to 
 typesetting algorithms.
 
 
-To display the caption of an algorithm, use `algorithm` environtment as a 'float' wrapper :
+To display the caption of an algorithm, use `algorithm` environment as a 'float' wrapper :
 ```tex
 \begin{algorithm}
 \caption{The caption of your algorithm}
@@ -206,6 +212,13 @@ var DEFAULT_OPTIONS = {
     captionCount: undefined
 };
 ```
+## Author
+Tate Tian ([@tatetian](https://github.com/tatetian)) creates pseudocode.js. Any 
+suggestions and bug reports are welcome.
 
 ## Acknowledgement
-Pseudocode.js is powered by [KaTeX](http://khan.github.io/KaTeX) to render math formulas.
+Pseudocode.js is partially inspired by [KaTeX](http://khan.github.io/KaTeX/) and 
+relies on it to render math formulas.
+Thanks Emily Eisenberg([@xymostech](https://github.com/xymostech))
+and other contributers for building such a wonderful project.
+
