@@ -26,6 +26,7 @@
             font-size: 2em;
         }
         .demo-container {
+            font-size: 1.2em;
             position: relative;
             padding-right: 2.4em;
         }
@@ -48,6 +49,7 @@
             font-family: Courier New,Courier,Lucida Sans Typewriter,Lucida Typewriter,monospace; 
         }
         .demo-editor{
+            font-size: 0.7em;
             display: none;
         }
         .demo-container.editing .btn-edit {
@@ -103,13 +105,13 @@
 
         <ul>
             <li>
-                <a href="https://github.com/tatetian/pseudocode.js/zipball/master">
-                    Download <strong>ZIP File</strong>
+                <a href="https://github.com/tatetian/pseudocode.js/releases">
+                    Download <strong>Releases</strong>
                 </a>
             </li>
             <li>
-                <a href="https://github.com/tatetian/pseudocode.js/tarball/master">
-                    Download <strong>TAR Ball</strong>
+                <a href="https://github.com/tatetian/pseudocode.js/zipball/master">
+                    Download <strong>Source</strong>
                 </a>
             </li>
             <li>
@@ -123,8 +125,8 @@
     <section>
         <h3>Demo</h3>
 
-        <p>To give you a sense of what pseudocode.js looks like, see the 
-        following demo: </p>
+        <p>Pseudocode.js enables JavaScript to typeset algorithms as <em>beautifullly</em>
+        as LaTeX does: </p>
 
         <div class="demo-container">
             <a class="btn-edit" href="#" onClick="toggleEdit(event)"><div class="fa fa-edit button"></div></a>
@@ -205,6 +207,10 @@ class="hljs-value">"//path/to/pseudocode/pseudocode.min.js"</span>&gt;</span><sp
 class="javascript"></span><span class="hljs-tag">&lt;/<span 
 class="hljs-title">script</span>&gt;</span></code></pre>
 
+        <p>Pseudocode.js uses <a href="https://github.com/Khan/KaTeX">KaTeX</a> to 
+        render math formulas. So if you want to include any math formulas in
+        your pseudocode, make sure that <a href="https://github.com/Khan/KaTeX#usage">KaTeX is setup</a>. </p>
+
         <p>Assume the pseudocode to be rendered is in a <code>&lt;pre&gt;</code> DOM element:</p>
         
         <pre><code class="html hljs "><span class="hljs-tag">&lt;<span class="hljs-title">pre</span> <span class="hljs-attribute">id</span>=<span class="hljs-value">"hello-world-code"</span> <span class="hljs-attribute">style</span>=<span class="hljs-value">"display:hidden;"</span>&gt;</span>
@@ -213,7 +219,7 @@ class="hljs-title">script</span>&gt;</span></code></pre>
 \end{algorithmc}
 <span class="hljs-tag">&lt;/<span class="hljs-title">pre</span>&gt;</span></code></pre>
 
-        <p>To render the above code as a HTML element and append to a parent 
+        <p>To render the above code as a HTML element and append it to a parent 
         DOM element, call <code>pseudocode.render</code>:</p>
 
         <pre><code class="js hljs "><span class="hljs-keyword">var</span> code = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">"hello-world-code"</span>).textContent;
@@ -233,7 +239,7 @@ pseudocode.render(code, parentEl, options);</code></pre>
         and bug reports are welcome.</p>
 
         <h3>Acknowledgement</h3>
-        <p>Pseudocode.js is partially inspired by <a href="khan.github.io/KaTeX/">KaTeX</a> and 
+        <p>Pseudocode.js is partially inspired by <a href="http://khan.github.io/KaTeX/">KaTeX</a> and 
         relies on it to render math formulas.
         Thanks Emily Eisenberg(<a href="https://github.com/xymostech">@xymostech</a>)
         and other contributers for building such a wonderful project.

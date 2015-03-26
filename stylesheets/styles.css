@@ -142,12 +142,12 @@ strong {
   font-weight:700;
 }
 
-header ul li + li {
+header ul li:first-child{
   width:88px;
   border-left:1px solid #fff;
 }
 
-header ul li + li + li {
+header ul li:last-child {
   border-right:none;
   width:89px;
 }
