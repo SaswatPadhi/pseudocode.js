@@ -1,5 +1,21 @@
+
+@font-face{
+    font-family:KaTeX_Typewriter_Replace;
+    src:url(fonts/KaTeX_Typewriter-Regular.eot);
+    src:url(fonts/KaTeX_Typewriter-Regular.eot#iefix) format('embedded-opentype'),url(fonts/KaTeX_Typewriter-Regular.woff2) format('woff2'),url(fonts/KaTeX_Typewriter-Regular.woff) format('woff'),url(fonts/KaTeX_Typewriter-Regular.ttf) format('ttf');
+    font-weight:400;font-style:normal
+}
+
+@font-face{
+    font-family:KaTeX_SansSerif_Replace;
+    src:url(fonts/KaTeX_SansSerif-Bold.eot);
+    src:url(fonts/KaTeX_SansSerif-Bold.eot#iefix) format('embedded-opentype'),url(fonts/KaTeX_SansSerif-Bold.woff2) format('woff2'),url(fonts/KaTeX_SansSerif-Bold.woff) format('woff'),url(fonts/KaTeX_SansSerif-Bold.ttf) format('ttf');
+    font-weight:700;
+    font-style:normal
+}
+
 .ps-root {
-    font-family: KaTeX_Main;
+    font-family: KaTeX_Main, 'Times New Roman', Times, serif;
     font-size: 1em;
     font-weight: 100;
     -webkit-font-smoothing: antialiased !important;
@@ -22,21 +38,21 @@
     line-height: 1.2;
 }
 .ps-root .ps-funcname {
-    font-family: serif;
+    font-family: KaTeX_Main, 'Times New Roman', Times, serif;
     font-weight: normal;
     font-variant: small-caps;
     font-style: normal;
     text-transform: none;
 }
 .ps-root .ps-keyword {
-    font-family: KaTeX_Main;
+    font-family: KaTeX_Main, 'Times New Roman', Times, serif;
     font-weight: bold;
     font-variant: normal;
     font-style: normal;
     text-transform: none;
 }
 .ps-root .ps-comment {
-    font-family: KaTeX_Main;
+    font-family: KaTeX_Main, 'Times New Roman', Times, serif;
     font-weight: normal;
     font-variant: normal;
     font-style: normal;

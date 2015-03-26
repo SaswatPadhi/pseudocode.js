@@ -1,6 +1,5 @@
 /*
 * */
-var katex = require('katex');
 var utils = require('./utils');
 
 /*
@@ -52,8 +51,8 @@ TextStyle.prototype._fontCommandTable = {
     // font-family
     normalfont: { 'font-family': 'KaTeX_Main'},
     rmfamily: { 'font-family': 'KaTeX_Main'},
-    sffamily: { 'font-family': 'KaTeX_SansSerif'},
-    ttfamily: { 'font-family': 'KaTeX_Typewriter'},
+    sffamily: { 'font-family': 'KaTeX_SansSerif_Replace'},
+    ttfamily: { 'font-family': 'KaTeX_Typewriter_Replace'},
     // weight
     bfseries: { 'font-weight': 'bold'},
     mdseries: { 'font-weight': 'medium'},
@@ -67,8 +66,8 @@ TextStyle.prototype._fontCommandTable = {
     // font-family
     textnormal: { 'font-family': 'KaTeX_Main'},
     textrm: { 'font-family': 'KaTeX_Main'},
-    textsf: { 'font-family': 'KaTeX_SansSerif'},
-    texttt: { 'font-family': 'KaTeX_Typewriter'},
+    textsf: { 'font-family': 'KaTeX_SansSerif_Replace'},
+    texttt: { 'font-family': 'KaTeX_Typewriter_Replace'},
     // weight
     textbf: { 'font-weight': 'bold'},
     textmd: { 'font-weight': 'medium'},
@@ -162,6 +161,10 @@ TextEnvironment.prototype.renderToHTML = function() {
             this._html.putText(text);
             break;
         case 'math':
+            if (!katex) {
+                try { katex = require('katex'); }
+                catch(e) { throw 'katex is required to render math'; }
+            }
             var mathHTML = katex.renderToString(text);
             this._html.putSpan(mathHTML);
             break;

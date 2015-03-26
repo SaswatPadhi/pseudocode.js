@@ -1,4 +1,5 @@
 tex/
 build/
 node_modules/
+static/katex/
 npm-debug.log
