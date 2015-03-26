@@ -10,7 +10,7 @@
     "main": "pseudocode.js",
     "repository": {
         "type": "git",
-        "url": "git://github.com/tatetian/PseudoCode.js"
+        "url": "git://github.com/tatetian/pseudocode.js"
     },
     "files": [
         "PseudoCode.js",
