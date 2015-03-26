@@ -30,6 +30,12 @@ your HTML files:
 <script src="//path/to/pseudocode/pseudocode.min.js"></script>
 ```
 
+Pseudocode.js uses [KaTeX](https://github.com/Khan/KaTeX) to render math 
+formulas. So if you want to include any math formulas in
+your pseudocode, make sure that [KaTeX is 
+setup](https://github.com/Khan/KaTeX#usage).
+
+
 Assume the pseudocode to be rendered is in a `<pre>` DOM element:
 ```html
 <pre id="hello-world-code" style="display:hidden;">
