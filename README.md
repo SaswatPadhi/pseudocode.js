@@ -16,7 +16,7 @@ It supports all modern browsers, including Chrome, Safari,
 Firefox, Opera, and IE 8 - IE 11.
         
 ## Demo
-Visit the [project website](http://www.tatetian.me/pseudocode.js) for demo.
+Visit the [project website](http://www.tatetian.io/pseudocode.js) for demo.
 
 ## Usage
 
