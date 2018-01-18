@@ -2,4 +2,5 @@ tex/
 build/
 node_modules/
 static/katex/
+static/fonts/
 npm-debug.log
