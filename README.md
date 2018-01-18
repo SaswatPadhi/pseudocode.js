@@ -12,15 +12,15 @@ HTML.
 * **Math formula support:** Inserting math formulas in pseudocode.js is as easy 
   as LaTeX. Just enclose math expression in `$...$` or `\(...\)`.
 
-It supports all modern browsers, including Chrome, Safari, 
-Firefox, Opera, and IE 8 - IE 11.
-        
+It supports all modern browsers, including Chrome, Safari, Firefox, Edge, and
+IE 9 - IE 11.
+
 ## Demo
 Visit the [project website](http://www.tatetian.io/pseudocode.js) for demo.
 
 ## Usage
 
-### Basics
+### Quick Start
 Download [pseudocode.js](https://github.com/tatetian/pseudocode.js/releases), 
 and host the files on your server. And then include the `js` and `css` files in 
 your HTML files:
@@ -30,11 +30,9 @@ your HTML files:
 <script src="//path/to/pseudocode/pseudocode.min.js"></script>
 ```
 
-Pseudocode.js uses [KaTeX](https://github.com/Khan/KaTeX) to render math 
-formulas. So if you want to include any math formulas in
-your pseudocode, make sure that [KaTeX is 
-setup](https://github.com/Khan/KaTeX#usage).
-
+Pseudocode.js depends on [KaTeX](https://github.com/Khan/KaTeX) to render math 
+formulas and uses KaTeX's fonts to render texts. So make sure that [KaTeX is 
+setup](https://github.com/Khan/KaTeX#usage) properly.
 
 Assume the pseudocode to be rendered is in a `<pre>` DOM element:
 ```html
@@ -218,6 +216,23 @@ var DEFAULT_OPTIONS = {
     captionCount: undefined
 };
 ```
+
+## Build and Test
+Pseudocode.js is written in JavaScript and built with [Node.js](https://nodejs.org).
+So, make sure you have Node.js installed before building pseudocode.js.
+
+To compile the project on Ubuntu Linux, run the following commands in terminal:
+
+```bash
+cd pseudocode.js/
+make setup
+make
+```
+
+Then, open `static/test-suite.html` in your favourite browser to see whether 
+algorithms are typeset correctly.
+
+
 ## Author
 Tate Tian ([@tatetian](https://github.com/tatetian)) creates pseudocode.js. Any 
 suggestions and bug reports are welcome.

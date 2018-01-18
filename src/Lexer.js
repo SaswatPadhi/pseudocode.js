@@ -26,11 +26,11 @@ Lexer.prototype.expect = function(type, text) {
     // The next atom is NOT of the right type
     if (nextAtom.type !== type)
         throw new ParseError('Expect an atom of ' + type + ' but received ' +
-                             nextAtom.type, this._pos, this._input);
+            nextAtom.type, this._pos, this._input);
     // Check whether the text is exactly the same
     if (!this._matchText(text))
-            throw new ParseError('Expect `' + text + '` but received `' +
-                                 nextAtom.text + '`', this._pos, this._input);
+        throw new ParseError('Expect `' + text + '` but received `' +
+            nextAtom.text + '`', this._pos, this._input);
 
     this._next();
     return this._currentAtom.text;
@@ -48,7 +48,7 @@ var mathPattern = {
     exec: function(str) {
         var delimiters = [
             {start: '$', end: '$'},
-            {start: '\\(', end: '\\)'}
+            {start: '\\(', end: '\\)'},
         ];
         var totalLen = str.length;
 
@@ -62,7 +62,8 @@ var mathPattern = {
             while (endPos < totalLen) {
                 var pos = remain.indexOf(endDel);
                 if (pos < 0)
-                    throw new ParseError('Math environment is not closed', this._pos, this._input);
+                    throw new ParseError('Math environment is not closed',
+                        this._pos, this._input);
 
                 // false positive, it's escaped, not a match
                 if (pos > 0 && remain[pos - 1] === '\\') {
@@ -73,13 +74,13 @@ var mathPattern = {
                 }
 
                 var res = [str.slice(0, endPos + pos + endDel.length),
-                        str.slice(startDel.length, endPos + pos)];
+                    str.slice(startDel.length, endPos + pos)];
                 return res;
             }
         }
 
         return null;
-    }
+    },
 };
 var atomRegex = {
     // TODO: which is correct? func: /^\\(?:[a-zA-Z]+|.)/,
@@ -89,7 +90,7 @@ var atomRegex = {
     open: /^\{/,
     close: /^\}/,
     quote: /^(`|``|'|'')/,
-    ordinary: /^[^\\{}$&#%_\s]+/
+    ordinary: /^[^\\{}$&#%_\s]+/,
 };
 var commentRegex = /^%.*/;
 var whitespaceRegex = /^\s+/;
@@ -126,7 +127,7 @@ Lexer.prototype._next = function() {
         this._nextAtom = {
             type: 'EOF',
             text: null,
-            whitespace: false
+            whitespace: false,
         };
         return false;
     }
@@ -145,7 +146,7 @@ Lexer.prototype._next = function() {
         this._nextAtom = {
             type: type, /* special, func, open, close, ordinary, math */
             text: usefulText, /* the text value of the atom */
-            whitespace: anyWhitespace /* any whitespace before the atom */
+            whitespace: anyWhitespace, /* any whitespace before the atom */
         };
 
         this._pos += matchText.length;

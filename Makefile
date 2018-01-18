@@ -1,49 +1,69 @@
-.PHONY: setup lint build zip build/pseudocode clean
+.PHONY: default setup lint build release clean
 
-build: lint build/pseudocode.min.js build/pseudocode.min.css
+VERSION=1.1
 
-setup: setup-katex
+# Building tools
+BROWSERIFY = $(realpath ./node_modules/.bin/browserify)
+WATCHIFY = $(realpath ./node_modules/.bin/watchify)
+UGLIFYJS = $(realpath ./node_modules/.bin/uglifyjs) \
+	--mangle \
+	--beautify \
+	ascii_only=true,beautify=false
+CLEANCSS = $(realpath ./node_modules/.bin/cleancss)
+ESLINT = $(realpath ./node_modules/.bin/eslint)
+
+default: build
+
+
+setup: static/katex/
 	npm install
-	mkdir -p build
-	ln -s ../static/fonts build/fonts
-	ln -s ../static/katex build/katex
+	@echo "> Node.js packages installed"
 
-setup-katex:
+static/katex/:
 	@rm -rf static/katex
-	cd static && wget https://github.com/Khan/KaTeX/releases/download/v0.2.0/katex.zip && unzip katex.zip
+	cd static && wget https://github.com/Khan/KaTeX/releases/download/v0.8.0/katex.zip && unzip katex.zip
 	@rm -rf static/katex.zip
+	@echo "> Katex downloaded"
+
+
+build: build/pseudocode.js build/pseudocode.css
+	@echo "> Building succeeded"
+
+build/pseudocode.min.js: build/pseudocode.js
+	$(UGLIFYJS) < $< > $@
+
+build/pseudocode.js: pseudocode.js $(wildcard src/*.js)
+	@$(MAKE) --no-print-directory lint
+	$(BROWSERIFY) $< --exclude katex --standalone pseudocode -o $@
+
+lint: pseudocode.js $(wildcard src/*.js)
+	$(ESLINT) $^
 
 # Watch the changes to js source code and update the target js code
 watch-js: pseudocode.js $(wildcard src/*.js)
-	./node_modules/.bin/watchify $< --standalone pseudocode -o build/pseudocode.js
+	$(WATCHIFY) $< --standalone pseudocode -o build/pseudocode.js
 
-clean:
-	rm -rf build/*
-	ln -s ../static/fonts build/fonts
-
-zip: build/pseudocode-js.tar.gz build/pseudocode-js.zip
-
-lint: pseudocode.js $(wildcard src/*.js)
-	./node_modules/.bin/jshint $^
-
-build/pseudocode.js: pseudocode.js $(wildcard src/*.js)
-	./node_modules/.bin/browserify --exclude katex $< --standalone pseudocode -o $@
-
-build/pseudocode.min.js: build/pseudocode.js
-	./node_modules/.bin/uglifyjs --mangle --beautify beautify=false < $< > $@
+build/pseudocode.min.css: build/pseudocode.css
+	$(CLEANCSS) -o $@ $<
 
 build/pseudocode.css: static/pseudocode.css
 	cp static/pseudocode.css build/pseudocode.css
 
-build/pseudocode.min.css: build/pseudocode.css
-	./node_modules/.bin/cleancss -o $@ $<
 
-build/pseudocode: build/pseudocode.min.js build/pseudocode.min.css README.md
-	mkdir -p build/pseudocode
-	cp -r $^ build/pseudocode
+release: build/pseudocode-js.tar.gz build/pseudocode-js.zip
+	@echo "> Release package generated"
 
-build/pseudocode-js.tar.gz: build/pseudocode
-	cd build && cp -r fonts pseudocode/ && tar czf pseudocode-js.tar.gz pseudocode/
+RELEASE_DIR=pseudocode-$(VERSION)/
+build/pseudocode-js.tar.gz: build/$(RELEASE_DIR)
+	cd build && tar czf pseudocode-js.tar.gz $(RELEASE_DIR)
 
-build/pseudocode-js.zip: build/pseudocode
-	cd build && cp -r fonts pseudocode && zip -rq pseudocode-js.zip pseudocode/
+build/pseudocode-js.zip: build/$(RELEASE_DIR)
+	cd build && zip -rq pseudocode-js.zip $(RELEASE_DIR)
+
+build/$(RELEASE_DIR): build/pseudocode.min.js build/pseudocode.min.css README.md
+	mkdir -p build/$(RELEASE_DIR)
+	cp -r $^ build/$(RELEASE_DIR)
+
+
+clean:
+	@rm -rf build/*

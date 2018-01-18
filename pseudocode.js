@@ -1,9 +1,5 @@
 /*
  * The entry points of pseudocode-js
- *
- * TODO:
- *      * Test on IE8 - IE10
- *      * Support color
  **/
 
 var ParseError = require('./src/ParseError');
@@ -32,5 +28,5 @@ module.exports = {
         var ele = renderer.toDOM();
         if (baseDomEle) baseDomEle.appendChild(ele);
         return ele;
-    }
+    },
 };

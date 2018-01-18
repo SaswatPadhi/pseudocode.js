@@ -424,32 +424,32 @@ var ACCEPTED_TOKEN_BY_ATOM = {
     'special': { tokenType: 'special' },
     'cond-symbol': {
         tokenType: 'func',
-        tokenValues: ['and', 'or', 'not', 'true', 'false', 'to']
+        tokenValues: ['and', 'or', 'not', 'true', 'false', 'to'],
     },
     'quote-symbol': {
-        tokenType: 'quote'
+        tokenType: 'quote',
     },
     'sizing-dclr': {
         tokenType: 'func',
         tokenValues: ['tiny', 'scriptsize', 'footnotesize', 'small', 'normalsize',
-    'large', 'Large', 'LARGE', 'huge', 'Huge']
+            'large', 'Large', 'LARGE', 'huge', 'Huge'],
     },
     'font-dclr': {
         tokenType: 'func',
         tokenValues: ['normalfont', 'rmfamily', 'sffamily', 'ttfamily',
-     'upshape', 'itshape', 'slshape', 'scshape',
-     'bfseries', 'mdseries', 'lfseries']
+            'upshape', 'itshape', 'slshape', 'scshape',
+            'bfseries', 'mdseries', 'lfseries'],
     },
     'font-cmd': {
         tokenType: 'func',
-        tokenValues: ['textnormal', 'textrm', 'textsf', 'texttt', 'textup', 'textit',
-    'textsl', 'textsc', 'uppercase', 'lowercase', 'textbf', 'textmd',
-    'textlf']
+        tokenValues: ['textnormal', 'textrm', 'textsf', 'texttt', 'textup',
+            'textit', 'textsl', 'textsc', 'uppercase', 'lowercase', 'textbf',
+            'textmd', 'textlf'],
     },
     'text-symbol': {
         tokenType: 'func',
-        tokenValues: ['textbackslash']
-    }
+        tokenValues: ['textbackslash'],
+    },
 };
 
 Parser.prototype._parseAtom = function() {
@@ -461,7 +461,8 @@ Parser.prototype._parseAtom = function() {
         if (tokenText === null) continue;
 
         var anyWhitespace = this._lexer.get().whitespace;
-        if (atomType !== 'ordinary') tokenText = tokenText.toLowerCase();
+        if (atomType !== 'ordinary' && atomType !== 'math')
+            tokenText = tokenText.toLowerCase();
         return new AtomNode(atomType, tokenText, anyWhitespace);
     }
     return null;

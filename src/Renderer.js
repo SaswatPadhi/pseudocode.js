@@ -51,8 +51,8 @@ TextStyle.prototype._fontCommandTable = {
     // font-family
     normalfont: { 'font-family': 'KaTeX_Main'},
     rmfamily: { 'font-family': 'KaTeX_Main'},
-    sffamily: { 'font-family': 'KaTeX_SansSerif_Replace'},
-    ttfamily: { 'font-family': 'KaTeX_Typewriter_Replace'},
+    sffamily: { 'font-family': 'KaTeX_SansSerif'},
+    ttfamily: { 'font-family': 'KaTeX_Typewriter'},
     // weight
     bfseries: { 'font-weight': 'bold'},
     mdseries: { 'font-weight': 'medium'},
@@ -66,8 +66,8 @@ TextStyle.prototype._fontCommandTable = {
     // font-family
     textnormal: { 'font-family': 'KaTeX_Main'},
     textrm: { 'font-family': 'KaTeX_Main'},
-    textsf: { 'font-family': 'KaTeX_SansSerif_Replace'},
-    texttt: { 'font-family': 'KaTeX_Typewriter_Replace'},
+    textsf: { 'font-family': 'KaTeX_SansSerif'},
+    texttt: { 'font-family': 'KaTeX_Typewriter'},
     // weight
     textbf: { 'font-weight': 'bold'},
     textmd: { 'font-weight': 'medium'},
@@ -79,7 +79,7 @@ TextStyle.prototype._fontCommandTable = {
     textsl: { 'font-style': 'oblique', 'font-variant': 'normal'},
     // case
     uppercase: { 'text-transform': 'uppercase'},
-    lowercase: { 'text-transform': 'lowercase'}
+    lowercase: { 'text-transform': 'lowercase'},
 };
 
 TextStyle.prototype._sizingScalesTable = {
@@ -92,7 +92,7 @@ TextStyle.prototype._sizingScalesTable = {
     Large:          1.41,
     LARGE:          1.58,
     huge:           1.90,
-    Huge:           2.28
+    Huge:           2.28,
 };
 
 TextStyle.prototype.updateByCommand = function(cmd) {
@@ -156,109 +156,111 @@ TextEnvironment.prototype.renderToHTML = function() {
         // Insert whitespace before the atom if necessary
         if (node.whitespace) this._html.putText(' ');
 
-        switch(type) {
-        case 'ordinary':
-            this._html.putText(text);
-            break;
-        case 'math':
-            if (!katex) {
-                try { katex = require('katex'); }
-                catch(e) { throw 'katex is required to render math'; }
-            }
-            var mathHTML = katex.renderToString(text);
-            this._html.putSpan(mathHTML);
-            break;
-        case 'cond-symbol':
-            this._html.beginSpan('ps-keyword')
-                      .putText(text.toLowerCase())
-                      .endSpan();
-            break;
-        case 'special':
-            if (text === '\\\\') {
-                this._html.putHTML('<br/>');
+        switch (type) {
+            case 'ordinary':
+                this._html.putText(text);
                 break;
-            }
-            var replace = {
-                '\\{': '{',
-                '\\}': '}',
-                '\\$': '$',
-                '\\&': '&',
-                '\\#': '#',
-                '\\%': '%',
-                '\\_': '_'
-            };
-            var replaceStr = replace[text];
-            this._html.putText(replaceStr);
-            break;
-        case 'text-symbol':
-            var name2Values = {
-                'textbackslash': '\\'
-            };
-            var symbolValue = name2Values[text];
-            this._html.putText(symbolValue);
-            break;
-        case 'quote-symbol':
-            var quoteReplace = {
-                '`': '‘',
-                '``': '“',
-                '\'': '’',
-                '\'\'': '”'
-            };
-            var realQuote = quoteReplace[text];
-            this._html.putText(realQuote);
-            break;
-        case 'call':
-            // \CALL{funcName}{funcArgs}
-            // ==>
-            // funcName(funcArgs)
-            this._html.beginSpan('ps-funcname').putText(text).endSpan();
-            this._html.write('(');
-            var argsTextNode = node.children[0];
-            this._renderCloseText(argsTextNode);
-            this._html.write(')');
-            break;
-        case 'close-text':
-            this._renderCloseText(node);
-            break;
-        // There are two kinds of typestyle commands:
-        //      command (e.g. \textrm{...}).
-        // and
-        //      declaration (e.g. { ... \rmfamily ... })
-        //
-        // For typestyle commands, it works as following:
-        //      \textsf     --> create a new typestyle
-        //      {           --> save the current typestyle, and then use the new one
-        //      ...         --> the new typestyle is in use
-        //      }           --> restore the last typestyle
-        //
-        // For typestyle declaration, it works a little bit diferrently:
-        //      {           --> save the current typestyle, and then create and use
-        //                      an identical one
-        //      ...         --> the new typestyle is in use
-        //      \rmfamily   --> create a new typestyle
-        //      ...         --> the new typestyle is in use
-        //      }           --> restore the last typestyle
-        case 'font-dclr':
-        case 'sizing-dclr':
-            this._textStyle.updateByCommand(text);
-            this._html.beginSpan(null, this._textStyle.toCSS());
-            var textEnvForDclr = new TextEnvironment(this._nodes, this._textStyle);
-            this._html.putSpan(textEnvForDclr.renderToHTML());
-            this._html.endSpan();
-            break;
-        case 'font-cmd':
-            var textNode = this._nodes[0];
-            if (textNode.type !== 'close-text') continue;
+            case 'math':
+                if (!katex) {
+                    try { katex = require('katex'); }
+                    catch (e) { throw 'katex is required to render math'; }
+                }
+                var mathHTML = katex.renderToString(text);
+                this._html.putSpan(mathHTML);
+                break;
+            case 'cond-symbol':
+                this._html.beginSpan('ps-keyword')
+                          .putText(text.toLowerCase())
+                          .endSpan();
+                break;
+            case 'special':
+                if (text === '\\\\') {
+                    this._html.putHTML('<br/>');
+                    break;
+                }
+                var replace = {
+                    '\\{': '{',
+                    '\\}': '}',
+                    '\\$': '$',
+                    '\\&': '&',
+                    '\\#': '#',
+                    '\\%': '%',
+                    '\\_': '_',
+                };
+                var replaceStr = replace[text];
+                this._html.putText(replaceStr);
+                break;
+            case 'text-symbol':
+                var name2Values = {
+                    'textbackslash': '\\',
+                };
+                var symbolValue = name2Values[text];
+                this._html.putText(symbolValue);
+                break;
+            case 'quote-symbol':
+                var quoteReplace = {
+                    '`': '‘',
+                    '``': '“',
+                    '\'': '’',
+                    '\'\'': '”',
+                };
+                var realQuote = quoteReplace[text];
+                this._html.putText(realQuote);
+                break;
+            case 'call':
+                // \CALL{funcName}{funcArgs}
+                // ==>
+                // funcName(funcArgs)
+                this._html.beginSpan('ps-funcname').putText(text).endSpan();
+                this._html.write('(');
+                var argsTextNode = node.children[0];
+                this._renderCloseText(argsTextNode);
+                this._html.write(')');
+                break;
+            case 'close-text':
+                this._renderCloseText(node);
+                break;
+            // There are two kinds of typestyle commands:
+            //      command (e.g. \textrm{...}).
+            // and
+            //      declaration (e.g. { ... \rmfamily ... })
+            //
+            // For typestyle commands, it works as following:
+            //      \textsf     --> create a new typestyle
+            //      {           --> save the current typestyle, and then use the new one
+            //      ...         --> the new typestyle is in use
+            //      }           --> restore the last typestyle
+            //
+            // For typestyle declaration, it works a little bit diferrently:
+            //      {           --> save the current typestyle, and then create and use
+            //                      an identical one
+            //      ...         --> the new typestyle is in use
+            //      \rmfamily   --> create a new typestyle
+            //      ...         --> the new typestyle is in use
+            //      }           --> restore the last typestyle
+            case 'font-dclr':
+            case 'sizing-dclr':
+                this._textStyle.updateByCommand(text);
+                this._html.beginSpan(null, this._textStyle.toCSS());
+                var textEnvForDclr = new TextEnvironment(this._nodes,
+                                        this._textStyle);
+                this._html.putSpan(textEnvForDclr.renderToHTML());
+                this._html.endSpan();
+                break;
+            case 'font-cmd':
+                var textNode = this._nodes[0];
+                if (textNode.type !== 'close-text') continue;
 
-            var innerTextStyle = new TextStyle(this._textStyle.fontSize());
-            innerTextStyle.updateByCommand(text);
-            this._html.beginSpan(null, innerTextStyle.toCSS());
-            var textEnvForCmd = new TextEnvironment(textNode.children, innerTextStyle);
-            this._html.putSpan(textEnvForCmd.renderToHTML());
-            this._html.endSpan();
-            break;
-        default:
-            throw new ParseError('Unexpected ParseNode of type ' + node.type);
+                var innerTextStyle = new TextStyle(this._textStyle.fontSize());
+                innerTextStyle.updateByCommand(text);
+                this._html.beginSpan(null, innerTextStyle.toCSS());
+                var textEnvForCmd = new TextEnvironment(textNode.children,
+                                        innerTextStyle);
+                this._html.putSpan(textEnvForCmd.renderToHTML());
+                this._html.endSpan();
+                break;
+            default:
+                throw new ParseError('Unexpected ParseNode of type ' + node.type);
         }
     }
 
@@ -378,18 +380,18 @@ HTMLBuilder.prototype._endTag = function(tag) {
 };
 
 var entityMap = {
-   "&": "&amp;",
-   "<": "&lt;",
-   ">": "&gt;",
-   '"': '&quot;',
-   "'": '&#39;',
-   "/": '&#x2F;'
- };
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': '&quot;',
+    "'": '&#39;',
+    "/": '&#x2F;',
+};
 
 HTMLBuilder.prototype._escapeHtml = function(string) {
-   return String(string).replace(/[&<>"'\/]/g, function (s) {
-     return entityMap[s];
-   });
+    return String(string).replace(/[&<>"'\/]/g, function(s) {
+        return entityMap[s];
+    });
 };
 
 /*
@@ -477,7 +479,7 @@ Renderer.prototype._beginBlock = function() {
     var blockIndent = this._options.indentSize + extraIndentForFirstBlock;
 
     this._beginGroup('block', null, {
-        'margin-left': blockIndent + 'em'
+        'margin-left': blockIndent + 'em',
     });
     this._blockLevel++;
 };
@@ -504,7 +506,7 @@ Renderer.prototype._newLine = function() {
         this._html.beginP('ps-line ps-code', this._globalTextStyle.toCSS());
         if (this._options.lineNumber) {
             this._html.beginSpan('ps-linenum', {
-                'left': - ((this._blockLevel - 1)*(indentSize* 1.25)) + 'em'
+                'left': -((this._blockLevel - 1) * (indentSize * 1.25)) + 'em',
             })
             .putText(this._numLOC + this._options.lineNumberPunc)
             .endSpan();
@@ -514,7 +516,7 @@ Renderer.prototype._newLine = function() {
     else {
         this._html.beginP('ps-line', {
             'text-indent': (-indentSize) + 'em',
-            'padding-left': indentSize + 'em'
+            'padding-left': indentSize + 'em',
         }, this._globalTextStyle.toCSS());
     }
 };
@@ -556,227 +558,228 @@ Renderer.prototype._buildCommentsFromBlock = function(blockNode) {
 };
 
 Renderer.prototype._buildTree = function(node) {
-    var ci, child, textNode;
-    switch(node.type) {
-    // The hierarchicy of build tree: Group (Block) > Line > Text
-    // ----------------- Groups -------------------------------------
-    case 'root':
-        this._beginGroup('root');
-        this._buildTreeForAllChildren(node);
-        this._endGroup();
-        break;
-    case 'algorithm':
-        // First, decide the caption if any
-        var lastCaptionNode;
-        for (ci = 0; ci < node.children.length; ci++) {
-            child = node.children[ci];
-            if (child.type !== 'caption') continue;
-            lastCaptionNode = child;
-            Renderer.captionCount++;
-        }
-        // Then, build the header for algorithm
-        if (lastCaptionNode) {
-            this._beginGroup('algorithm', 'with-caption');
-            this._buildTree(lastCaptionNode);
-        }
-        else {
-            this._beginGroup('algorithm');
-        }
-        // Then, build other nodes
-        for (ci = 0; ci < node.children.length; ci++) {
-            child = node.children[ci];
-            if (child.type === 'caption') continue;
-            this._buildTree(child);
-        }
-        this._endGroup();
-        break;
-    case 'algorithmic':
-        if (this._options.lineNumber) {
-            this._beginGroup('algorithmic', 'with-linenum');
-            this._numLOC = 0;
-        }
-        else {
-            this._beginGroup('algorithmic');
-        }
-        this._buildTreeForAllChildren(node);
-        this._endGroup();
-        break;
-    case 'block':
-        // node: <block>
-        // ==>
-        // HTML: <div class="ps-block"> ... </div>
-        this._beginBlock();
-        this._buildTreeForAllChildren(node);
-        this._endBlock();
-        break;
-    // ----------------- Mixture (Groups + Lines) -------------------
-    case 'function':
-        // \FUNCTION{<ordinary>}{<text>} <block> \ENDFUNCTION
-        // ==>
-        // function <ordinary>(<text>)
-        // ...
-        // end function
-        var funcType = node.value.type.toLowerCase();
-        var defFuncName = node.value.name;
-        textNode = node.children[0];
-        var blockNode = node.children[1];
-        this._newLine();
-        this._typeKeyword(funcType + ' ');
-        this._typeFuncName(defFuncName);
-        this._typeText('(');
-        this._buildTree(textNode);
-        this._typeText(')');
-
-        this._buildCommentsFromBlock(blockNode);
-        this._buildTree(blockNode);
-
-        if (!this._options.noEnd) {
+    var ci; var child; var textNode;
+    switch (node.type) {
+        // The hierarchicy of build tree: Group (Block) > Line > Text
+        // ----------------- Groups -------------------------------------
+        case 'root':
+            this._beginGroup('root');
+            this._buildTreeForAllChildren(node);
+            this._endGroup();
+            break;
+        case 'algorithm':
+            // First, decide the caption if any
+            var lastCaptionNode;
+            for (ci = 0; ci < node.children.length; ci++) {
+                child = node.children[ci];
+                if (child.type !== 'caption') continue;
+                lastCaptionNode = child;
+                Renderer.captionCount++;
+            }
+            // Then, build the header for algorithm
+            if (lastCaptionNode) {
+                this._beginGroup('algorithm', 'with-caption');
+                this._buildTree(lastCaptionNode);
+            }
+            else {
+                this._beginGroup('algorithm');
+            }
+            // Then, build other nodes
+            for (ci = 0; ci < node.children.length; ci++) {
+                child = node.children[ci];
+                if (child.type === 'caption') continue;
+                this._buildTree(child);
+            }
+            this._endGroup();
+            break;
+        case 'algorithmic':
+            if (this._options.lineNumber) {
+                this._beginGroup('algorithmic', 'with-linenum');
+                this._numLOC = 0;
+            }
+            else {
+                this._beginGroup('algorithmic');
+            }
+            this._buildTreeForAllChildren(node);
+            this._endGroup();
+            break;
+        case 'block':
+            // node: <block>
+            // ==>
+            // HTML: <div class="ps-block"> ... </div>
+            this._beginBlock();
+            this._buildTreeForAllChildren(node);
+            this._endBlock();
+            break;
+        // ----------------- Mixture (Groups + Lines) -------------------
+        case 'function':
+            // \FUNCTION{<ordinary>}{<text>} <block> \ENDFUNCTION
+            // ==>
+            // function <ordinary>(<text>)
+            // ...
+            // end function
+            var funcType = node.value.type.toLowerCase();
+            var defFuncName = node.value.name;
+            textNode = node.children[0];
+            var blockNode = node.children[1];
             this._newLine();
-            this._typeKeyword('end ' + funcType);
-        }
-        break;
-    case 'if':
-        // \IF { <cond> }
-        // ==>
-        // <p class="ps-line">
-        //      <span class="ps-keyword">if</span>
-        //      ...
-        //      <span class="ps-keyword">then</span>
-        // </p>
-        this._newLine();
-        this._typeKeyword('if ');
-        ifCond = node.children[0];
-        this._buildTree(ifCond);
-        this._typeKeyword(' then');
-        // <block>
-        var ifBlock = node.children[1];
-        this._buildCommentsFromBlock(ifBlock);
-        this._buildTree(ifBlock);
+            this._typeKeyword(funcType + ' ');
+            this._typeFuncName(defFuncName);
+            this._typeText('(');
+            this._buildTree(textNode);
+            this._typeText(')');
 
-        // ( \ELIF {<cond>} <block> )[0..n]
-        var numElif = node.value.numElif;
-        for (var ei = 0 ; ei < numElif; ei++) {
-            // \ELIF {<cond>}
+            this._buildCommentsFromBlock(blockNode);
+            this._buildTree(blockNode);
+
+            if (!this._options.noEnd) {
+                this._newLine();
+                this._typeKeyword('end ' + funcType);
+            }
+            break;
+        case 'if':
+            // \IF { <cond> }
             // ==>
             // <p class="ps-line">
-            //      <span class="ps-keyword">elif</span>
+            //      <span class="ps-keyword">if</span>
             //      ...
             //      <span class="ps-keyword">then</span>
             // </p>
             this._newLine();
-            this._typeKeyword('else if ');
-            var elifCond = node.children[2 + 2 * ei];
-            this._buildTree(elifCond);
+            this._typeKeyword('if ');
+            ifCond = node.children[0];
+            this._buildTree(ifCond);
             this._typeKeyword(' then');
-
             // <block>
-            var elifBlock = node.children[2 + 2 * ei + 1];
-            this._buildCommentsFromBlock(elifBlock);
-            this._buildTree(elifBlock);
-        }
+            var ifBlock = node.children[1];
+            this._buildCommentsFromBlock(ifBlock);
+            this._buildTree(ifBlock);
 
-        // ( \ELSE <block> )[0..1]
-        var hasElse = node.value.hasElse;
-        if (hasElse) {
-            // \ELSE
+            // ( \ELIF {<cond>} <block> )[0..n]
+            var numElif = node.value.numElif;
+            for (var ei = 0 ; ei < numElif; ei++) {
+                // \ELIF {<cond>}
+                // ==>
+                // <p class="ps-line">
+                //      <span class="ps-keyword">elif</span>
+                //      ...
+                //      <span class="ps-keyword">then</span>
+                // </p>
+                this._newLine();
+                this._typeKeyword('else if ');
+                var elifCond = node.children[2 + 2 * ei];
+                this._buildTree(elifCond);
+                this._typeKeyword(' then');
+
+                // <block>
+                var elifBlock = node.children[2 + 2 * ei + 1];
+                this._buildCommentsFromBlock(elifBlock);
+                this._buildTree(elifBlock);
+            }
+
+            // ( \ELSE <block> )[0..1]
+            var hasElse = node.value.hasElse;
+            if (hasElse) {
+                // \ELSE
+                // ==>
+                // <p class="ps-line">
+                //      <span class="ps-keyword">else</span>
+                // </p>
+                this._newLine();
+                this._typeKeyword('else');
+
+                // <block>
+                var elseBlock = node.children[node.children.length - 1];
+                this._buildCommentsFromBlock(elseBlock);
+                this._buildTree(elseBlock);
+            }
+
+            if (!this._options.noEnd) {
+                // ENDIF
+                this._newLine();
+                this._typeKeyword('end if');
+            }
+            break;
+        case 'loop':
+            // \FOR{<cond>} or \WHILE{<cond>}
             // ==>
             // <p class="ps-line">
-            //      <span class="ps-keyword">else</span>
+            //      <span class="ps-keyword">for</span>
+            //      ...
+            //      <span class="ps-keyword">do</span>
             // </p>
             this._newLine();
-            this._typeKeyword('else');
+            var loopType = node.value;
+            var displayLoopName = {
+                'for': 'for',
+                'forall': 'for all',
+                'while': 'while',
+            };
+            this._typeKeyword(displayLoopName[loopType] + ' ');
+            var loopCond = node.children[0];
+            this._buildTree(loopCond);
+            this._typeKeyword(' do');
 
             // <block>
-            var elseBlock = node.children[node.children.length - 1];
-            this._buildCommentsFromBlock(elseBlock);
-            this._buildTree(elseBlock);
-        }
+            var block = node.children[1];
+            this._buildCommentsFromBlock(block);
+            this._buildTree(block);
 
-        if (!this._options.noEnd) {
-            // ENDIF
+            if (!this._options.noEnd) {
+                // \ENDFOR or \ENDWHILE
+                // ==>
+                // <p class="ps-line">
+                //      <span class="ps-keyword">end for</span>
+                // </p>
+                this._newLine();
+                var endLoopName = loopType === 'while' ? 'end while' : 'end for';
+                this._typeKeyword(endLoopName);
+            }
+            break;
+        // ------------------- Lines -------------------
+        case 'command':
+            // commands: \STATE, \ENSURE, \PRINT, \RETURN, etc.
+            var cmdName = node.value;
+            var displayName = {
+                'state': '',
+                'ensure': 'Ensure: ',
+                'require': 'Require: ',
+                'print': 'print ',
+                'return': 'return ',
+            }[cmdName];
+
             this._newLine();
-            this._typeKeyword('end if');
-        }
-        break;
-    case 'loop':
-        // \FOR{<cond>} or \WHILE{<cond>}
-        // ==>
-        // <p class="ps-line">
-        //      <span class="ps-keyword">for</span>
-        //      ...
-        //      <span class="ps-keyword">do</span>
-        // </p>
-        this._newLine();
-        var loopType = node.value;
-        var displayLoopName = {
-            'for': 'for',
-            'forall': 'for all',
-            'while': 'while'
-        };
-        this._typeKeyword(displayLoopName[loopType] + ' ');
-        var loopCond = node.children[0];
-        this._buildTree(loopCond);
-        this._typeKeyword(' do');
-
-        // <block>
-        var block = node.children[1];
-        this._buildCommentsFromBlock(block);
-        this._buildTree(block);
-
-        if (!this._options.noEnd) {
-            // \ENDFOR or \ENDWHILE
-            // ==>
-            // <p class="ps-line">
-            //      <span class="ps-keyword">end for</span>
-            // </p>
+            if (displayName) this._typeKeyword(displayName);
+            textNode = node.children[0];
+            this._buildTree(textNode);
+            break;
+        case 'caption':
             this._newLine();
-            var endLoopName = loopType === 'while' ? 'end while' : 'end for';
-            this._typeKeyword(endLoopName);
-        }
-        break;
-    // ------------------- Lines -------------------
-    case 'command':
-        // commands: \STATE, \ENSURE, \PRINT, \RETURN, etc.
-        var cmdName = node.value;
-        var displayName = {
-            'state': '',
-            'ensure': 'Ensure: ',
-            'require': 'Require: ',
-            'print': 'print ',
-            'return': 'return '
-        }[cmdName];
-
-        this._newLine();
-        if (displayName) this._typeKeyword(displayName);
-        textNode = node.children[0];
-        this._buildTree(textNode);
-        break;
-    case 'caption':
-        this._newLine();
-        this._typeKeyword('Algorithm ' + Renderer.captionCount + ' ');
-        textNode = node.children[0];
-        this._buildTree(textNode);
-        break;
-    case 'comment':
-        textNode = node.children[0];
-        this._html.beginSpan('ps-comment');
-        this._html.putText(this._options.commentDelimiter);
-        this._buildTree(textNode);
-        this._html.endSpan();
-        break;
-    // ------------------- Text -------------------
-    case 'open-text':
-        var openTextEnv = new TextEnvironment(node.children, this._globalTextStyle);
-        this._html.putSpan(openTextEnv.renderToHTML());
-        break;
-    case 'close-text':
-        var outerFontSize = this._globalTextStyle.fontSize();
-        var newTextStyle = new TextStyle(outerFontSize);
-        var closeTextEnv = new TextEnvironment(node.children, newTextStyle);
-        this._html.putSpan(closeTextEnv.renderToHTML());
-        break;
-    default:
-        throw new ParseError('Unexpected ParseNode of type ' + node.type);
+            this._typeKeyword('Algorithm ' + Renderer.captionCount + ' ');
+            textNode = node.children[0];
+            this._buildTree(textNode);
+            break;
+        case 'comment':
+            textNode = node.children[0];
+            this._html.beginSpan('ps-comment');
+            this._html.putText(this._options.commentDelimiter);
+            this._buildTree(textNode);
+            this._html.endSpan();
+            break;
+        // ------------------- Text -------------------
+        case 'open-text':
+            var openTextEnv = new TextEnvironment(node.children,
+                                    this._globalTextStyle);
+            this._html.putSpan(openTextEnv.renderToHTML());
+            break;
+        case 'close-text':
+            var outerFontSize = this._globalTextStyle.fontSize();
+            var newTextStyle = new TextStyle(outerFontSize);
+            var closeTextEnv = new TextEnvironment(node.children, newTextStyle);
+            this._html.putSpan(closeTextEnv.renderToHTML());
+            break;
+        default:
+            throw new ParseError('Unexpected ParseNode of type ' + node.type);
     }
 };
 

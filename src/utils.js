@@ -18,5 +18,5 @@ function toString(obj) {
 module.exports = {
     isString: isString,
     isObject: isObject,
-    toString: toString
+    toString: toString,
 };
