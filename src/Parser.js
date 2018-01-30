@@ -79,6 +79,7 @@
  *
  */
 var utils = require('./utils');
+var ParseError = require('./ParseError');
 
 var ParseNode = function(type, val) {
     this.type = type;
