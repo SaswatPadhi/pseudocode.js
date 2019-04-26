@@ -136,6 +136,10 @@ and `<function>`:
 \WHILE{<condition>}
     <block>
 \ENDWHILE
+# Or a repeat: \REPEAT <block> \UNTIL{<cond>}
+\REPEAT
+    <block>
+\UNTIL{<cond>}
 
 # A <function> can by defined by either \FUNCTION or \PROCEDURE
 # Both are exactly the same
