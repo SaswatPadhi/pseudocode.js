@@ -23,13 +23,14 @@
  *     <block>         :== ( <control> | <function> | <statement> |
  *                           <comment> )[0..n]
  *
- *     <control>       :== <if> | <for> | <while>
+ *     <control>       :== <if> | <for> | <while> | <repeat>
  *     <if>            :== \IF{<cond>} + <block>
  *                         + ( \ELIF{<cond>} <block> )[0..n]
  *                         + ( \ELSE <block> )[0..1]
  *                         + \ENDIF
  *     <for>           :== \FOR{<cond>} + <block> + \ENDFOR
  *     <while>         :== \WHILE{<cond>} + <block> + \ENDWHILE
+ *     <repeat>        :== \REPEAT + <block> + \UNTIL{<cond>}
  *
  *     <function>      :== \FUNCTION{<name>}{<params>} <block> \ENDFUNCTION
  *                         (same for <procedure>)
@@ -251,6 +252,7 @@ Parser.prototype._parseControl = function() {
     var controlNode;
     if ((controlNode = this._parseIf())) return controlNode;
     if ((controlNode = this._parseLoop())) return controlNode;
+    if ((controlNode = this._parseRepeat())) return controlNode;
 };
 
 Parser.prototype._parseFunction = function() {
@@ -329,6 +331,26 @@ Parser.prototype._parseLoop = function() {
     this._lexer.expect('func', endLoop);
 
     return loopNode;
+};
+
+Parser.prototype._parseRepeat = function() {
+    if (!this._lexer.accept('func', ['REPEAT'])) return null;
+
+    var repeatName = this._lexer.get().text.toLowerCase();
+    var repeatNode = new ParseNode('repeat', repeatName);
+
+    // <block>
+    repeatNode.addChild(this._parseBlock());
+
+    // \UNTIL
+    this._lexer.expect('func', 'until');
+
+    // {<cond>}
+    this._lexer.expect('open');
+    repeatNode.addChild(this._parseCond());
+    this._lexer.expect('close');
+
+    return repeatNode;
 };
 
 var INPUTS_OUTPUTS_COMMANDS = ['ensure', 'require'];
