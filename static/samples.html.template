@@ -84,6 +84,13 @@
                 \STATE $i \gets i + 1$
             \ENDWHILE
         \ENDPROCEDURE
+        \PROCEDURE{Test-Repeat}{$n$}
+            \STATE $i \gets 0$
+            \REPEAT
+                \PRINT $i$
+                \STATE $i \gets i + 1$
+            \UNTIL{$i>n$}
+        \ENDPROCEDURE
         \end{algorithmic}
         \end{algorithm}
         \begin{algorithm}

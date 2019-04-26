@@ -736,6 +736,32 @@ Renderer.prototype._buildTree = function(node) {
                 this._typeKeyword(endLoopName);
             }
             break;
+        case 'repeat':
+            // \REPEAT
+            // ==>
+            // <p class="ps-line">
+            //     <span class="ps-keyword">repeat</span>
+            // </p>
+            this._newLine();
+            this._typeKeyword('repeat');
+
+            // block
+            var repeatBlock = node.children[0];
+            this._buildCommentsFromBlock(repeatBlock);
+            this._buildTree(repeatBlock);
+
+            if (!this._options.noEnd) {
+                // \UNTIL{<cond>}
+                // ==>
+                // <p class="ps-line">
+                //     <span class="ps-keyword">until</span>
+                // </p>
+                this._newLine();
+                this._typeKeyword('until ');
+                var repeatCond = node.children[1];
+                this._buildTree(repeatCond);
+            }
+            break;
         // ------------------- Lines -------------------
         case 'command':
             // commands: \STATE, \ENSURE, \PRINT, \RETURN, etc.
