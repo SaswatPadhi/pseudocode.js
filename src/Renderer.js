@@ -770,6 +770,8 @@ Renderer.prototype._buildTree = function(node) {
                 'state': '',
                 'ensure': 'Ensure: ',
                 'require': 'Require: ',
+                'input': 'Input: ',
+                'output': 'Output: ',
                 'print': 'print ',
                 'return': 'return ',
             }[cmdName];
