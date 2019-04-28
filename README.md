@@ -110,6 +110,10 @@ Commands for typesetting algorithms must be enclosed in an `algorithmic` environ
 \REQUIRE <text>
 # A postcondition is optional
 \ENSURE <text>
+# An input is optional
+\INPUT <text>
+# An output is optional
+\OUTPUT <text>
 # The body of your code is a <block>
 \STATE ...
 \end{algorithmic}

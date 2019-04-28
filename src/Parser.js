@@ -353,7 +353,7 @@ Parser.prototype._parseRepeat = function() {
     return repeatNode;
 };
 
-var INPUTS_OUTPUTS_COMMANDS = ['ensure', 'require'];
+var INPUTS_OUTPUTS_COMMANDS = ['ensure', 'require', 'input', 'output'];
 var STATEMENT_COMMANDS = ['state', 'print', 'return'];
 Parser.prototype._parseCommand = function(acceptCommands) {
     if (!this._lexer.accept('func', acceptCommands)) return null;

@@ -19,6 +19,10 @@
         \begin{algorithm}
         \caption{Test text-style}
         \begin{algorithmic}
+        \REQUIRE some preconditions
+        \ENSURE some postconditions
+        \INPUT some inputs
+        \OUTPUT some outputs
         \PROCEDURE{Test-Declarations}{}
             \STATE font families: {\sffamily sffamily, \ttfamily ttfamily, \normalfont normalfont, \rmfamily rmfamily.}
             \STATE font weights: {normal weight, \bfseries bold, \mdseries 
