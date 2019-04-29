@@ -30,9 +30,36 @@ your HTML files:
 <script src="//path/to/pseudocode/pseudocode.min.js"></script>
 ```
 
-Pseudocode.js depends on [KaTeX](https://github.com/Khan/KaTeX) to render math 
-formulas and uses KaTeX's fonts to render texts. So make sure that [KaTeX is 
-setup](https://github.com/Khan/KaTeX#usage) properly.
+Pseudocode.js can use either [KaTeX](https://github.com/Khan/KaTeX) or [MathJax](https://www.mathjax.org/) to render math 
+formulas and uses some KaTeX's fonts **(KaTeX's CSS)** to render styled texts.
+
+#### For KaTeX users
+Include these 2 tags in `<head>`:
+```html
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.1/dist/katex.min.css" integrity="sha384-dbVIfZGuN1Yq7/1Ocstc1lUEm+AT+/rCkibIcC/OmWo5f0EA48Vf8CytHzGrSwbQ" crossorigin="anonymous">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta/katex.min.js" integrity="sha384-ad+n9lzhJjYgO67lARKETJH6WuQVDDlRfj81AJJSswMyMkXTD49wBj5EP004WOY6" crossorigin="anonymous"></script>
+```
+
+#### For MathJax users
+Include these 3 tags in `<head>`:
+```html
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.1/dist/katex.min.css" integrity="sha384-dbVIfZGuN1Yq7/1Ocstc1lUEm+AT+/rCkibIcC/OmWo5f0EA48Vf8CytHzGrSwbQ" crossorigin="anonymous">
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML'></script>
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    jax: ["output/SVG"],
+    tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        displayMath: [['$$','$$'], ['\[','\]']],
+        processEscapes: true,
+        processEnvironments: true,
+        skipTags: ['code', 'script', 'noscript', 'style', 'textarea', 'pre'],
+        TeX: { equationNumbers: { autoNumber: "AMS" },
+            extensions: ["AMSmath.js", "AMSsymbols.js"] }
+    }
+    });
+</script>
+```
 
 Assume the pseudocode to be rendered is in a `<pre>` DOM element:
 ```html

@@ -160,12 +160,29 @@ TextEnvironment.prototype.renderToHTML = function() {
                 this._html.putText(text);
                 break;
             case 'math':
-                if (!katex) {
+                useKatex = true;
+                if (typeof katex === 'undefined') {
                     try { katex = require('katex'); }
-                    catch (e) { throw 'katex is required to render math'; }
+                    catch (e) {
+                        if (typeof MathJax === 'undefined') {
+                            throw 'KaTeX or MathJax is required to render math';
+                        }
+                        var useKatex = false;
+                    }
                 }
-                var mathHTML = katex.renderToString(text);
-                this._html.putSpan(mathHTML);
+
+                // KaTeX
+                if (useKatex) {
+                    var mathHTML = katex.renderToString(text);
+                    this._html.putSpan(mathHTML);
+                }
+
+                // MathJax
+                else {
+                    this._html.putSpan(MathJax.HTML.Element("span", null,
+                        ["$" + text + "$"]).outerHTML);
+                }
+
                 break;
             case 'cond-symbol':
                 this._html
