@@ -197,7 +197,7 @@ $i \gets i + 1$
 # Function call
 \CALL{<func>}{<args>}
 # Keywords
-\AND, \OR, \XOR, \NOT, \TO, \TRUE, \FALSE
+\AND, \OR, \XOR, \NOT, \TO, \DOWNTO, \TRUE, \FALSE
 # LaTeX's sizing commands
 \tiny, \scriptsize, \footnotesize, \small \normalsize, \large, \Large, \LARGE, 
 \huge, \HUGE

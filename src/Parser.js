@@ -54,7 +54,7 @@
  *
  *     <call>          :== \CALL{<name>}({<close-text>})
  *     <special>       :== \\ | \{ | \} | \$ | \& | \# | \% | \_
- *     <cond-symbol>   :== \AND | \OR | \NOT | \TRUE | \FALSE | \TO
+ *     <cond-symbol>   :== \AND | \OR | \NOT | \TRUE | \FALSE | \TO | \DOWNTO
  *     <text-symbol>   :== \textbackslash
  *     <quote-symbol>  :== ` | `` | ' | ''
  *     (More LaTeX symbols can be added if necessary. See
@@ -447,7 +447,7 @@ var ACCEPTED_TOKEN_BY_ATOM = {
     'special': { tokenType: 'special' },
     'cond-symbol': {
         tokenType: 'func',
-        tokenValues: ['and', 'or', 'not', 'true', 'false', 'to'],
+        tokenValues: ['and', 'or', 'not', 'true', 'false', 'to', 'downto'],
     },
     'quote-symbol': {
         tokenType: 'quote',
