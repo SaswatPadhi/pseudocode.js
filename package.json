@@ -21,7 +21,7 @@
         "watchify": "^3.9.0",
         "uglify-js": "~2.7.5",
         "clean-css-cli": "^4.0.0",
-        "eslint": "^3.13.0"
+        "eslint": "^6.6.0"
     },
     "license": "MIT"
 }
