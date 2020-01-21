@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Pseudocode.js Samples with MathJax</title>
+
+    <!-- Setup MathJax -->
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$','$'], ['\\(','\\)']],
+                displayMath: [['$$','$$'], ['\[','\]']],
+                processEscapes: true,
+                processEnvironments: true,
+            }
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3.0.0/es5/tex-chtml.js"
+            integrity="sha256-3Fdoa5wQb+JYfEmTpQHx9sc/GuwpfC/0R9EpBki+mf8=" crossorigin>
+    </script>
+
+    <!-- Pseudocode -->
+    <link rel="stylesheet" href="pseudocode.css" type="text/css">
+    <script src="pseudocode.js" type="text/javascript"></script>
+</head>
+
+<body>
+    <pre id="test-basics" style="display:none">
+        \begin{algorithm}
+        \caption{Test text-style}
+        \begin{algorithmic}
+        \REQUIRE some preconditions
+        \ENSURE some postconditions
+        \INPUT some inputs
+        \OUTPUT some outputs
+        \PROCEDURE{Test-Declarations}{}
+            \STATE font families: {\sffamily sffamily, \ttfamily ttfamily, \normalfont normalfont, \rmfamily rmfamily.}
+            \STATE font weights: {normal weight, \bfseries bold, \mdseries 
+            medium, \lfseries lighter. }
+            \STATE font shapes: {\itshape itshape \scshape Small-Caps \slshape slshape \upshape upshape.}
+            \STATE font sizes: \tiny tiny \scriptsize scriptsize \footnotesize
+            footnotesize \small small \normalsize normal \large large \Large Large
+            \LARGE LARGE \huge huge \Huge Huge \normalsize
+        \ENDPROCEDURE
+        \PROCEDURE{Test-Commands}{}
+            \STATE \textnormal{textnormal,} \textrm{textrm,} \textsf{textsf,} \texttt{texttt.}
+            \STATE \textbf{textbf,} \textmd{textmd,} \textlf{textlf.}
+            \STATE \textup{textup,} \textit{textit,} \textsc{textsc,} \textsl{textsl.}
+            \STATE \uppercase{uppercase,} \lowercase{LOWERCASE.}
+        \ENDPROCEDURE
+        \PROCEDURE{Test-Colors}{}
+        % feature not implemented
+        \ENDPROCEDURE
+        \end{algorithmic}
+        \end{algorithm}
+
+        \begin{algorithm}
+        \caption{Test atoms}
+        \begin{algorithmic}
+        \STATE \textbf{Specials:} \{ \} \$ \& \# \% \_
+        \STATE \textbf{Bools:} \AND \OR \NOT \TRUE \FALSE
+        \STATE \textbf{Carriage return:} first line \\ second line
+        \STATE \textbf{Text-symbols:} \textbackslash
+        \STATE \textbf{Quote-symbols:} `single quotes', ``double quotes''
+        \STATE \textbf{Math:} $(\mathcal{C}_m)$, $i \gets i + 1$, $E=mc^2$, \( x^n + y^n = z^n \), $\$$, \(\$\)
+        \END{ALGORITHMIC}
+        \END{ALGORITHM}
+    </pre>
+    <pre id="test-codes" style="display:none">
+        \begin{algorithm}
+        \caption{Test control blocks}
+        \begin{algorithmic}
+        \PROCEDURE{Test-If}{}
+            \IF{&lt;cond&gt;}
+                \STATE &lt;block&gt;
+            \ELIF{&lt;cond&gt;}
+                \STATE &lt;block&gt;
+            \ELSE
+                \STATE &lt;block&gt;
+            \ENDIF
+        \ENDPROCEDURE
+        \PROCEDURE{Test-For}{$n$}
+            \STATE $i \gets 0$
+            \FOR{$i < n$}
+                \PRINT $i$
+                \STATE $i \gets i + 1$
+            \ENDFOR
+        \ENDPROCEDURE
+        \PROCEDURE{Test-For-All}{$n$}
+            \FORALL{$i \in \{0, 1, \cdots, n\}$}
+                \PRINT $i$
+            \ENDFOR
+        \ENDPROCEDURE
+        \PROCEDURE{Test-While}{$n$}
+            \STATE $i \gets 0$
+            \WHILE{$i < n$}
+                \PRINT $i$
+                \STATE $i \gets i + 1$
+            \ENDWHILE
+        \ENDPROCEDURE
+        \PROCEDURE{Test-Repeat}{$n$}
+            \STATE $i \gets 0$
+            \REPEAT
+                \PRINT $i$
+                \STATE $i \gets i + 1$
+            \UNTIL{$i>n$}
+        \ENDPROCEDURE
+        \end{algorithmic}
+        \end{algorithm}
+        \begin{algorithm}
+        \caption{Test statements and comments}
+        \begin{algorithmic}
+        \PROCEDURE{Test-Statements}{}
+            \STATE This line is a normal statement
+            \PRINT \texttt{`this is print statement'}
+            \RETURN $retval$
+        \ENDPROCEDURE
+
+        \PROCEDURE{Test-Comments}{} \COMMENT{comment for procedure}
+            \STATE a statement \COMMENT{inline comment}
+            \STATE \COMMENT{line comment}
+            \IF{some condition}\COMMENT{comment for if}
+                \RETURN \TRUE \COMMENT{another inline comment}
+            \ELSE \COMMENT{comment for else}
+                \RETURN \FALSE \COMMENT{yet another inline comment}
+            \ENDIF
+        \ENDPROCEDURE
+        \end{algorithmic}
+        \end{algorithm}
+    </pre>
+    <pre id="test-examples" style="display:none">
+        % This quicksort algorithm is extracted from Chapter 7, Introduction 
+        % to Algorithms (3rd edition)
+        \begin{algorithm}
+        \caption{Quicksort}
+        \begin{algorithmic}
+        \PROCEDURE{Quicksort}{$A, p, r$}
+            \IF{$p < r$} 
+                \STATE $q = $ \CALL{Partition}{$A, p, r$}
+                \STATE \CALL{Quicksort}{$A, p, q - 1$}
+                \STATE \CALL{Quicksort}{$A, q + 1, r$}
+            \ENDIF
+        \ENDPROCEDURE
+        \PROCEDURE{Partition}{$A, p, r$}
+            \STATE $x = A[r]$
+            \STATE $i = p - 1$
+            \FOR{$j = p$ \TO $r - 1$}
+                \IF{$A[j] < x$}
+                    \STATE $i = i + 1$
+                    \STATE exchange
+                    $A[i]$ with $A[j]$
+                \ENDIF
+                \STATE exchange $A[i]$ with $A[r]$
+            \ENDFOR
+        \ENDPROCEDURE
+        \end{algorithmic}
+        \end{algorithm}
+    </pre>
+    <script type="text/javascript">
+        var testBasics = document.getElementById("test-basics").textContent;
+        pseudocode.render(testBasics, document.body, {
+            lineNumber: false,
+            noEnd: true
+        });
+        var testCodes = document.getElementById("test-codes").textContent;
+        pseudocode.render(testCodes, document.body, {
+            lineNumber: false,
+            noEnd: false
+        });
+        var testExamples = document.getElementById("test-examples").textContent;
+        pseudocode.render(testExamples, document.body, {
+            lineNumber: true,
+            noEnd: false
+        });
+    </script>
+</body>
+</html>
