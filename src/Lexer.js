@@ -63,7 +63,7 @@ var mathPattern = {
                 var pos = remain.indexOf(endDel);
                 if (pos < 0)
                     throw new ParseError('Math environment is not closed',
-                        this._pos, this._input);
+                                         this._pos, this._input);
 
                 // false positive, it's escaped, not a match
                 if (pos > 0 && remain[pos - 1] === '\\') {

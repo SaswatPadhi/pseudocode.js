@@ -273,7 +273,7 @@ Parser.prototype._parseFunction = function() {
     lexer.expect('func', 'end' + funcType);
 
     var functionNode = new ParseNode('function',
-                        {type: funcType, name: funcName});
+                                     {type: funcType, name: funcName});
     functionNode.addChild(argsNode);
     functionNode.addChild(blockNode);
     return functionNode;
@@ -478,9 +478,8 @@ var ACCEPTED_TOKEN_BY_ATOM = {
 Parser.prototype._parseAtom = function() {
     for (var atomType in ACCEPTED_TOKEN_BY_ATOM) {
         var acceptToken = ACCEPTED_TOKEN_BY_ATOM[atomType];
-        var tokenText = this._lexer.accept(
-                            acceptToken.tokenType,
-                            acceptToken.tokenValues);
+        var tokenText = this._lexer.accept(acceptToken.tokenType,
+                                           acceptToken.tokenValues);
         if (tokenText === null) continue;
 
         var anyWhitespace = this._lexer.get().whitespace;
