@@ -16,24 +16,107 @@ It supports all modern browsers, including Chrome, Safari, Firefox, Edge, and
 IE 9 - IE 11.
 
 ## Demo
-Visit the [project website](http://www.tatetian.io/pseudocode.js) for demo.
+Visit the [project website](https://saswatpadhi.github.io/pseudocode.js) for demo.
 
 ## Usage
 
 ### Quick Start
-Download [pseudocode.js](https://github.com/tatetian/pseudocode.js/releases), 
-and host the files on your server. And then include the `js` and `css` files in 
-your HTML files:
+
+Pseudocode.js can render math formulas using either
+[KaTeX](https://github.com/Khan/KaTeX), or [MathJax](https://www.mathjax.org/).
+
+#### Step 1A &middot; For KaTeX users
+Include the following in the `<head>` of your page:
+
+```html
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css"
+        integrity="sha256-V8SV2MO1FUb63Bwht5Wx9x6PVHNa02gv8BgH/uH3ung=" crossorigin="anonymous" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.js"
+        integrity="sha256-F/Xda58SPdcUCr+xhSGz9MA2zQBPb0ASEYKohl8UCHc=" crossorigin="anonymous">
+</script>
+```
+
+#### Step 1B &middot; For MathJax 2.x users
+Include the following in the `<head>` of your page:
+
+```html
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS_CHTML'>
+</script>
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [['$','$'], ['\\(','\\)']],
+            displayMath: [['$$','$$'], ['\[','\]']],
+            processEscapes: true,
+            processEnvironments: true,
+        }
+    });
+</script>
+```
+
+#### Step 1C &middot; For MathJax 3.x users
+Include the following in the `<head>` of your page:
+
+```html
+<script>
+    MathJax = {
+        tex: {
+            inlineMath: [['$','$'], ['\\(','\\)']],
+            displayMath: [['$$','$$'], ['\[','\]']],
+            processEscapes: true,
+            processEnvironments: true,
+        }
+    }
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3.0.0/es5/tex-chtml.js"
+        integrity="sha256-3Fdoa5wQb+JYfEmTpQHx9sc/GuwpfC/0R9EpBki+mf8=" crossorigin>
+</script>
+```
+
+#### Step 2 &middot; Grab pseudocode.js
+Download a stable release of [pseudocode.js](https://github.com/SaswatPadhi/pseudocode.js/releases), 
+and host the files on your server.
+Then include the following in the `<head>` of your page:
 
 ```html
 <link rel="stylesheet" href="//path/to/pseudocode/pseudocode.min.css">
 <script src="//path/to/pseudocode/pseudocode.min.js"></script>
 ```
 
-Pseudocode.js depends on [KaTeX](https://github.com/Khan/KaTeX) to render math 
-formulas and uses KaTeX's fonts to render texts. So make sure that [KaTeX is 
-setup](https://github.com/Khan/KaTeX#usage) properly.
 
+#### Step 3 &middot; Write your pseudocode inside a `<pre>`
+We assume the pseudocode to be rendered is in a `<pre>` DOM element.
+Here is an example that illustrates a quicksort algorithm:
+
+```tex
+% This quicksort algorithm is extracted from Chapter 7, Introduction to Algorithms (3rd edition)
+\begin{algorithm}
+\caption{Quicksort}
+\begin{algorithmic}
+\PROCEDURE{Quicksort}{$A, p, r$}
+    \IF{$p < r$} 
+        \STATE $q = $ \CALL{Partition}{$A, p, r$}
+        \STATE \CALL{Quicksort}{$A, p, q - 1$}
+        \STATE \CALL{Quicksort}{$A, q + 1, r$}
+    \ENDIF
+\ENDPROCEDURE
+\PROCEDURE{Partition}{$A, p, r$}
+    \STATE $x = A[r]$
+    \STATE $i = p - 1$
+    \FOR{$j = p$ \TO $r - 1$}
+        \IF{$A[j] < x$}
+            \STATE $i = i + 1$
+            \STATE exchange
+            $A[i]$ with $A[j]$
+        \ENDIF
+        \STATE exchange $A[i]$ with $A[r]$
+    \ENDFOR
+\ENDPROCEDURE
+\end{algorithmic}
+\end{algorithm}</textarea>
+```
+
+### API
 Assume the pseudocode to be rendered is in a `<pre>` DOM element:
 ```html
 <pre id="hello-world-code" style="display:hidden;">
@@ -64,36 +147,6 @@ var htmlStr = pseudocode.renderToString(code, options);
 console.log(htmlStr);
 ```
 
-### Example
-To give you a sense of the grammar for pseudocode, here is an example that 
-illustrates a quicksort algorithm:
-```tex
-% This quicksort algorithm is extracted from Chapter 7, Introduction to Algorithms (3rd edition)
-\begin{algorithm}
-\caption{Quicksort}
-\begin{algorithmic}
-\PROCEDURE{Quicksort}{$A, p, r$}
-    \IF{$p < r$} 
-        \STATE $q = $ \CALL{Partition}{$A, p, r$}
-        \STATE \CALL{Quicksort}{$A, p, q - 1$}
-        \STATE \CALL{Quicksort}{$A, q + 1, r$}
-    \ENDIF
-\ENDPROCEDURE
-\PROCEDURE{Partition}{$A, p, r$}
-    \STATE $x = A[r]$
-    \STATE $i = p - 1$
-    \FOR{$j = p$ \TO $r - 1$}
-        \IF{$A[j] < x$}
-            \STATE $i = i + 1$
-            \STATE exchange
-            $A[i]$ with $A[j]$
-        \ENDIF
-        \STATE exchange $A[i]$ with $A[r]$
-    \ENDFOR
-\ENDPROCEDURE
-\end{algorithmic}
-\end{algorithm}</textarea>
-```
 
 ### Grammar
 There are several packages for typesetting algorithms in LaTeX, among which 
@@ -237,17 +290,21 @@ make setup
 make
 ```
 
-Then, open `static/test-suite.html` in your favourite browser to see whether 
-algorithms are typeset correctly.
+Then, open one of the sample documents:
+- `build/katex-samples.html`, or
+- `build/mathjax-v2-samples.html`, or
+- `build/mathjax-v3-samples.html`
+in your favourite browser to check if the algorithms are typeset correctly.
 
 
 ## Author
-Tate Tian ([@tatetian](https://github.com/tatetian)) creates pseudocode.js. Any 
-suggestions and bug reports are welcome.
+pseudocode.js was originally written by Tate Tian ([@tatetian](https://github.com/tatetian)).
+Together with [@ZJUGuoShuai](https://github.com/ZJUGuoShuai),
+I ([@SaswatPadhi](https://github.com/SaswatPadhi)) added the MathJax support,
+and I am the current maintainer of this project.
+Suggestions, bug reports and pull requests are most welcome.
 
 ## Acknowledgement
-Pseudocode.js is partially inspired by [KaTeX](http://khan.github.io/KaTeX/) and 
-relies on it to render math formulas.
+Pseudocode.js is partially inspired by [KaTeX](http://khan.github.io/KaTeX/).
 Thanks Emily Eisenberg([@xymostech](https://github.com/xymostech))
 and other contributers for building such a wonderful project.
-

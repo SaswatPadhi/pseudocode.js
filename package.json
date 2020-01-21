@@ -1,19 +1,19 @@
 {
     "name": "pseudocode",
-    "version": "1.1.1",
+    "version": "2.0",
     "author": {
-        "name": "Tate Tian",
-        "email": "tatetian@gmail.com",
-        "url": "http://www.tatetian.me"
+        "name": "Saswat Padhi",
+        "email": "saswat.sourav@gmail.com",
+        "url": "https://saswatpadhi.github.io/"
     },
     "description": "Beautiful pseudocode for the Web",
     "main": "pseudocode.js",
     "repository": {
         "type": "git",
-        "url": "git://github.com/tatetian/pseudocode.js"
+        "url": "git://github.com/SaswatPadhi/pseudocode.js"
     },
     "files": [
-        "PseudoCode.js",
+        "pseudoCode.js",
         "src/"
     ],
     "devDependencies": {

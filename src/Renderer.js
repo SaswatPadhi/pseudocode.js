@@ -3,7 +3,7 @@
 var utils = require('./utils');
 
 /*
- * TextStyle - used by TextEnvironment class to  handles LaTeX text-style
+ * TextStyle - used by TextEnvironment class to handle LaTeX text-style
  * commands or declarations.
  *
  * The font declarations are:
@@ -141,7 +141,7 @@ TextEnvironment.prototype._renderCloseText = function(node) {
     var newTextStyle = new TextStyle(this._textStyle.fontSize());
     var closeTextEnv = new TextEnvironment(node.children, newTextStyle);
     if (node.whitespace) this._html.putText(' ');
-    this._html.putSpan(closeTextEnv.renderToHTML());
+    this._html.putHTML(closeTextEnv.renderToHTML());
 };
 
 TextEnvironment.prototype.renderToHTML = function() {
@@ -160,12 +160,24 @@ TextEnvironment.prototype.renderToHTML = function() {
                 this._html.putText(text);
                 break;
             case 'math':
-                if (!katex) {
+                useKatex = true;
+                if (typeof katex === 'undefined') {
                     try { katex = require('katex'); }
-                    catch (e) { throw 'katex is required to render math'; }
+                    catch (e) {
+                        if (typeof MathJax === 'undefined') {
+                            throw 'KaTeX or MathJax is required to render math';
+                        }
+                        var useKatex = false;
+                    }
                 }
-                var mathHTML = katex.renderToString(text);
-                this._html.putSpan(mathHTML);
+
+                if (useKatex) { // KaTeX
+                    this._html.putHTML(katex.renderToString(text));
+                }
+                else { // MathJax
+                    this._html.putText("$" + text + "$");
+                }
+
                 break;
             case 'cond-symbol':
                 this._html
@@ -244,7 +256,7 @@ TextEnvironment.prototype.renderToHTML = function() {
                 this._html.beginSpan(null, this._textStyle.toCSS());
                 var textEnvForDclr = new TextEnvironment(this._nodes,
                                                          this._textStyle);
-                this._html.putSpan(textEnvForDclr.renderToHTML());
+                this._html.putHTML(textEnvForDclr.renderToHTML());
                 this._html.endSpan();
                 break;
             case 'font-cmd':
@@ -256,7 +268,7 @@ TextEnvironment.prototype.renderToHTML = function() {
                 this._html.beginSpan(null, innerTextStyle.toCSS());
                 var textEnvForCmd = new TextEnvironment(textNode.children,
                                                         innerTextStyle);
-                this._html.putSpan(textEnvForCmd.renderToHTML());
+                this._html.putHTML(textEnvForCmd.renderToHTML());
                 this._html.endSpan();
                 break;
             default:
@@ -308,8 +320,7 @@ HTMLBuilder.prototype.endSpan = function() {
     return this._endTag('span');
 };
 
-HTMLBuilder.prototype.putHTML =
-HTMLBuilder.prototype.putSpan = function(html) {
+HTMLBuilder.prototype.putHTML = function(html) {
     this._flushText();
     this._body.push(html);
     return this;
@@ -799,13 +810,13 @@ Renderer.prototype._buildTree = function(node) {
         case 'open-text':
             var openTextEnv = new TextEnvironment(node.children,
                                                   this._globalTextStyle);
-            this._html.putSpan(openTextEnv.renderToHTML());
+            this._html.putHTML(openTextEnv.renderToHTML());
             break;
         case 'close-text':
             var outerFontSize = this._globalTextStyle.fontSize();
             var newTextStyle = new TextStyle(outerFontSize);
             var closeTextEnv = new TextEnvironment(node.children, newTextStyle);
-            this._html.putSpan(closeTextEnv.renderToHTML());
+            this._html.putHTML(closeTextEnv.renderToHTML());
             break;
         default:
             throw new ParseError('Unexpected ParseNode of type ' + node.type);

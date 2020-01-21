@@ -1,17 +1,25 @@
+@import url('https://cdn.jsdelivr.net/npm/katex@0.10.1/dist/katex.min.css');
 
-@font-face{
-    font-family:KaTeX_Typewriter_Replace;
-    src:url(fonts/KaTeX_Typewriter-Regular.eot);
-    src:url(fonts/KaTeX_Typewriter-Regular.eot#iefix) format('embedded-opentype'),url(fonts/KaTeX_Typewriter-Regular.woff2) format('woff2'),url(fonts/KaTeX_Typewriter-Regular.woff) format('woff'),url(fonts/KaTeX_Typewriter-Regular.ttf) format('ttf');
-    font-weight:400;font-style:normal
+@font-face {
+    font-family: KaTeX_Typewriter_Replace;
+    src: url(fonts/KaTeX_Typewriter-Regular.eot);
+    src: url(fonts/KaTeX_Typewriter-Regular.eot#iefix) format('embedded-opentype'),
+         url(fonts/KaTeX_Typewriter-Regular.woff2) format('woff2'),
+         url(fonts/KaTeX_Typewriter-Regular.woff) format('woff'),
+         url(fonts/KaTeX_Typewriter-Regular.ttf) format('ttf');
+    font-weight: 400;
+    font-style: normal;
 }
 
-@font-face{
-    font-family:KaTeX_SansSerif_Replace;
-    src:url(fonts/KaTeX_SansSerif-Bold.eot);
-    src:url(fonts/KaTeX_SansSerif-Bold.eot#iefix) format('embedded-opentype'),url(fonts/KaTeX_SansSerif-Bold.woff2) format('woff2'),url(fonts/KaTeX_SansSerif-Bold.woff) format('woff'),url(fonts/KaTeX_SansSerif-Bold.ttf) format('ttf');
-    font-weight:700;
-    font-style:normal
+@font-face {
+    font-family: KaTeX_SansSerif_Replace;
+    src: url(fonts/KaTeX_SansSerif-Bold.eot);
+    src: url(fonts/KaTeX_SansSerif-Bold.eot#iefix) format('embedded-opentype'),
+         url(fonts/KaTeX_SansSerif-Bold.woff2) format('woff2'),
+         url(fonts/KaTeX_SansSerif-Bold.woff) format('woff'),
+         url(fonts/KaTeX_SansSerif-Bold.ttf) format('ttf');
+    font-weight: 700;
+    font-style: normal;
 }
 
 .ps-root {
@@ -29,10 +37,16 @@
 .ps-root .ps-algorithm.with-caption > .ps-line:first-child {
     border-bottom: 2px solid black;
 }
+
 .ps-root .katex {
     text-indent: 0;
     font-size: 1em;
 }
+.ps-root .mjx-chtml {
+    text-indent: 0;
+    font-size: 1em !important;
+}
+
 .ps-root .ps-line {
     margin: 0; padding: 0;
     line-height: 1.2;
