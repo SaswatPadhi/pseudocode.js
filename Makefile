@@ -1,6 +1,6 @@
 .PHONY: default setup lint build release clean
 
-VERSION=1.1
+VERSION=2.0
 
 # Building tools
 BROWSERIFY = $(realpath ./node_modules/.bin/browserify)
@@ -12,6 +12,8 @@ UGLIFYJS = $(realpath ./node_modules/.bin/uglifyjs) \
 CLEANCSS = $(realpath ./node_modules/.bin/cleancss)
 ESLINT = $(realpath ./node_modules/.bin/eslint)
 
+SAMPLES = build/katex-samples.html build/mathjax-v2-samples.html build/mathjax-v3-samples.html
+
 default: build
 
 
@@ -21,12 +23,12 @@ setup: static/katex/
 
 static/katex/:
 	@rm -rf static/katex
-	cd static && wget https://github.com/Khan/KaTeX/releases/download/v0.8.0/katex.zip && unzip katex.zip
+	cd static && wget https://github.com/Khan/KaTeX/releases/download/v0.11.1/katex.zip && unzip katex.zip
 	@rm -rf static/katex.zip
 	@echo "> Katex downloaded"
 
 
-build: build/pseudocode.js build/pseudocode.css build/samples.html
+build: build/pseudocode.js build/pseudocode.css $(SAMPLES)
 	@echo "> Building succeeded"
 
 build/pseudocode.js: pseudocode.js $(wildcard src/*.js)
@@ -43,7 +45,7 @@ watch-js: pseudocode.js $(wildcard src/*.js)
 build/pseudocode.css: static/pseudocode.css
 	cp static/pseudocode.css build/pseudocode.css
 
-build/samples.html: static/samples.html.template
+build/%-samples.html: static/%-samples.html.template
 	cp $< $@
 
 
@@ -57,7 +59,7 @@ build/pseudocode-js.tar.gz: build/$(RELEASE_DIR)
 build/pseudocode-js.zip: build/$(RELEASE_DIR)
 	cd build && zip -rq pseudocode-js.zip $(RELEASE_DIR)
 
-build/$(RELEASE_DIR): build/pseudocode.js build/pseudocode.min.js build/pseudocode.css build/pseudocode.min.css build/samples.html README.md
+build/$(RELEASE_DIR): build/pseudocode.js build/pseudocode.min.js build/pseudocode.css build/pseudocode.min.css $(SAMPLES) README.md
 	mkdir -p build/$(RELEASE_DIR)
 	cp -r $^ build/$(RELEASE_DIR)
 
