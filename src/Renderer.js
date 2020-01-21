@@ -139,8 +139,7 @@ function TextEnvironment(nodes, textStyle) {
 
 TextEnvironment.prototype._renderCloseText = function(node) {
     var newTextStyle = new TextStyle(this._textStyle.fontSize());
-    var closeTextEnv = new TextEnvironment(
-                            node.children, newTextStyle);
+    var closeTextEnv = new TextEnvironment(node.children, newTextStyle);
     if (node.whitespace) this._html.putText(' ');
     this._html.putSpan(closeTextEnv.renderToHTML());
 };
@@ -169,9 +168,10 @@ TextEnvironment.prototype.renderToHTML = function() {
                 this._html.putSpan(mathHTML);
                 break;
             case 'cond-symbol':
-                this._html.beginSpan('ps-keyword')
-                          .putText(text.toLowerCase())
-                          .endSpan();
+                this._html
+                    .beginSpan('ps-keyword')
+                    .putText(text.toLowerCase())
+                    .endSpan();
                 break;
             case 'special':
                 if (text === '\\\\') {
@@ -243,7 +243,7 @@ TextEnvironment.prototype.renderToHTML = function() {
                 this._textStyle.updateByCommand(text);
                 this._html.beginSpan(null, this._textStyle.toCSS());
                 var textEnvForDclr = new TextEnvironment(this._nodes,
-                                        this._textStyle);
+                                                         this._textStyle);
                 this._html.putSpan(textEnvForDclr.renderToHTML());
                 this._html.endSpan();
                 break;
@@ -255,7 +255,7 @@ TextEnvironment.prototype.renderToHTML = function() {
                 innerTextStyle.updateByCommand(text);
                 this._html.beginSpan(null, innerTextStyle.toCSS());
                 var textEnvForCmd = new TextEnvironment(textNode.children,
-                                        innerTextStyle);
+                                                        innerTextStyle);
                 this._html.putSpan(textEnvForCmd.renderToHTML());
                 this._html.endSpan();
                 break;
@@ -389,7 +389,7 @@ var entityMap = {
 };
 
 HTMLBuilder.prototype._escapeHtml = function(string) {
-    return String(string).replace(/[&<>"'\/]/g, function(s) {
+    return String(string).replace(/[&<>"'/]/g, function(s) {
         return entityMap[s];
     });
 };
@@ -412,8 +412,8 @@ HTMLBuilder.prototype._escapeHtml = function(string) {
  **/
 function RendererOptions(options) {
     options = options || {};
-    this.indentSize = options.indentSize ?
-                        this._parseEmVal(options.indentSize) : 1.2;
+    this.indentSize =
+        options.indentSize ? this._parseEmVal(options.indentSize) : 1.2;
     this.commentDelimiter  = options.commentDelimiter  || ' // ';
     this.lineNumberPunc = options.lineNumberPunc || ':';
     this.lineNumber = options.lineNumber !== undefined ? options.lineNumber : false;
@@ -505,11 +505,12 @@ Renderer.prototype._newLine = function() {
 
         this._html.beginP('ps-line ps-code', this._globalTextStyle.toCSS());
         if (this._options.lineNumber) {
-            this._html.beginSpan('ps-linenum', {
-                'left': -((this._blockLevel - 1) * (indentSize * 1.25)) + 'em',
-            })
-            .putText(this._numLOC + this._options.lineNumberPunc)
-            .endSpan();
+            this._html
+                .beginSpan('ps-linenum', {
+                    'left': -((this._blockLevel - 1) * (indentSize * 1.25)) + 'em',
+                })
+                .putText(this._numLOC + this._options.lineNumberPunc)
+                .endSpan();
         }
     }
     // if this line is for pre-conditions (e.g. \REQUIRE)
@@ -797,7 +798,7 @@ Renderer.prototype._buildTree = function(node) {
         // ------------------- Text -------------------
         case 'open-text':
             var openTextEnv = new TextEnvironment(node.children,
-                                    this._globalTextStyle);
+                                                  this._globalTextStyle);
             this._html.putSpan(openTextEnv.renderToHTML());
             break;
         case 'close-text':
