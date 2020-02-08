@@ -1,0 +1,293 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+    <title>pseudocode.js</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/styles/default.min.css"
+          integrity="sha256-zcunqSn1llgADaIPFyzrQ8USIjX2VpuxHzUwYisOwo8=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="pseudocode.css">
+
+    <!--[if lt IE 9]>
+    <script src="javascripts/html5.js"></script>
+    <![endif]-->
+    <script src="javascripts/autosize.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/highlight.min.js"
+            integrity="sha256-eOgo0OtLL4cdq7RdwRUiGKLX9XsIJ7nGhWEKbohmVAQ=" crossorigin="anonymous">
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.js"
+            integrity="sha256-F/Xda58SPdcUCr+xhSGz9MA2zQBPb0ASEYKohl8UCHc=" crossorigin="anonymous">
+    </script>
+    <script src="pseudocode.js"></script>
+
+    <style type="text/css">
+        body {
+            color: #333;
+            font-size: 18px;
+        }
+        h1 {
+            font-size: 2em;
+        }
+        .demo-container {
+            font-size: 1.2em;
+            position: relative;
+            padding-right: 2.4em;
+        }
+        .button {
+            position: absolute;
+            right: 0;
+            top: -0.1em;
+            font-size: 1.6em;
+            color: #39c;
+        }
+        .demo-editor {
+            width: 100%;
+            min-height: 60px;
+            border: none;
+            vertical-align: top;
+            font-size: 0.8em;
+            margin: 0.8em 0;
+            border-top: 3px solid #000;
+            border-bottom: 3px solid #000;
+            font-family: Courier New,Courier,Lucida Sans Typewriter,Lucida Typewriter,monospace; 
+        }
+        .demo-editor{
+            font-size: 0.7em;
+            display: none;
+        }
+        .demo-container.editing .btn-edit {
+            display: none;
+        }
+        .btn-done {
+            display: none;
+        }
+        .demo-container.editing .btn-done {
+            display: inline;
+        }
+        .demo-container.editing .demo-editor {
+            display: block;
+        }
+        .demo-container.editing .demo-result {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+<div class="wrapper">
+    <header>
+        <h1>pseudocode.js</h1>
+        <p>Beautiful pseudocode for the Web</p>
+
+        <p class="view">
+            <a href="https://github.com/SaswatPadhi/pseudocode.js">
+                View the Project on GitHub 
+                <small>SaswatPadhi/pseudocode.js</small>
+            </a>
+        </p>
+
+        <ul>
+            <li>
+                <a href="https://github.com/SaswatPadhi/pseudocode.js/releases">
+                    Download <strong>Releases</strong>
+                </a>
+            </li>
+            <li>
+                <a href="https://github.com/SaswatPadhi/pseudocode.js/zipball/master">
+                    Download <strong>Source</strong>
+                </a>
+            </li>
+            <li>
+                <a href="https://github.com/SaswatPadhi/pseudocode.js">
+                    View On <strong>GitHub</strong>
+                </a>
+            </li>
+        </ul>
+    </header>
+
+    <section>
+        <h3>Demo</h3>
+
+        <p>pseudocode.js enables JavaScript to typeset algorithms as <em>beautifully</em>
+        as LaTeX does: </p>
+
+        <div class="demo-container">
+            <a class="btn-edit" href="#" onClick="toggleEdit(event)"><div class="fas fa-edit button"></div></a>
+            <a class="btn-done" href="#" onClick="toggleEdit(event)"><div class="fas fa-caret-square-right button"></div></a>
+            <div class="demo-result">
+            </div>
+            <textarea class="demo-editor">
+% This quicksort algorithm is extracted from Chapter 7, Introduction to Algorithms (3rd edition)
+\begin{algorithm}
+\caption{Quicksort}
+\begin{algorithmic}
+\PROCEDURE{Quicksort}{$A, p, r$}
+    \IF{$p < r$} 
+        \STATE $q = $ \CALL{Partition}{$A, p, r$}
+        \STATE \CALL{Quicksort}{$A, p, q - 1$}
+        \STATE \CALL{Quicksort}{$A, q + 1, r$}
+    \ENDIF
+\ENDPROCEDURE
+\PROCEDURE{Partition}{$A, p, r$}
+    \STATE $x = A[r]$
+    \STATE $i = p - 1$
+    \FOR{$j = p$ \TO $r - 1$}
+        \IF{$A[j] < x$}
+            \STATE $i = i + 1$
+            \STATE exchange
+            $A[i]$ with     $A[j]$
+        \ENDIF
+        \STATE exchange $A[i]$ with $A[r]$
+    \ENDFOR
+\ENDPROCEDURE
+\end{algorithmic}
+\end{algorithm}</textarea>
+        </div>
+        
+        <p> The demo above is editable. Feel free to experiment with it by clicking 
+        on the edit button. </p>
+        
+        <h3>Features</h3>
+
+        <p>pseudocode.js is a JavaScript library that typesets pseudocode 
+        beautifully to HTML: </p>
+        
+        <ul>
+            <li><strong>Intuitive grammar:</strong>
+            pseudocode.js takes a LaTeX-style input that supports the 
+            algorithmic constructs from LaTeX's algorithm packages. With or 
+            without LaTeX experience, a user should find the grammar fairly intuitive. 
+            </li>
+            <li><strong>Print quality:</strong>
+            The HTML output produced by pseudocode.js is (almost) identical 
+            with the pretty algorithms printed on publications that
+            are typeset by LaTeX.</li>
+            <li><strong>Math formula support:</strong>
+            Inserting math formulas in pseudocode.js is as easy as LaTeX. Just
+            enclose math expression in <code>$...$</code> or 
+            <code>\(...\)</code>.
+            </li>
+        </ul>
+        </p>
+
+        <p>It supports all modern browsers, including Chrome, Safari, 
+        Firefox, Opera, and IE 8 - IE 11. </p>
+        
+        <h3>Usage</h3>
+
+        <p style='text-align: justify;'>
+            Pseudocode.js supports multiple backends to render math formulas.
+            If you want to include any math formulas in your pseudocode,
+            please make sure that either <a href="https://github.com/Khan/KaTeX#usage">KaTeX</a>
+            or <a href="https://www.mathjax.org/#gettingstarted">MathJax</a>
+            is properly setup in your document.
+        </p>
+
+        <p>
+            Download <a href="https://github.com/SaswatPadhi/pseudocode.js/releases">pseudocode.js</a>,
+            and host the files on your server. And then include the js and css files in your HTML files:
+        </p>
+
+        <pre><code class="language-html">&lt;link rel="stylesheet" href="//path/to/pseudocode/pseudocode.min.css"&gt;
+&lt;script src="//path/to/pseudocode/pseudocode.min.js"&gt;&lt;/script&gt;</code></pre>
+
+        <p>Place the pseudocode to be rendered in a <code>&lt;pre&gt;</code> element:</p>
+        
+        <pre><code class="language-html">&lt;pre id="hello-world-code" style="display:hidden;"&gt;
+    \begin{algorithmic}
+    \PRINT \texttt{'hello world'}
+    \end{algorithmic}
+&lt;/pre&gt;</code></pre>
+
+        <p>
+            Finally, call <code>pseudocode.render</code> by placing the following Javascript snippet
+            at the end of your document body:
+        </p>
+
+        <pre><code class="language-html">&lt;script&gt;
+    var elem = document.getElementById("hello-world-code");
+    var options = {
+        lineNumber: true
+    };
+    pseudocode.render(elem.textContent, elem.parentNode, options);
+&lt;/script&gt;</code></pre>
+
+        <p>
+            For more details on available options and backends, please see the
+            <a href="https://github.com/SaswatPadhi/pseudocode.js#usage">usage section of README</a>.
+        </p>
+
+        <h3>Author</h3>
+        <p style='text-align: justify;'>
+            pseudocode.js was originally written by Tate Tian (<a href="https://github.com/tatetian">@tatetian</a>).
+            Together with <a href="https://github.com/ZJUGuoShuai">@ZJUGuoShuai</a>,
+            I (<a href="https://github.com/SaswatPadhi">@SaswatPadhi</a>) added the MathJax support,
+            and I am the current maintainer of this project.
+            Suggestions, bug reports and pull requests are most welcome.
+        </p>
+
+        <h3>Acknowledgement</h3>
+        <p style='text-align: justify;'>
+            Pseudocode.js is partially inspired by <a href="http://khan.github.io/KaTeX/">KaTeX</a>
+            and relies on it to render math formulas.
+            Thanks Emily Eisenberg(<a href="https://github.com/xymostech">@xymostech</a>)
+            and other contributers for building such a wonderful project.
+        </p>
+    </section>
+
+    <footer>
+        <p>This project is maintained by
+            <a href="https://github.com/SaswatPadhi">Saswat Padhi</a>
+        </p>
+        <p>
+            <small>Hosted on GitHub Pages &mdash; Theme by 
+                <a href="https://github.com/orderedlist">orderedlist</a>
+            </small>
+        </p>
+    </footer>
+</div>
+<script src="javascripts/scale.fix.js"></script>
+<script>
+    hljs.initHighlightingOnLoad();
+
+    var editorEl = document.getElementsByClassName('demo-editor')[0];
+
+    function renderPseudocode() {
+        var resultEl = document.getElementsByClassName('demo-result')[0];
+        resultEl.innerHTML = '';
+        var options = {
+            captionCount: 0,
+            lineNumber: true
+        };
+        pseudocode.render(editorEl.value, resultEl, options);
+    }
+
+    function toggleEdit(e) {
+        if (e) e.preventDefault();
+
+        var demoContainerEl = document.getElementsByClassName('demo-container')[0];
+        var editing = demoContainerEl.classList.contains('editing');
+        if (editing) {
+            try {
+                renderPseudocode();
+            } catch(e) {
+                console.log(e);
+                return;
+            }
+            demoContainerEl.classList.remove('editing');
+        }
+        else {
+            demoContainerEl.classList.add('editing');
+            autosize(editorEl);
+        }
+    }
+
+    renderPseudocode();
+</script>
+</body>
+</html>
