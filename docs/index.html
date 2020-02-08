@@ -81,7 +81,9 @@
 <body>
 <div class="wrapper">
     <header>
-        <h1>pseudocode.js</h1>
+        <h1>
+            <a href="https://saswatpadhi.github.io/pseudocode.js/">pseudocode.js</a>
+        </h1>
         <p>Beautiful pseudocode for the Web</p>
 
         <p class="view">
@@ -108,11 +110,20 @@
                 </a>
             </li>
         </ul>
+
+        <br><br><br>
+
+        &raquo; <a onclick="load('katex-samples.html')">View KaTeX Samples</a> <br>
+        &raquo; <a onclick="load('mathjax-v2-samples.html')">View MathJax 2.0 Samples</a> <br>
+        &raquo; <a onclick="load('mathjax-v3-samples.html')">View MathJax 3.0 Samples</a> <br>
     </header>
 
-    <section>
-        <h3>Demo</h3>
+    <section id='samples' style='display: none; padding-bottom: 0;'>
+        <iframe id='samples-frame'>
+        </iframe>
+    </section>
 
+    <section id='content'>
         <p>pseudocode.js enables JavaScript to typeset algorithms as <em>beautifully</em>
         as LaTeX does: </p>
 
@@ -254,6 +265,15 @@
 <script src="javascripts/scale.fix.js"></script>
 <script>
     hljs.initHighlightingOnLoad();
+
+    function load(page) {
+        document.getElementById('content').style.display = 'none';
+        document.getElementById('samples').style.display = 'block';
+        
+        var frame = document.getElementById('samples-frame');
+        frame.setAttribute('src', page);
+        frame.height = window.innerHeight - frame.offsetTop - 32 + 'px';
+    }
 
     var editorEl = document.getElementsByClassName('demo-editor')[0];
 

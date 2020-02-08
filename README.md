@@ -1,6 +1,6 @@
 # pseudocode.js - Beautiful pseudocode for the Web
 
-<img align="right" width="42%" src="docs/screenshot.png">
+<img align="right" width="40%" src="docs/screenshot.png">
 
 **pseudocode.js** is a JavaScript library that typesets pseudocode beautifully to 
 HTML.
@@ -17,9 +17,7 @@ HTML.
 It supports all modern browsers, including Chrome, Safari, Firefox, Edge, and
 IE 9 - IE 11.
 
-
-## Demo
-Visit the [project website](https://saswatpadhi.github.io/pseudocode.js) for demo.
+Visit the [project website](https://saswatpadhi.github.io/pseudocode.js) for a demo.
 
 
 ## Usage
@@ -89,7 +87,7 @@ Then include the following in the `<head>` of your page:
 We assume the pseudocode to be rendered is in a `<pre>` DOM element.
 Here is an example that illustrates a quicksort algorithm:
 
-```tex
+```html
 <pre id="quicksort" style="display:hidden;">
     % This quicksort algorithm is extracted from Chapter 7, Introduction to Algorithms (3rd edition)
     \begin{algorithm}
@@ -124,7 +122,7 @@ Insert the following Javascript snippet at the end of your document:
 
 ```html
 <script>
-    var elem = document.getElementById("hello-world-code");
+    var elem = document.getElementById("quicksort");
     var options = {
         lineNumber: true
     };

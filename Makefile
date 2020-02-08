@@ -1,6 +1,6 @@
-.PHONY: build clean docs default lint release setup
+.PHONY: all build clean docs default lint release setup
 
-VERSION=2.0
+VERSION=2.0.0
 
 # Building tools
 BROWSERIFY = $(realpath ./node_modules/.bin/browserify)
@@ -14,6 +14,8 @@ UGLIFYJS = $(realpath ./node_modules/.bin/uglifyjs) \
 
 SAMPLES = build/katex-samples.html build/mathjax-v2-samples.html build/mathjax-v3-samples.html
 
+
+all : clean build docs release
 
 default: build
 
