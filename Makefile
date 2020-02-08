@@ -1,18 +1,19 @@
-.PHONY: default setup lint build release clean
+.PHONY: build clean docs default lint release setup
 
 VERSION=2.0
 
 # Building tools
 BROWSERIFY = $(realpath ./node_modules/.bin/browserify)
+CLEANCSS = $(realpath ./node_modules/.bin/cleancss)
+ESLINT = $(realpath ./node_modules/.bin/eslint)
 WATCHIFY = $(realpath ./node_modules/.bin/watchify)
 UGLIFYJS = $(realpath ./node_modules/.bin/uglifyjs) \
 	--mangle \
 	--beautify \
 	ascii_only=true,beautify=false
-CLEANCSS = $(realpath ./node_modules/.bin/cleancss)
-ESLINT = $(realpath ./node_modules/.bin/eslint)
 
 SAMPLES = build/katex-samples.html build/mathjax-v2-samples.html build/mathjax-v3-samples.html
+
 
 default: build
 
@@ -28,6 +29,12 @@ static/katex/:
 	@echo "> Katex downloaded"
 
 
+
+watch-js: pseudocode.js $(wildcard src/*.js)
+	$(WATCHIFY) $< --standalone pseudocode -o build/pseudocode.js
+
+
+
 build: build/pseudocode.js build/pseudocode.css $(SAMPLES)
 	@echo "> Building succeeded"
 
@@ -38,15 +45,12 @@ build/pseudocode.js: pseudocode.js $(wildcard src/*.js)
 lint: pseudocode.js $(wildcard src/*.js)
 	$(ESLINT) $^
 
-# Watch the changes to js source code and update the target js code
-watch-js: pseudocode.js $(wildcard src/*.js)
-	$(WATCHIFY) $< --standalone pseudocode -o build/pseudocode.js
-
 build/pseudocode.css: static/pseudocode.css
 	cp static/pseudocode.css build/pseudocode.css
 
 build/%-samples.html: static/%-samples.html.template
 	cp $< $@
+
 
 
 release: build build/pseudocode-js.tar.gz build/pseudocode-js.zip
@@ -68,6 +72,14 @@ build/pseudocode.min.js: build/pseudocode.js
 
 build/pseudocode.min.css: build/pseudocode.css
 	$(CLEANCSS) -o $@ $<
+
+
+
+docs: build/pseudocode.min.js build/pseudocode.min.css $(SAMPLES)
+	cp build/pseudocode.min.css docs/pseudocode.css
+	cp build/pseudocode.min.js docs/pseudocode.js
+	cp $(SAMPLES) docs/
+
 
 
 clean:

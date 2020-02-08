@@ -1,36 +1,38 @@
-# Pseudocode.js - Beautiful pseudocode for the Web
+# pseudocode.js - Beautiful pseudocode for the Web
 
-Pseudocode.js is a JavaScript library that typesets pseudocode beautifully to 
+<img align="right" width="42%" src="docs/screenshot.png">
+
+**pseudocode.js** is a JavaScript library that typesets pseudocode beautifully to 
 HTML.
 
-* **Intuitive grammar**: Pseudocode.js takes a LaTeX-style input that supports 
+* _Intuitive grammar:_ Pseudocode.js takes a LaTeX-style input that supports 
   the algorithmic constructs from LaTeX's algorithm packages. With or without 
   LaTeX experience, a user should find the grammar fairly intuitive. 
-* **Print quality:** The HTML output produced by pseudocode.js is (almost) 
+* _Print quality:_ The HTML output produced by pseudocode.js is (almost) 
   identical with the pretty algorithms printed on publications that are 
   typeset by LaTeX.
-* **Math formula support:** Inserting math formulas in pseudocode.js is as easy 
+* _Math formula support:_ Inserting math formulas in pseudocode.js is as easy 
   as LaTeX. Just enclose math expression in `$...$` or `\(...\)`.
 
 It supports all modern browsers, including Chrome, Safari, Firefox, Edge, and
 IE 9 - IE 11.
 
+
 ## Demo
 Visit the [project website](https://saswatpadhi.github.io/pseudocode.js) for demo.
+
 
 ## Usage
 
 ### Quick Start
 
-Pseudocode.js can render math formulas using either
+pseudocode.js can render math formulas using either
 [KaTeX](https://github.com/Khan/KaTeX), or [MathJax](https://www.mathjax.org/).
 
 #### Step 1A &middot; For KaTeX users
 Include the following in the `<head>` of your page:
 
 ```html
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css"
-        integrity="sha256-V8SV2MO1FUb63Bwht5Wx9x6PVHNa02gv8BgH/uH3ung=" crossorigin="anonymous" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.js"
         integrity="sha256-F/Xda58SPdcUCr+xhSGz9MA2zQBPb0ASEYKohl8UCHc=" crossorigin="anonymous">
 </script>
@@ -83,68 +85,51 @@ Then include the following in the `<head>` of your page:
 <script src="//path/to/pseudocode/pseudocode.min.js"></script>
 ```
 
-
 #### Step 3 &middot; Write your pseudocode inside a `<pre>`
 We assume the pseudocode to be rendered is in a `<pre>` DOM element.
 Here is an example that illustrates a quicksort algorithm:
 
 ```tex
-% This quicksort algorithm is extracted from Chapter 7, Introduction to Algorithms (3rd edition)
-\begin{algorithm}
-\caption{Quicksort}
-\begin{algorithmic}
-\PROCEDURE{Quicksort}{$A, p, r$}
-    \IF{$p < r$} 
-        \STATE $q = $ \CALL{Partition}{$A, p, r$}
-        \STATE \CALL{Quicksort}{$A, p, q - 1$}
-        \STATE \CALL{Quicksort}{$A, q + 1, r$}
-    \ENDIF
-\ENDPROCEDURE
-\PROCEDURE{Partition}{$A, p, r$}
-    \STATE $x = A[r]$
-    \STATE $i = p - 1$
-    \FOR{$j = p$ \TO $r - 1$}
-        \IF{$A[j] < x$}
-            \STATE $i = i + 1$
-            \STATE exchange
-            $A[i]$ with $A[j]$
+<pre id="quicksort" style="display:hidden;">
+    % This quicksort algorithm is extracted from Chapter 7, Introduction to Algorithms (3rd edition)
+    \begin{algorithm}
+    \caption{Quicksort}
+    \begin{algorithmic}
+    \PROCEDURE{Quicksort}{$A, p, r$}
+        \IF{$p < r$} 
+            \STATE $q = $ \CALL{Partition}{$A, p, r$}
+            \STATE \CALL{Quicksort}{$A, p, q - 1$}
+            \STATE \CALL{Quicksort}{$A, q + 1, r$}
         \ENDIF
-        \STATE exchange $A[i]$ with $A[r]$
-    \ENDFOR
-\ENDPROCEDURE
-\end{algorithmic}
-\end{algorithm}</textarea>
-```
-
-### API
-Assume the pseudocode to be rendered is in a `<pre>` DOM element:
-```html
-<pre id="hello-world-code" style="display:hidden;">
-\begin{algorithmc}
-\PRINT \texttt{'hello world'}
-\end{algorithmc}
+    \ENDPROCEDURE
+    \PROCEDURE{Partition}{$A, p, r$}
+        \STATE $x = A[r]$
+        \STATE $i = p - 1$
+        \FOR{$j = p$ \TO $r - 1$}
+            \IF{$A[j] < x$}
+                \STATE $i = i + 1$
+                \STATE exchange
+                $A[i]$ with $A[j]$
+            \ENDIF
+            \STATE exchange $A[i]$ with $A[r]$
+        \ENDFOR
+    \ENDPROCEDURE
+    \end{algorithmic}
+    \end{algorithm}
 </pre>
 ```
 
-To render the above code as a HTML element and append to a parent DOM element, 
-call `pseudocode.render`:
-```js
-var code = document.getElementById("hello-world-code").textContent;
-var parentEl = document.body;
-var options = {
-    lineNumber: true
-};
-pseudocode.render(code, parentEl, options);
-```
+#### Step 4 &middot; Render the element using pseudocode.js
+Insert the following Javascript snippet at the end of your document:
 
-To generate a string of rendered HTML, call `pseudocode.renderToString`:
-```js
-var code = document.getElementById("hello-world-code").textContent;
-var options = {
-    lineNumber: true
-};
-var htmlStr = pseudocode.renderToString(code, options);
-console.log(htmlStr);
+```html
+<script>
+    var elem = document.getElementById("hello-world-code");
+    var options = {
+        lineNumber: true
+    };
+    pseudocode.render(elem.textContent, elem.parentNode, options);
+</script>
 ```
 
 
@@ -279,7 +264,7 @@ var DEFAULT_OPTIONS = {
 ```
 
 ## Build and Test
-Pseudocode.js is written in JavaScript and built with [Node.js](https://nodejs.org).
+pseudocode.js is written in JavaScript and built with [Node.js](https://nodejs.org).
 So, make sure you have Node.js installed before building pseudocode.js.
 
 To compile the project on Ubuntu Linux, run the following commands in terminal:
@@ -294,7 +279,7 @@ Then, open one of the sample documents:
 - `build/katex-samples.html`, or
 - `build/mathjax-v2-samples.html`, or
 - `build/mathjax-v3-samples.html`
-in your favourite browser to check if the algorithms are typeset correctly.
+in your favorite browser to check if the algorithms are typeset correctly.
 
 
 ## Author
@@ -305,6 +290,6 @@ and I am the current maintainer of this project.
 Suggestions, bug reports and pull requests are most welcome.
 
 ## Acknowledgement
-Pseudocode.js is partially inspired by [KaTeX](http://khan.github.io/KaTeX/).
+pseudocode.js is partially inspired by [KaTeX](http://khan.github.io/KaTeX/).
 Thanks Emily Eisenberg([@xymostech](https://github.com/xymostech))
-and other contributers for building such a wonderful project.
+and other contributors for building such a wonderful project.

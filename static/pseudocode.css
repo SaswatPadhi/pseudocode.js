@@ -1,4 +1,4 @@
-@import url('https://cdn.jsdelivr.net/npm/katex@0.10.1/dist/katex.min.css');
+@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css');
 
 @font-face {
     font-family: KaTeX_Typewriter_Replace;
@@ -42,7 +42,7 @@
     text-indent: 0;
     font-size: 1em;
 }
-.ps-root .mjx-chtml {
+.ps-root .MathJax_CHTML, .ps-root .MathJax {
     text-indent: 0;
     font-size: 1em !important;
 }

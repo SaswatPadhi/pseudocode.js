@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8">
-    <title>Pseudocode.js Samples with KaTeX</title>
+    <title>pseudocode.js Samples with KaTeX</title>
 
     <!-- Setup KaTeX -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css"
@@ -149,19 +149,19 @@
         \end{algorithmic}
         \end{algorithm}
     </pre>
-    <script type="text/javascript">
-        var testBasics = document.getElementById("test-basics").textContent;
-        pseudocode.render(testBasics, document.body, {
+    <script>
+        var basicsEl = document.getElementById("test-basics");
+        pseudocode.render(basicsEl.textContent, basicsEl.parentNode, {
             lineNumber: false,
             noEnd: true
         });
-        var testCodes = document.getElementById("test-codes").textContent;
-        pseudocode.render(testCodes, document.body, {
+        var codesEl = document.getElementById("test-codes");
+        pseudocode.render(codesEl.textContent, codesEl.parentNode, {
             lineNumber: false,
             noEnd: false
         });
-        var testExamples = document.getElementById("test-examples").textContent;
-        pseudocode.render(testExamples, document.body, {
+        var examplesEl = document.getElementById("test-examples");
+        pseudocode.render(examplesEl.textContent, examplesEl.parentNode, {
             lineNumber: true,
             noEnd: false
         });

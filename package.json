@@ -1,6 +1,6 @@
 {
     "name": "pseudocode",
-    "version": "2.0",
+    "version": "2.0.0",
     "author": {
         "name": "Saswat Padhi",
         "email": "saswat.sourav@gmail.com",
@@ -13,7 +13,7 @@
         "url": "git://github.com/SaswatPadhi/pseudocode.js"
     },
     "files": [
-        "pseudoCode.js",
+        "pseudocode.js",
         "src/"
     ],
     "devDependencies": {
