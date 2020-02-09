@@ -74,13 +74,12 @@ Include the following in the `<head>` of your page:
 ```
 
 #### Step 2 &middot; Grab pseudocode.js
-Download a stable release of [pseudocode.js](https://github.com/SaswatPadhi/pseudocode.js/releases), 
-and host the files on your server.
-Then include the following in the `<head>` of your page:
+Include the following in the `<head>` of your page:
 
 ```html
-<link rel="stylesheet" href="//path/to/pseudocode/pseudocode.min.css">
-<script src="//path/to/pseudocode/pseudocode.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pseudocode@latest/build/pseudocode.min.css">
+<script src="https://cdn.jsdelivr.net/npm/pseudocode@latest/build/pseudocode.min.js">
+</script>
 ```
 
 #### Step 3 &middot; Write your pseudocode inside a `<pre>`

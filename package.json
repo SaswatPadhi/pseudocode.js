@@ -1,6 +1,6 @@
 {
     "name": "pseudocode",
-    "version": "2.1.0",
+    "version": "2.1.1",
     "author": {
         "name": "Saswat Padhi",
         "email": "saswat.sourav@gmail.com",
@@ -14,7 +14,9 @@
     },
     "files": [
         "pseudocode.js",
-        "src/"
+        "src/",
+        "build/pseudocode.min.css",
+        "build/pseudocode.min.js"
     ],
     "devDependencies": {
         "browserify": "^13.3.0",
