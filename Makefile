@@ -1,6 +1,6 @@
 .PHONY: all build clean docs default lint release setup
 
-VERSION=2.0.0
+VERSION=2.1.0
 
 # Building tools
 BROWSERIFY = $(realpath ./node_modules/.bin/browserify)
@@ -15,9 +15,10 @@ UGLIFYJS = $(realpath ./node_modules/.bin/uglifyjs) \
 SAMPLES = build/katex-samples.html build/mathjax-v2-samples.html build/mathjax-v3-samples.html
 
 
-all : clean build docs release
-
 default: build
+
+
+all : clean build docs release
 
 
 setup: static/katex/
@@ -42,7 +43,7 @@ build: build/pseudocode.js build/pseudocode.css $(SAMPLES)
 
 build/pseudocode.js: pseudocode.js $(wildcard src/*.js)
 	@$(MAKE) --no-print-directory lint
-	$(BROWSERIFY) $< --exclude katex --standalone pseudocode -o $@
+	$(BROWSERIFY) $< --exclude mathjax --exclude katex --standalone pseudocode -o $@
 
 lint: pseudocode.js $(wildcard src/*.js)
 	$(ESLINT) $^
@@ -50,12 +51,12 @@ lint: pseudocode.js $(wildcard src/*.js)
 build/pseudocode.css: static/pseudocode.css
 	cp static/pseudocode.css build/pseudocode.css
 
-build/%-samples.html: static/%-samples.html.template
-	cp $< $@
+build/%-samples.html: static/%.html.part static/body.html.part static/footer.html.part
+	cat $^ > $@
 
 
 
-release: build build/pseudocode-js.tar.gz build/pseudocode-js.zip
+release: build docs build/pseudocode-js.tar.gz build/pseudocode-js.zip
 	@echo "> Release package generated"
 
 RELEASE_DIR=pseudocode.js-$(VERSION)/

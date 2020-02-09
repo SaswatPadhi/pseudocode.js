@@ -1,4 +1,4 @@
-# pseudocode.js - Beautiful pseudocode for the Web
+# pseudocode.js
 
 <img align="right" width="40%" src="docs/screenshot.png">
 
@@ -122,11 +122,7 @@ Insert the following Javascript snippet at the end of your document:
 
 ```html
 <script>
-    var elem = document.getElementById("quicksort");
-    var options = {
-        lineNumber: true
-    };
-    pseudocode.render(elem.textContent, elem.parentNode, options);
+    pseudocode.renderElement(document.getElementById("quicksort"));
 </script>
 ```
 
@@ -236,8 +232,15 @@ To display the caption of an algorithm, use `algorithm` environment as a 'float'
 ```
 
 ### Options
-Function `pseudocode.renderToString` and `pseudocode.renderToString` can accept 
-an option as the last argument. 
+`pseudocode.renderElement` can accept an option as the last argument,
+such as
+
+```js
+pseudocode.renderElement(document.getElementById("quicksort").
+                         { lineNumber: true });
+```
+
+The following options are currently supported:
 
  * `indentSize`: The indent size of inside a control block, e.g. if, for,
         etc. The unit must be in 'em'.
@@ -249,7 +252,8 @@ an option as the last argument.
         showned.
  * `captionCount`: Reset the caption counter to this number.
 
-The values of the options, if not reset specifically, are:
+The default values of these options are:
+
 ```js
 var DEFAULT_OPTIONS = {
     indentSize: '1.2em',

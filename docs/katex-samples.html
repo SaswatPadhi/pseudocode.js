@@ -148,21 +148,21 @@
         \end{algorithm}
     </pre>
     <script>
-        var basicsEl = document.getElementById("test-basics");
-        pseudocode.render(basicsEl.textContent, basicsEl.parentNode, {
-            lineNumber: false,
-            noEnd: true
-        });
-        var codesEl = document.getElementById("test-codes");
-        pseudocode.render(codesEl.textContent, codesEl.parentNode, {
-            lineNumber: false,
-            noEnd: false
-        });
-        var examplesEl = document.getElementById("test-examples");
-        pseudocode.render(examplesEl.textContent, examplesEl.parentNode, {
-            lineNumber: true,
-            noEnd: false
-        });
+        pseudocode.renderElement(document.getElementById("test-basics"),
+                                 {
+                                     lineNumber: false,
+                                     noEnd: true
+                                 });
+        pseudocode.renderElement(document.getElementById("test-codes"),
+                                 {
+                                     lineNumber: false,
+                                     noEnd: false
+                                 });
+        pseudocode.renderElement(document.getElementById("test-examples"),
+                                 {
+                                     lineNumber: true,
+                                     noEnd: false
+                                 });
     </script>
 </body>
 </html>

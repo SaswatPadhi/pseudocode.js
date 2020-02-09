@@ -17,7 +17,7 @@
         "max-len": [2, 84, 4, { "ignoreUrls": true, "ignorePattern": "\\brequire\\([\"']|eslint-disable", "ignoreComments": true, }],
         "no-alert": 2,
         "no-array-constructor": 2,
-        "no-console": 2,
+        "no-console": 0,
         "no-const-assign": 2,
         "no-constant-condition": 0,
         "no-debugger": 2,

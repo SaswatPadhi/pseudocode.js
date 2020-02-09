@@ -137,14 +137,14 @@ function TextEnvironment(nodes, textStyle) {
     this._textStyle = textStyle;
 }
 
-TextEnvironment.prototype._renderCloseText = function(node) {
+TextEnvironment.prototype._renderCloseText = function(node, backend) {
     var newTextStyle = new TextStyle(this._textStyle.fontSize());
     var closeTextEnv = new TextEnvironment(node.children, newTextStyle);
     if (node.whitespace) this._html.putText(' ');
-    this._html.putHTML(closeTextEnv.renderToHTML());
+    this._html.putHTML(closeTextEnv.renderToHTML(backend));
 };
 
-TextEnvironment.prototype.renderToHTML = function() {
+TextEnvironment.prototype.renderToHTML = function(backend) {
     this._html = new HTMLBuilder();
 
     var node;
@@ -160,22 +160,17 @@ TextEnvironment.prototype.renderToHTML = function() {
                 this._html.putText(text);
                 break;
             case 'math':
-                useKatex = true;
-                if (typeof katex === 'undefined') {
-                    try { katex = require('katex'); }
-                    catch (e) {
-                        if (typeof MathJax === 'undefined') {
-                            throw 'KaTeX or MathJax is required to render math';
-                        }
-                        var useKatex = false;
-                    }
+                if (typeof backend === 'undefined') {
+                    throw 'No math backend found. Please setup KaTeX or MathJax.';
                 }
-
-                if (useKatex) { // KaTeX
-                    this._html.putHTML(katex.renderToString(text));
+                else if (backend.name === 'katex') {
+                    this._html.putHTML(backend.driver.renderToString(text));
                 }
-                else { // MathJax
-                    this._html.putText("$" + text + "$");
+                else if (backend.name === 'mathjax') {
+                    this._html.putText('$' + text + '$');
+                }
+                else {
+                    throw 'Unknown math backend ' + backend;
                 }
 
                 break;
@@ -226,11 +221,11 @@ TextEnvironment.prototype.renderToHTML = function() {
                 this._html.beginSpan('ps-funcname').putText(text).endSpan();
                 this._html.write('(');
                 var argsTextNode = node.children[0];
-                this._renderCloseText(argsTextNode);
+                this._renderCloseText(argsTextNode, backend);
                 this._html.write(')');
                 break;
             case 'close-text':
-                this._renderCloseText(node);
+                this._renderCloseText(node, backend);
                 break;
             // There are two kinds of typestyle commands:
             //      command (e.g. \textrm{...}).
@@ -256,7 +251,7 @@ TextEnvironment.prototype.renderToHTML = function() {
                 this._html.beginSpan(null, this._textStyle.toCSS());
                 var textEnvForDclr = new TextEnvironment(this._nodes,
                                                          this._textStyle);
-                this._html.putHTML(textEnvForDclr.renderToHTML());
+                this._html.putHTML(textEnvForDclr.renderToHTML(backend));
                 this._html.endSpan();
                 break;
             case 'font-cmd':
@@ -268,7 +263,7 @@ TextEnvironment.prototype.renderToHTML = function() {
                 this._html.beginSpan(null, innerTextStyle.toCSS());
                 var textEnvForCmd = new TextEnvironment(textNode.children,
                                                         innerTextStyle);
-                this._html.putHTML(textEnvForCmd.renderToHTML());
+                this._html.putHTML(textEnvForCmd.renderToHTML(backend));
                 this._html.endSpan();
                 break;
             default:
@@ -453,6 +448,32 @@ function Renderer(parser, options) {
     this._blockLevel = 0;
     this._textLevel = -1;
     this._globalTextStyle = new TextStyle();
+    this.backend = undefined;
+
+    try {
+        if (typeof katex === 'undefined')
+            katex = require('katex');
+    }
+    catch (_) { /* ignore */ }
+
+    try {
+        if (typeof MathJax === 'undefined')
+            MathJax = require('mathjax');
+    }
+    catch (_) { /* ignore */ }
+
+    if (typeof katex !== 'undefined') {
+        this.backend = {
+            'name' : 'katex',
+            'driver' : katex,
+        };
+    }
+    else if (typeof MathJax !== 'undefined') {
+        this.backend = {
+            'name' : 'mathjax',
+            'driver' : MathJax,
+        };
+    }
 }
 
 /*  The global counter for the numbering of the algorithm environment */
@@ -810,13 +831,13 @@ Renderer.prototype._buildTree = function(node) {
         case 'open-text':
             var openTextEnv = new TextEnvironment(node.children,
                                                   this._globalTextStyle);
-            this._html.putHTML(openTextEnv.renderToHTML());
+            this._html.putHTML(openTextEnv.renderToHTML(this.backend));
             break;
         case 'close-text':
             var outerFontSize = this._globalTextStyle.fontSize();
             var newTextStyle = new TextStyle(outerFontSize);
             var closeTextEnv = new TextEnvironment(node.children, newTextStyle);
-            this._html.putHTML(closeTextEnv.renderToHTML());
+            this._html.putHTML(closeTextEnv.renderToHTML(this.backend));
             break;
         default:
             throw new ParseError('Unexpected ParseNode of type ' + node.type);

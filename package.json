@@ -1,6 +1,6 @@
 {
     "name": "pseudocode",
-    "version": "2.0.0",
+    "version": "2.1.0",
     "author": {
         "name": "Saswat Padhi",
         "email": "saswat.sourav@gmail.com",
@@ -22,6 +22,10 @@
         "uglify-js": "~2.7.5",
         "clean-css-cli": "^4.0.0",
         "eslint": "^6.6.0"
+    },
+    "optionalDependencies": {
+        "mathjax": "^2.7.5",
+        "katex": "^0.8.0"
     },
     "license": "MIT"
 }
