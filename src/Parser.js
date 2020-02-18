@@ -35,10 +35,11 @@
  *     <function>      :== \FUNCTION{<name>}{<params>} <block> \ENDFUNCTION
  *                         (same for <procedure>)
  *
- *     <statement>     :== <state> | <return> | <print>
+ *     <statement>     :== <state> | <return> | <print> | <break>
  *     <state>         :== \STATE + <open-text>
  *     <return>        :== \RETURN + <open-text>
  *     <print>         :== \PRINT + <open-text>
+ *     <break>         :== \BREAK
  *
  *     <comment>       :== \COMMENT{<close-text>}
  *
@@ -58,7 +59,7 @@
  *     <text-symbol>   :== \textbackslash
  *     <quote-symbol>  :== ` | `` | ' | ''
  *     (More LaTeX symbols can be added if necessary. See
- *     http://get-software.net/info/symbols/comprehensive/symbols-a4.pdf.)
+ *     http://tug.ctan.org/info/symbols/comprehensive/symbols-a4.pdf)
  *     <math>          :== \( + ... + \) | $ ... $
  *     (Math are handled by KaTeX)
  *     <size>          :== \tiny | \scriptsize | \footnotesize | \small
@@ -354,7 +355,7 @@ Parser.prototype._parseRepeat = function() {
 };
 
 var INPUTS_OUTPUTS_COMMANDS = ['ensure', 'require', 'input', 'output'];
-var STATEMENT_COMMANDS = ['state', 'print', 'return'];
+var STATEMENT_COMMANDS = ['state', 'print', 'return', 'break'];
 Parser.prototype._parseCommand = function(acceptCommands) {
     if (!this._lexer.accept('func', acceptCommands)) return null;
 
