@@ -816,7 +816,7 @@ Renderer.prototype._buildTree = function(node) {
             this._newLine();
             if (displayName) this._typeKeyword(displayName);
             textNode = node.children[0];
-            this._buildTree(textNode);
+            if (textNode) this._buildTree(textNode);
             break;
         case 'caption':
             this._newLine();

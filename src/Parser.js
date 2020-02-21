@@ -35,10 +35,12 @@
  *     <function>      :== \FUNCTION{<name>}{<params>} <block> \ENDFUNCTION
  *                         (same for <procedure>)
  *
- *     <statement>     :== <state> | <return> | <print> | <break> | <continue>
+ *     <statement>     :== <state> | <return> | <print>
  *     <state>         :== \STATE + <open-text>
  *     <return>        :== \RETURN + <open-text>
  *     <print>         :== \PRINT + <open-text>
+ *
+ *     <commands>      :== <break> | <continue>
  *     <break>         :== \BREAK
  *     <continue>      :== \CONTINUE
  *
@@ -238,8 +240,14 @@ Parser.prototype._parseBlock = function() {
         var functionNode = this._parseFunction();
         if (functionNode) { blockNode.addChild(functionNode); continue; }
 
-        var commandNode = this._parseCommand(STATEMENT_COMMANDS);
-        if (commandNode) { blockNode.addChild(commandNode); continue; }
+        var statementCommandNode = this._parseCommand(STATEMENT_COMMANDS);
+        if (statementCommandNode) {
+            blockNode.addChild(statementCommandNode);
+            continue;
+        }
+
+        var noArgsCommandNode = this._parseCommand(NO_ARGS_COMMANDS, true);
+        if (noArgsCommandNode) { blockNode.addChild(noArgsCommandNode); continue; }
 
         var commentNode = this._parseComment();
         if (commentNode) { blockNode.addChild(commentNode); continue; }
@@ -356,13 +364,18 @@ Parser.prototype._parseRepeat = function() {
 };
 
 var INPUTS_OUTPUTS_COMMANDS = ['ensure', 'require', 'input', 'output'];
-var STATEMENT_COMMANDS = ['state', 'print', 'return', 'break', 'continue'];
-Parser.prototype._parseCommand = function(acceptCommands) {
+var STATEMENT_COMMANDS = ['state', 'print', 'return'];
+var NO_ARGS_COMMANDS = ['break', 'continue'];
+Parser.prototype._parseCommand = function(acceptCommands, noArgs) {
     if (!this._lexer.accept('func', acceptCommands)) return null;
 
     var cmdName = this._lexer.get().text.toLowerCase();
     var cmdNode = new ParseNode('command', cmdName);
-    cmdNode.addChild(this._parseOpenText());
+
+    if (!noArgs) {
+        cmdNode.addChild(this._parseOpenText());
+    }
+
     return cmdNode;
 };
 
