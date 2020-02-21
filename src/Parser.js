@@ -35,11 +35,12 @@
  *     <function>      :== \FUNCTION{<name>}{<params>} <block> \ENDFUNCTION
  *                         (same for <procedure>)
  *
- *     <statement>     :== <state> | <return> | <print> | <break>
+ *     <statement>     :== <state> | <return> | <print> | <break> | <continue>
  *     <state>         :== \STATE + <open-text>
  *     <return>        :== \RETURN + <open-text>
  *     <print>         :== \PRINT + <open-text>
  *     <break>         :== \BREAK
+ *     <continue>      :== \CONTINUE
  *
  *     <comment>       :== \COMMENT{<close-text>}
  *
@@ -355,7 +356,7 @@ Parser.prototype._parseRepeat = function() {
 };
 
 var INPUTS_OUTPUTS_COMMANDS = ['ensure', 'require', 'input', 'output'];
-var STATEMENT_COMMANDS = ['state', 'print', 'return', 'break'];
+var STATEMENT_COMMANDS = ['state', 'print', 'return', 'break', 'continue'];
 Parser.prototype._parseCommand = function(acceptCommands) {
     if (!this._lexer.accept('func', acceptCommands)) return null;
 

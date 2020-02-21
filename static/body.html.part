@@ -92,12 +92,14 @@
                 \STATE $i \gets i + 1$
             \UNTIL{$i>n$}
         \ENDPROCEDURE
-        \PROCEDURE{Test-Break}{$n$}
+        \PROCEDURE{Test-Break-Continue}{$n$}
             \FOR{$i = 0$ \TO $2n$}
-                \PRINT $i$
-                \IF{$i > n$}
+                \IF{$i < n/2$}
+                    \CONTINUE
+                \ELIF{$i > n$}
                     \BREAK
                 \ENDIF
+                \PRINT $i$
             \ENDFOR
         \ENDPROCEDURE
         \end{algorithmic}

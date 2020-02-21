@@ -810,6 +810,7 @@ Renderer.prototype._buildTree = function(node) {
                 'print': 'print ',
                 'return': 'return ',
                 'break': 'break',
+                'continue': 'continue',
             }[cmdName];
 
             this._newLine();
