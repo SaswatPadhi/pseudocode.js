@@ -14,6 +14,12 @@
                                      lineNumber: true,
                                      noEnd: false
                                  });
+        pseudocode.renderElement(document.getElementById("test-examples-custom-title"),
+                                 {
+                                     lineNumber: true,
+                                     noEnd: false,
+                                     titlePrefix: "My pretty Algorithm"
+                                 });                                   
     </script>
 </body>
 </html>
