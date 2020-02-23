@@ -414,6 +414,7 @@ HTMLBuilder.prototype._escapeHtml = function(string) {
  *      noEnd - Whether block ending, like `end if`, end procedure`, etc., are
  *          showned. Default value: false.
  *      captionCount - Set the caption counter to this new value.
+ *      titlePrefix - The prefix in the title of the algorithm. Default value: 'Algorithm'.
  *
  **/
 function RendererOptions(options) {
@@ -426,6 +427,7 @@ function RendererOptions(options) {
     this.noEnd = options.noEnd !== undefined ? options.noEnd : false;
     if (options.captionCount !== undefined)
         Renderer.captionCount = options.captionCount;
+    this.titlePrefix = options.titlePrefix || 'Algorithm';
 }
 
 RendererOptions.prototype._parseEmVal = function(emVal) {
@@ -816,7 +818,8 @@ Renderer.prototype._buildTree = function(node) {
             break;
         case 'caption':
             this._newLine();
-            this._typeKeyword('Algorithm ' + Renderer.captionCount + ' ');
+            this._typeKeyword(this._options.titlePrefix
+                              + ' ' + Renderer.captionCount + ' ');
             textNode = node.children[0];
             this._buildTree(textNode);
             break;
