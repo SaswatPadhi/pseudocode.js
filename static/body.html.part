@@ -62,6 +62,17 @@
                 \STATE $i \gets i + 1$
             \ENDFOR
         \ENDPROCEDURE
+        \PROCEDURE{Test-For-To}{$n$}
+            \STATE $i \gets 0$
+            \FOR{$i$ \TO $n$}
+                \PRINT $i$
+            \ENDFOR
+        \ENDPROCEDURE
+        \PROCEDURE{Test-For-DownTo}{$n$}
+            \FOR{$i \gets n$ \DOWNTO $0$}
+                \PRINT $i$
+            \ENDFOR
+        \ENDPROCEDURE
         \PROCEDURE{Test-For-All}{$n$}
             \FORALL{$i \in \{0, 1, \cdots, n\}$}
                 \PRINT $i$
