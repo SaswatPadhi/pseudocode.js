@@ -197,7 +197,7 @@ $i \gets i + 1$
 # Function call
 \CALL{<func>}{<args>}
 # Keywords
-\AND, \OR, \XOR, \NOT, \TO, \TRUE, \FALSE
+\AND, \OR, \XOR, \NOT, \TO, \DOWNTO, \TRUE, \FALSE
 # LaTeX's sizing commands
 \tiny, \scriptsize, \footnotesize, \small \normalsize, \large, \Large, \LARGE, 
 \huge, \HUGE
@@ -235,7 +235,7 @@ To display the caption of an algorithm, use `algorithm` environment as a 'float'
 such as
 
 ```js
-pseudocode.renderElement(document.getElementById("quicksort").
+pseudocode.renderElement(document.getElementById("quicksort"),
                          { lineNumber: true });
 ```
 
@@ -256,7 +256,7 @@ The default values of these options are:
 ```js
 var DEFAULT_OPTIONS = {
     indentSize: '1.2em',
-    commentDelimiter: '//'
+    commentDelimiter: '//',
     lineNumber: false,
     lineNumberPunc: ':',
     noEnd: false,
