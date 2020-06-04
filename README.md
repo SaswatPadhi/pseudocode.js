@@ -46,7 +46,7 @@ Include the following in the `<head>` of your page:
     MathJax.Hub.Config({
         tex2jax: {
             inlineMath: [['$','$'], ['\\(','\\)']],
-            displayMath: [['$$','$$'], ['\[','\]']],
+            displayMath: [['$$','$$'], ['\\[','\\]']],
             processEscapes: true,
             processEnvironments: true,
         }
@@ -62,7 +62,7 @@ Include the following in the `<head>` of your page:
     MathJax = {
         tex: {
             inlineMath: [['$','$'], ['\\(','\\)']],
-            displayMath: [['$$','$$'], ['\[','\]']],
+            displayMath: [['$$','$$'], ['\\[','\\]']],
             processEscapes: true,
             processEnvironments: true,
         }
