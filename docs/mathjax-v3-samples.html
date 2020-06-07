@@ -36,7 +36,7 @@
         \OUTPUT some outputs
         \PROCEDURE{Test-Declarations}{}
             \STATE font families: {\sffamily sffamily, \ttfamily ttfamily, \normalfont normalfont, \rmfamily rmfamily.}
-            \STATE font weights: {normal weight, \bfseries bold, \mdseries 
+            \STATE font weights: {normal weight, \bfseries bold, \mdseries
             medium, \lfseries lighter. }
             \STATE font shapes: {\itshape itshape \scshape Small-Caps \slshape slshape \upshape upshape.}
             \STATE font sizes: \tiny tiny \scriptsize scriptsize \footnotesize
@@ -117,6 +117,16 @@
                 \STATE $i \gets i + 1$
             \UNTIL{$i>n$}
         \ENDPROCEDURE
+        \PROCEDURE{Test-Break-Continue}{$n$}
+            \FOR{$i = 0$ \TO $2n$}
+                \IF{$i < n/2$}
+                    \CONTINUE
+                \ELIF{$i > n$}
+                    \BREAK
+                \ENDIF
+                \PRINT $i$
+            \ENDFOR
+        \ENDPROCEDURE
         \end{algorithmic}
         \end{algorithm}
         \begin{algorithm}
@@ -141,13 +151,13 @@
         \end{algorithm}
     </pre>
     <pre id="test-examples" style="display:none">
-        % This quicksort algorithm is extracted from Chapter 7, Introduction 
+        % This quicksort algorithm is extracted from Chapter 7, Introduction
         % to Algorithms (3rd edition)
         \begin{algorithm}
         \caption{Quicksort}
         \begin{algorithmic}
         \PROCEDURE{Quicksort}{$A, p, r$}
-            \IF{$p < r$} 
+            \IF{$p < r$}
                 \STATE $q = $ \CALL{Partition}{$A, p, r$}
                 \STATE \CALL{Quicksort}{$A, p, q - 1$}
                 \STATE \CALL{Quicksort}{$A, q + 1, r$}
