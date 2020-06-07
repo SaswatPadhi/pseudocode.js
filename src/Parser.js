@@ -10,35 +10,36 @@
  *     <pseudo>        :== ( <algorithm> | <algorithmic> )[0..n]
  *
  *     <algorithm>     :== \begin{algorithm}
- *                         + ( <caption> | <algorithmic> )[0..n]
+ *                           ( <caption> | <algorithmic> )[0..n]
  *                         \end{algorithm}
  *     <caption>       :== \caption{ <close-text> }
  *
  *     <algorithmic>   :== \begin{algorithmic}
- *                         + ( <ensure> | <require> | <block> )[0..n]
- *                         + \end{algorithmic}
- *     <require>       :== \REQUIRE + <open-text>
- *     <ensure>        :== \ENSURE + <open-text>
+ *                           ( <ensure> | <require> | <block> )[0..n]
+ *                         \end{algorithmic}
+ *     <require>       :== \REQUIRE <open-text>
+ *     <ensure>        :== \ENSURE <open-text>
  *
- *     <block>         :== ( <control> | <function> | <statement> |
- *                           <comment> )[0..n]
+ *     <block>         :== ( <comment> | <command> | <control> | <function> |
+ *                           <statement> )[0..n]
  *
  *     <control>       :== <if> | <for> | <while> | <repeat>
- *     <if>            :== \IF{<cond>} + <block>
- *                         + ( \ELIF{<cond>} <block> )[0..n]
- *                         + ( \ELSE <block> )[0..1]
- *                         + \ENDIF
- *     <for>           :== \FOR{<cond>} + <block> + \ENDFOR
- *     <while>         :== \WHILE{<cond>} + <block> + \ENDWHILE
- *     <repeat>        :== \REPEAT + <block> + \UNTIL{<cond>}
+ *     <if>            :== \IF{<cond>} <block>
+ *                         ( \ELIF{<cond>} <block> )[0..n]
+ *                         ( \ELSE <block> )[0..1]
+ *                         \ENDIF
+ *
+ *     <for>           :== \FOR{<cond>} <block> \ENDFOR
+ *     <while>         :== \WHILE{<cond>} <block> \ENDWHILE
+ *     <repeat>        :== \REPEAT <block> \UNTIL{<cond>}
  *
  *     <function>      :== \FUNCTION{<name>}{<params>} <block> \ENDFUNCTION
  *                         (same for <procedure>)
  *
  *     <statement>     :== <state> | <return> | <print>
- *     <state>         :== \STATE + <open-text>
- *     <return>        :== \RETURN + <open-text>
- *     <print>         :== \PRINT + <open-text>
+ *     <state>         :== \STATE <open-text>
+ *     <return>        :== \RETURN <open-text>
+ *     <print>         :== \PRINT <open-text>
  *
  *     <commands>      :== <break> | <continue>
  *     <break>         :== \BREAK
@@ -47,9 +48,9 @@
  *     <comment>       :== \COMMENT{<close-text>}
  *
  *     <cond>          :== <close-text>
- *     <open-text>     :== ( <atom> | <call> ) + <open-text> |
+ *     <open-text>     :== ( <atom> | <call> ) <open-text> |
  *                         { <close-text> } | <empty>
- *     <close-text>    :== ( <atom> | <call> ) + <close-text> |
+ *     <close-text>    :== ( <atom> | <call> ) <close-text> |
  *                         { <close-text> } | <empty>
  *
  *     <atom>          :== <ordinary>[1..n] | <special> | <symbol>
@@ -63,7 +64,7 @@
  *     <quote-symbol>  :== ` | `` | ' | ''
  *     (More LaTeX symbols can be added if necessary. See
  *     http://tug.ctan.org/info/symbols/comprehensive/symbols-a4.pdf)
- *     <math>          :== \( + ... + \) | $ ... $
+ *     <math>          :== \( ... \) | $ ... $
  *     (Math are handled by KaTeX)
  *     <size>          :== \tiny | \scriptsize | \footnotesize | \small
  *                         | \normalsize | \large | \Large | \LARGE | \huge
@@ -201,7 +202,7 @@ Parser.prototype._parseAlgorithmicInner = function() {
     var algmicNode = new ParseNode('algorithmic');
     var node;
     while (true) {
-        node = this._parseCommand(INPUTS_OUTPUTS_COMMANDS);
+        node = this._parseStatement(IO_STATEMENTS);
         if (node) {
             algmicNode.addChild(node);
             continue;
@@ -240,14 +241,11 @@ Parser.prototype._parseBlock = function() {
         var functionNode = this._parseFunction();
         if (functionNode) { blockNode.addChild(functionNode); continue; }
 
-        var statementCommandNode = this._parseCommand(STATEMENT_COMMANDS);
-        if (statementCommandNode) {
-            blockNode.addChild(statementCommandNode);
-            continue;
-        }
+        var statementNode = this._parseStatement(STATEMENTS);
+        if (statementNode) { blockNode.addChild(statementNode); continue; }
 
-        var noArgsCommandNode = this._parseCommand(NO_ARGS_COMMANDS, true);
-        if (noArgsCommandNode) { blockNode.addChild(noArgsCommandNode); continue; }
+        var commandNode = this._parseCommand(COMMANDS);
+        if (commandNode) { blockNode.addChild(commandNode); continue; }
 
         var commentNode = this._parseComment();
         if (commentNode) { blockNode.addChild(commentNode); continue; }
@@ -363,18 +361,25 @@ Parser.prototype._parseRepeat = function() {
     return repeatNode;
 };
 
-var INPUTS_OUTPUTS_COMMANDS = ['ensure', 'require', 'input', 'output'];
-var STATEMENT_COMMANDS = ['state', 'print', 'return'];
-var NO_ARGS_COMMANDS = ['break', 'continue'];
-Parser.prototype._parseCommand = function(acceptCommands, noArgs) {
+var IO_STATEMENTS = ['ensure', 'require', 'input', 'output'];
+var STATEMENTS = ['state', 'print', 'return'];
+Parser.prototype._parseStatement = function(acceptStatements) {
+    if (!this._lexer.accept('func', acceptStatements)) return null;
+
+    var stmtName = this._lexer.get().text.toLowerCase();
+    var stmtNode = new ParseNode('statement', stmtName);
+
+    stmtNode.addChild(this._parseOpenText());
+
+    return stmtNode;
+};
+
+var COMMANDS = ['break', 'continue'];
+Parser.prototype._parseCommand = function(acceptCommands) {
     if (!this._lexer.accept('func', acceptCommands)) return null;
 
     var cmdName = this._lexer.get().text.toLowerCase();
     var cmdNode = new ParseNode('command', cmdName);
-
-    if (!noArgs) {
-        cmdNode.addChild(this._parseOpenText());
-    }
 
     return cmdNode;
 };

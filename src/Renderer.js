@@ -799,24 +799,14 @@ Renderer.prototype._buildTree = function(node) {
             break;
         // ------------------- Lines -------------------
         case 'command':
-            // commands: \STATE, \ENSURE, \PRINT, \RETURN, etc.
             var cmdName = node.value;
-            var displayName = {
-                'state': '',
-                'ensure': 'Ensure: ',
-                'require': 'Require: ',
-                'input': 'Input: ',
-                'output': 'Output: ',
-                'print': 'print ',
-                'return': 'return ',
+            var displayCmdName = {
                 'break': 'break',
                 'continue': 'continue',
             }[cmdName];
 
             this._newLine();
-            if (displayName) this._typeKeyword(displayName);
-            textNode = node.children[0];
-            if (textNode) this._buildTree(textNode);
+            if (displayCmdName) this._typeKeyword(displayCmdName);
             break;
         case 'caption':
             this._newLine();
@@ -831,6 +821,24 @@ Renderer.prototype._buildTree = function(node) {
             this._html.putText(this._options.commentDelimiter);
             this._buildTree(textNode);
             this._html.endSpan();
+            break;
+        case 'statement':
+            // statements: \STATE, \ENSURE, \PRINT, \RETURN, etc.
+            var stmtName = node.value;
+            var displayStmtName = {
+                'state': '',
+                'ensure': 'Ensure: ',
+                'require': 'Require: ',
+                'input': 'Input: ',
+                'output': 'Output: ',
+                'print': 'print ',
+                'return': 'return ',
+            }[stmtName];
+
+            this._newLine();
+            if (displayStmtName) this._typeKeyword(displayStmtName);
+            textNode = node.children[0];
+            this._buildTree(textNode);
             break;
         // ------------------- Text -------------------
         case 'open-text':
