@@ -1,4 +1,4 @@
-.PHONY: all build clean docs default lint release setup
+.PHONY: all build clean docs default lint release
 
 VERSION=2.1.1
 
@@ -19,18 +19,6 @@ default: build
 
 
 all : clean build docs release
-
-
-setup: static/katex/
-	npm install
-	@echo "> Node.js packages installed"
-
-static/katex/:
-	@rm -rf static/katex
-	cd static && wget https://github.com/Khan/KaTeX/releases/download/v0.11.1/katex.zip && unzip katex.zip
-	@rm -rf static/katex.zip
-	@echo "> Katex downloaded"
-
 
 
 watch-js: pseudocode.js $(wildcard src/*.js)

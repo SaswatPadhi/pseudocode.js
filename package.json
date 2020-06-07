@@ -20,14 +20,11 @@
     ],
     "devDependencies": {
         "browserify": "^13.3.0",
-        "watchify": "^3.9.0",
-        "uglify-js": "~2.7.5",
         "clean-css-cli": "^4.0.0",
-        "eslint": "^6.6.0"
-    },
-    "optionalDependencies": {
-        "mathjax": "^2.7.5",
-        "katex": "^0.8.0"
+        "eslint": "^7.0.0",
+        "katex": "^0.8.0",
+        "uglify-js": "^3.6.0",
+        "watchify": "^3.9.0"
     },
     "license": "MIT"
 }

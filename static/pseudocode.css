@@ -1,27 +1,5 @@
 @import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css');
 
-@font-face {
-    font-family: KaTeX_Typewriter_Replace;
-    src: url(fonts/KaTeX_Typewriter-Regular.eot);
-    src: url(fonts/KaTeX_Typewriter-Regular.eot#iefix) format('embedded-opentype'),
-         url(fonts/KaTeX_Typewriter-Regular.woff2) format('woff2'),
-         url(fonts/KaTeX_Typewriter-Regular.woff) format('woff'),
-         url(fonts/KaTeX_Typewriter-Regular.ttf) format('ttf');
-    font-weight: 400;
-    font-style: normal;
-}
-
-@font-face {
-    font-family: KaTeX_SansSerif_Replace;
-    src: url(fonts/KaTeX_SansSerif-Bold.eot);
-    src: url(fonts/KaTeX_SansSerif-Bold.eot#iefix) format('embedded-opentype'),
-         url(fonts/KaTeX_SansSerif-Bold.woff2) format('woff2'),
-         url(fonts/KaTeX_SansSerif-Bold.woff) format('woff'),
-         url(fonts/KaTeX_SansSerif-Bold.ttf) format('ttf');
-    font-weight: 700;
-    font-style: normal;
-}
-
 .ps-root {
     font-family: KaTeX_Main, 'Times New Roman', Times, serif;
     font-size: 1em;
