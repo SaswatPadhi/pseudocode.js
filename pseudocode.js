@@ -60,8 +60,10 @@ module.exports = {
         var newElem = renderer.toDOM();
         elem.replaceWith(newElem);
 
-        if (renderer.backend.name === 'mathjax') {
-            mathjaxTypeset(newElem);
+        if (renderer.backend) {
+            if (renderer.backend.name === 'mathjax') {
+                mathjaxTypeset(newElem);
+            }
         }
     },
 };
