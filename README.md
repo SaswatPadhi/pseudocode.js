@@ -272,7 +272,7 @@ To compile the project on Ubuntu Linux, run the following commands in terminal:
 
 ```bash
 cd pseudocode.js/
-make setup
+npm install
 make
 ```
 
