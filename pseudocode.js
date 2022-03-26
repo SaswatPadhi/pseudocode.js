@@ -67,9 +67,10 @@ module.exports = {
         }
     },
 
-    renderClass: function(elements, options) {
-        for (let index = elements.length - 1; index >= 0; index--) {
-            this.renderElement(elements[index], options);
-        }
+    renderClass: function(class_name, options) {
+      [].forEach.call(
+        document.getElementsByClassName(class_name),
+        function (el) { this.renderElement(el, options); }
+      );
     },
 };
