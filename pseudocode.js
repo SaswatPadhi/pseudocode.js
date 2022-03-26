@@ -66,4 +66,11 @@ module.exports = {
             }
         }
     },
+
+    renderClass: function(class_name, options) {
+      [].forEach.call(
+        document.getElementsByClassName(class_name),
+        function (el) { this.renderElement(el, options); }
+      );
+    },
 };
