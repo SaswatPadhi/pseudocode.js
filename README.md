@@ -87,7 +87,7 @@ We assume the pseudocode to be rendered is in a `<pre>` DOM element.
 Here is an example that illustrates a quicksort algorithm:
 
 ```html
-<pre id="quicksort" style="display:hidden;">
+<pre id="quicksort" class="pseudocode" style="display:hidden;">
     % This quicksort algorithm is extracted from Chapter 7, Introduction to Algorithms (3rd edition)
     \begin{algorithm}
     \caption{Quicksort}
@@ -116,7 +116,7 @@ Here is an example that illustrates a quicksort algorithm:
 </pre>
 ```
 
-#### Step 4 &middot; Render the element using pseudocode.js
+#### Step 4A &middot; Render the element using pseudocode.js
 Insert the following Javascript snippet at the end of your document:
 
 ```html
@@ -125,6 +125,14 @@ Insert the following Javascript snippet at the end of your document:
 </script>
 ```
 
+#### Step 4B &middot; Render the class using pseudocode.js
+Insert the following Javascript snippet at the end of your document:
+
+```html
+<script>
+    pseudocode.renderClass("pseudocode");
+</script>
+```
 
 ### Grammar
 There are several packages for typesetting algorithms in LaTeX, among which 
