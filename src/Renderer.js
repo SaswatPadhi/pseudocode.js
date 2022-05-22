@@ -785,17 +785,17 @@ Renderer.prototype._buildTree = function(node) {
             this._buildCommentsFromBlock(repeatBlock);
             this._buildTree(repeatBlock);
 
-            if (!this._options.noEnd) {
-                // \UNTIL{<cond>}
-                // ==>
-                // <p class="ps-line">
-                //     <span class="ps-keyword">until</span>
-                // </p>
-                this._newLine();
-                this._typeKeyword('until ');
-                var repeatCond = node.children[1];
-                this._buildTree(repeatCond);
-            }
+            
+            // \UNTIL{<cond>}
+            // ==>
+            // <p class="ps-line">
+            //     <span class="ps-keyword">until</span>
+            // </p>
+            this._newLine();
+            this._typeKeyword('until ');
+            var repeatCond = node.children[1];
+            this._buildTree(repeatCond);
+            
             break;
         // ------------------- Lines -------------------
         case 'command':
