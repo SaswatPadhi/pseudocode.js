@@ -421,13 +421,13 @@ function RendererOptions(options) {
     options = options || {};
     this.indentSize =
         options.indentSize ? this._parseEmVal(options.indentSize) : 1.2;
-    this.commentDelimiter  = options.commentDelimiter  || ' // ';
-    this.lineNumberPunc = options.lineNumberPunc || ':';
+    this.commentDelimiter  = options.commentDelimiter !== undefined ? options.commentDelimiter : ' // ';
+    this.lineNumberPunc = options.lineNumberPunc !== undefined ? options.lineNumberPunc : ':';
     this.lineNumber = options.lineNumber !== undefined ? options.lineNumber : false;
     this.noEnd = options.noEnd !== undefined ? options.noEnd : false;
     if (options.captionCount !== undefined)
         Renderer.captionCount = options.captionCount;
-    this.titlePrefix = options.titlePrefix || 'Algorithm';
+    this.titlePrefix = options.titlePrefix !== undefined ? options.titlePrefix : 'Algorithm';
 }
 
 RendererOptions.prototype._parseEmVal = function(emVal) {
