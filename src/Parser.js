@@ -23,7 +23,7 @@
  *     <block>         :== ( <comment> | <command> | <control> | <function> |
  *                           <statement> )[0..n]
  *
- *     <control>       :== <if> | <for> | <while> | <repeat>
+ *     <control>       :== <if> | <for> | <while> | <repeat> | <upon>
  *     <if>            :== \IF{<cond>} <block>
  *                         ( \ELIF{<cond>} <block> )[0..n]
  *                         ( \ELSE <block> )[0..1]
@@ -32,6 +32,7 @@
  *     <for>           :== \FOR{<cond>} <block> \ENDFOR
  *     <while>         :== \WHILE{<cond>} <block> \ENDWHILE
  *     <repeat>        :== \REPEAT <block> \UNTIL{<cond>}
+ *     <upon>          :== \UPON{<cond>} <block> \EDNUPON
  *
  *     <function>      :== \FUNCTION{<name>}{<params>} <block> \ENDFUNCTION
  *                         (same for <procedure>)
@@ -261,6 +262,7 @@ Parser.prototype._parseControl = function() {
     if ((controlNode = this._parseIf())) return controlNode;
     if ((controlNode = this._parseLoop())) return controlNode;
     if ((controlNode = this._parseRepeat())) return controlNode;
+    if ((controlNode = this._parseUpon())) return controlNode;
 };
 
 Parser.prototype._parseFunction = function() {
@@ -359,6 +361,23 @@ Parser.prototype._parseRepeat = function() {
     this._lexer.expect('close');
 
     return repeatNode;
+};
+
+Parser.prototype._parseUpon = function() {
+    if (!this._lexer.accept('func', 'upon')) return null;
+
+    var uponNode = new ParseNode('upon');
+
+    // { <cond> } <block>
+    this._lexer.expect('open');
+    uponNode.addChild(this._parseCond());
+    this._lexer.expect('close');
+    uponNode.addChild(this._parseBlock());
+
+    // \ENDUPON
+    this._lexer.expect('func', 'endupon');
+
+    return uponNode;
 };
 
 var IO_STATEMENTS = ['ensure', 'require', 'input', 'output'];

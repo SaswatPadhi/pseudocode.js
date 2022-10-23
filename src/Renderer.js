@@ -785,7 +785,7 @@ Renderer.prototype._buildTree = function(node) {
             this._buildCommentsFromBlock(repeatBlock);
             this._buildTree(repeatBlock);
 
-            
+
             // \UNTIL{<cond>}
             // ==>
             // <p class="ps-line">
@@ -795,7 +795,28 @@ Renderer.prototype._buildTree = function(node) {
             this._typeKeyword('until ');
             var repeatCond = node.children[1];
             this._buildTree(repeatCond);
-            
+
+            break;
+        case 'upon':
+            // \UPON { <cond> }
+            // ==>
+            // <p class="ps-line">
+            //      <span class="ps-keyword">upon</span>
+            // </p>
+            this._newLine();
+            this._typeKeyword('upon ');
+            uponCond = node.children[0];
+            this._buildTree(uponCond);
+            // <block>
+            var uponBlock = node.children[1];
+            this._buildCommentsFromBlock(uponBlock);
+            this._buildTree(uponBlock);
+
+            if (!this._options.noEnd) {
+                // ENDUPON
+                this._newLine();
+                this._typeKeyword('end upon');
+            }
             break;
         // ------------------- Lines -------------------
         case 'command':
