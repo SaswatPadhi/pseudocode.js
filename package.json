@@ -19,14 +19,13 @@
         "build/pseudocode.min.js"
     ],
     "devDependencies": {
-        "browserify": "^13.3.0",
-        "clean-css-cli": "^4.0.0",
-        "eslint": "^7.32.0",
-        "katex": "^0.8.0",
-        "uglify-js": "^3.6.0",
-        "watchify": "^3.11.1",
-        "clean-css": "^5.2.4",
-        "uglifyjs": "^2.4.11"
+        "browserify": "^17.0.0",
+        "clean-css-cli": "^5.3.0",
+        "eslint": "^8.25.0",
+        "katex": "^0.16.3",
+        "uglify-js": "^3.17.4",
+        "watchify": "^4.0.0",
+        "clean-css": "^5.2.4"
     },
     "license": "MIT"
 }
