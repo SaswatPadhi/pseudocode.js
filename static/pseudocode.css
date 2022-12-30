@@ -76,7 +76,7 @@
 }
 .with-scopelines div.ps-block {
     border-left-style: solid;
-    border-left-width: 0.15em;
+    border-left-width: 0.1em;
     padding-left: 0.6em;
 }
 .ps-algorithmic.with-linenum.with-scopelines > div.ps-block,

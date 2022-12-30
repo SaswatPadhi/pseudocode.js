@@ -552,7 +552,7 @@ Renderer.prototype._newLine = function() {
             extraIndentSize += indentSize * 1.25;
         }
         if (this._options.scopeLines) {
-            extraIndentSize += indentSize * 0.15;
+            extraIndentSize += indentSize * 0.1;
         }
 
         // We add this width if we need to pad the line (e.g., with linenumber).
