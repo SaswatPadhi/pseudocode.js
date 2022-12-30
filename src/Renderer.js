@@ -425,6 +425,7 @@ function RendererOptions(options) {
     this.lineNumberPunc = options.lineNumberPunc !== undefined ? options.lineNumberPunc : ':';
     this.lineNumber = options.lineNumber !== undefined ? options.lineNumber : false;
     this.noEnd = options.noEnd !== undefined ? options.noEnd : false;
+    this.scopeLines = options.scopeLines !== undefined ? options.scopeLines : false;
     if (options.captionCount !== undefined)
         Renderer.captionCount = options.captionCount;
     this.titlePrefix = options.titlePrefix !== undefined ? options.titlePrefix : 'Algorithm';
@@ -512,6 +513,12 @@ Renderer.prototype._beginBlock = function() {
         this._options.lineNumber && this._blockLevel === 0 ? 0.6 : 0;
     var blockIndent = this._options.indentSize + extraIndentForFirstBlock;
 
+    // We also need to handle the extra margin for scope lines
+    // We divide the block indent by 2 because the other margin will be after the indent symbol
+    if (this._options.scopeLines) {
+        blockIndent = blockIndent / 2;
+    }
+
     this._beginGroup('block', null, {
         'margin-left': blockIndent + 'em',
     });
@@ -538,10 +545,22 @@ Renderer.prototype._newLine = function() {
         this._numLOC++;
 
         this._html.beginP('ps-line ps-code', this._globalTextStyle.toCSS());
+
+        // We need to consider the indent width for linenumbers and scopelines
+        var extraIndentSize = 0;
+        if (this._options.lineNumber) {
+            extraIndentSize += indentSize * 1.25;
+        }
+        if (this._options.scopeLines) {
+            extraIndentSize += indentSize * 0.15;
+        }
+
+        // We add this width if we need to pad the line (e.g., with linenumber).
+        // We don't need to handle scope lines here, as they do not add any extra text in the line.
         if (this._options.lineNumber) {
             this._html
                 .beginSpan('ps-linenum', {
-                    'left': -((this._blockLevel - 1) * (indentSize * 1.25)) + 'em',
+                    'left': -((this._blockLevel - 1) * (extraIndentSize)) + 'em',
                 })
                 .putText(this._numLOC + this._options.lineNumberPunc)
                 .endSpan();
@@ -628,8 +647,13 @@ Renderer.prototype._buildTree = function(node) {
             this._endGroup();
             break;
         case 'algorithmic':
-            if (this._options.lineNumber) {
-                this._beginGroup('algorithmic', 'with-linenum');
+            // Check if our algorithm needs to be enhanced with special tags (linenumber or scopelines)
+            var divOptions = '';
+            this._options.lineNumber ? divOptions += ' with-linenum' : '';
+            this._options.scopeLines ? divOptions += ' with-scopelines' : '';
+
+            if (divOptions) {
+                this._beginGroup('algorithmic', divOptions);
                 this._numLOC = 0;
             }
             else {
