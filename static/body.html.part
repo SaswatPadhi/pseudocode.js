@@ -181,3 +181,46 @@
         \end{algorithmic}
         \end{algorithm}
     </pre>
+    <pre id="scopeline-euclid" style="display:none">
+        \begin{algorithm}
+        \caption{Classical Euclidean Algorithm}
+        \begin{algorithmic}
+            \PROCEDURE{Euclid}{$a,b$}
+                \WHILE{$a \neq b$}
+                    \IF{$a > b$}
+                        \STATE $a \gets a - b$
+                    \ELSE
+                        \STATE $b \gets b - a$
+                    \ENDIF
+                \ENDWHILE
+                \STATE return $a$
+            \ENDPROCEDURE
+        \end{algorithmic}
+        \end{algorithm}
+    </pre>
+    <pre id="scopeline-dbscan" style="display:none">
+        \begin{algorithm}
+        \caption{DBSCAN}
+        \begin{algorithmic}
+        \INPUT A dataset $D$, the $\varepsilon$ distance threshold, and the minimum number of points $minPts$
+        \OUTPUT A set of clusters $K$
+        \PROCEDURE{DBSCAN}{$D, \varepsilon, minPts$}
+            \STATE $K \gets \emptyset$
+            \FORALL{$p \in D$}
+                \IF{$p$ has not been visited}
+                    \STATE mark $p$ as visited
+                    \STATE $N_{\varepsilon}(p) \gets $ \textsc{RangeQuery}$(p, \varepsilon, D)$
+                    \IF{$N_{\varepsilon}(p) < minPts$}
+                        \STATE mark $p$ as noise
+                    \ELSE
+                        \COMMENT{p is a core object}
+                        \STATE $C \gets $ \textsc{ExpandCluster}$(p, N_{\varepsilon}(p))$
+                        \STATE $K \gets K \cup \{C\}$
+                    \ENDIF
+                \ENDIF
+            \ENDFOR
+            \STATE return $K$
+        \ENDPROCEDURE
+        \end{algorithmic}
+        \end{algorithm}
+    </pre>
