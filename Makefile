@@ -34,14 +34,19 @@ build/pseudocode.js: pseudocode.js $(wildcard src/*.js)
 	@$(MAKE) --no-print-directory lint
 	$(BROWSERIFY) $< --exclude mathjax --exclude katex --standalone pseudocode -o $@
 
-lint: pseudocode.js $(wildcard src/*.js)
-	$(ESLINT) $^
-
 build/pseudocode.css: static/pseudocode.css
 	cp static/pseudocode.css build/pseudocode.css
 
 build/%-samples.html: static/%.html.part static/body.html.part static/footer.html.part
 	cat $^ > $@
+
+
+
+lint: pseudocode.js $(wildcard src/*.js)
+	$(ESLINT) $^
+
+fix-lint: pseudocode.js $(wildcard src/*.js)
+	$(ESLINT) --fix $^
 
 
 

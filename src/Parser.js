@@ -88,20 +88,20 @@
 var utils = require('./utils');
 var ParseError = require('./ParseError');
 
-var ParseNode = function(type, val) {
+var ParseNode = function (type, val) {
     this.type = type;
     this.value = val;
     this.children = [];
 };
 
-ParseNode.prototype.toString = function(level) {
+ParseNode.prototype.toString = function (level) {
     if (!level) level = 0;
 
     var indent = '';
     for (var i = 0; i < level; i++) indent += '  ';
 
-    var res = indent + '<' + this.type + '>';
-    if (this.value) res += ' (' + utils.toString(this.value) + ')';
+    var res = `${indent}<${this.type}>`;
+    if (this.value) res += ` (${utils.toString(this.value)})`;
     res += '\n';
 
     if (this.children) {
@@ -114,13 +114,15 @@ ParseNode.prototype.toString = function(level) {
     return res;
 };
 
-ParseNode.prototype.addChild = function(childNode) {
-    if (!childNode) throw 'argument cannot be null';
+ParseNode.prototype.addChild = function (childNode) {
+    if (!childNode)
+        throw new Error('Argument must not be null');
+
     this.children.push(childNode);
 };
 
 /* AtomNode is the leaf node of parse tree */
-var AtomNode = function(type, value, whitespace) {
+var AtomNode = function (type, value, whitespace) {
     // ParseNode.call(this, type, val);
     this.type = type;
     this.value = value;
@@ -129,11 +131,11 @@ var AtomNode = function(type, value, whitespace) {
 };
 AtomNode.prototype = ParseNode.prototype;
 
-var Parser = function(lexer) {
+var Parser = function (lexer) {
     this._lexer = lexer;
 };
 
-Parser.prototype.parse = function() {
+Parser.prototype.parse = function () {
     var root = new ParseNode('root');
 
     while (true) {
@@ -146,7 +148,7 @@ Parser.prototype.parse = function() {
         else if (envName === 'algorithmic')
             envNode = this._parseAlgorithmicInner();
         else
-            throw new ParseError('Unexpected environment ' + envName);
+            throw new ParseError(`Unexpected environment ${envName}`);
 
         this._closeEnvironment(envName);
         root.addChild(envNode);
@@ -155,7 +157,7 @@ Parser.prototype.parse = function() {
     return root;
 };
 
-Parser.prototype._acceptEnvironment = function() {
+Parser.prototype._acceptEnvironment = function () {
     var lexer = this._lexer;
     // \begin{XXXXX}
     if (!lexer.accept('func', 'begin')) return null;
@@ -166,7 +168,7 @@ Parser.prototype._acceptEnvironment = function() {
     return envName;
 };
 
-Parser.prototype._closeEnvironment = function(envName) {
+Parser.prototype._closeEnvironment = function (envName) {
     // \close{XXXXX}
     var lexer = this._lexer;
     lexer.expect('func', 'end');
@@ -175,13 +177,13 @@ Parser.prototype._closeEnvironment = function(envName) {
     lexer.expect('close');
 };
 
-Parser.prototype._parseAlgorithmInner = function() {
+Parser.prototype._parseAlgorithmInner = function () {
     var algNode = new ParseNode('algorithm');
     while (true) {
         var envName = this._acceptEnvironment();
         if (envName !== null) {
             if (envName !== 'algorithmic')
-                throw new ParseError('Unexpected environment ' + envName);
+                throw new ParseError(`Unexpected environment ${envName}`);
             var algmicNode = this._parseAlgorithmicInner();
             this._closeEnvironment();
             algNode.addChild(algmicNode);
@@ -199,7 +201,7 @@ Parser.prototype._parseAlgorithmInner = function() {
     return algNode;
 };
 
-Parser.prototype._parseAlgorithmicInner = function() {
+Parser.prototype._parseAlgorithmicInner = function () {
     var algmicNode = new ParseNode('algorithmic');
     var node;
     while (true) {
@@ -220,7 +222,7 @@ Parser.prototype._parseAlgorithmicInner = function() {
     return algmicNode;
 };
 
-Parser.prototype._parseCaption = function() {
+Parser.prototype._parseCaption = function () {
     var lexer = this._lexer;
     if (!lexer.accept('func', 'caption')) return null;
 
@@ -232,24 +234,39 @@ Parser.prototype._parseCaption = function() {
     return captionNode;
 };
 
-Parser.prototype._parseBlock = function() {
+Parser.prototype._parseBlock = function () {
     var blockNode = new ParseNode('block');
 
     while (true) {
         var controlNode = this._parseControl();
-        if (controlNode) { blockNode.addChild(controlNode); continue; }
+        if (controlNode) {
+            blockNode.addChild(controlNode);
+            continue;
+        }
 
         var functionNode = this._parseFunction();
-        if (functionNode) { blockNode.addChild(functionNode); continue; }
+        if (functionNode) {
+            blockNode.addChild(functionNode);
+            continue;
+        }
 
         var statementNode = this._parseStatement(STATEMENTS);
-        if (statementNode) { blockNode.addChild(statementNode); continue; }
+        if (statementNode) {
+            blockNode.addChild(statementNode);
+            continue;
+        }
 
         var commandNode = this._parseCommand(COMMANDS);
-        if (commandNode) { blockNode.addChild(commandNode); continue; }
+        if (commandNode) {
+            blockNode.addChild(commandNode);
+            continue;
+        }
 
         var commentNode = this._parseComment();
-        if (commentNode) { blockNode.addChild(commentNode); continue; }
+        if (commentNode) {
+            blockNode.addChild(commentNode);
+            continue;
+        }
 
         break;
     }
@@ -257,7 +274,7 @@ Parser.prototype._parseBlock = function() {
     return blockNode;
 };
 
-Parser.prototype._parseControl = function() {
+Parser.prototype._parseControl = function () {
     var controlNode;
     if ((controlNode = this._parseIf())) return controlNode;
     if ((controlNode = this._parseLoop())) return controlNode;
@@ -265,7 +282,7 @@ Parser.prototype._parseControl = function() {
     if ((controlNode = this._parseUpon())) return controlNode;
 };
 
-Parser.prototype._parseFunction = function() {
+Parser.prototype._parseFunction = function () {
     var lexer = this._lexer;
     if (!lexer.accept('func', ['function', 'procedure'])) return null;
 
@@ -280,16 +297,16 @@ Parser.prototype._parseFunction = function() {
     // <block>
     var blockNode = this._parseBlock();
     // \ENDFUNCTION
-    lexer.expect('func', 'end' + funcType);
+    lexer.expect('func', `end${funcType}`);
 
     var functionNode = new ParseNode('function',
-                                     {type: funcType, name: funcName});
+                                     { type: funcType, name: funcName });
     functionNode.addChild(argsNode);
     functionNode.addChild(blockNode);
     return functionNode;
 };
 
-Parser.prototype._parseIf = function() {
+Parser.prototype._parseIf = function () {
     if (!this._lexer.accept('func', 'if')) return null;
 
     var ifNode = new ParseNode('if');
@@ -320,11 +337,11 @@ Parser.prototype._parseIf = function() {
     // \ENDIF
     this._lexer.expect('func', 'endif');
 
-    ifNode.value = {numElif: numElif, hasElse: hasElse};
+    ifNode.value = { numElif: numElif, hasElse: hasElse };
     return ifNode;
 };
 
-Parser.prototype._parseLoop = function() {
+Parser.prototype._parseLoop = function () {
     if (!this._lexer.accept('func', ['FOR', 'FORALL', 'WHILE'])) return null;
 
     var loopName = this._lexer.get().text.toLowerCase();
@@ -337,13 +354,13 @@ Parser.prototype._parseLoop = function() {
     loopNode.addChild(this._parseBlock());
 
     // \ENDFOR
-    var endLoop = loopName !== 'forall' ? 'end' + loopName : 'endfor';
+    var endLoop = loopName !== 'forall' ? `end${loopName}` : 'endfor';
     this._lexer.expect('func', endLoop);
 
     return loopNode;
 };
 
-Parser.prototype._parseRepeat = function() {
+Parser.prototype._parseRepeat = function () {
     if (!this._lexer.accept('func', ['REPEAT'])) return null;
 
     var repeatName = this._lexer.get().text.toLowerCase();
@@ -363,7 +380,7 @@ Parser.prototype._parseRepeat = function() {
     return repeatNode;
 };
 
-Parser.prototype._parseUpon = function() {
+Parser.prototype._parseUpon = function () {
     if (!this._lexer.accept('func', 'upon')) return null;
 
     var uponNode = new ParseNode('upon');
@@ -382,7 +399,7 @@ Parser.prototype._parseUpon = function() {
 
 var IO_STATEMENTS = ['ensure', 'require', 'input', 'output'];
 var STATEMENTS = ['state', 'print', 'return'];
-Parser.prototype._parseStatement = function(acceptStatements) {
+Parser.prototype._parseStatement = function (acceptStatements) {
     if (!this._lexer.accept('func', acceptStatements)) return null;
 
     var stmtName = this._lexer.get().text.toLowerCase();
@@ -394,7 +411,7 @@ Parser.prototype._parseStatement = function(acceptStatements) {
 };
 
 var COMMANDS = ['break', 'continue'];
-Parser.prototype._parseCommand = function(acceptCommands) {
+Parser.prototype._parseCommand = function (acceptCommands) {
     if (!this._lexer.accept('func', acceptCommands)) return null;
 
     var cmdName = this._lexer.get().text.toLowerCase();
@@ -403,7 +420,7 @@ Parser.prototype._parseCommand = function(acceptCommands) {
     return cmdNode;
 };
 
-Parser.prototype._parseComment = function() {
+Parser.prototype._parseComment = function () {
     if (!this._lexer.accept('func', 'comment')) return null;
 
     var commentNode = new ParseNode('comment');
@@ -416,7 +433,7 @@ Parser.prototype._parseComment = function() {
     return commentNode;
 };
 
-Parser.prototype._parseCall = function() {
+Parser.prototype._parseCall = function () {
     var lexer = this._lexer;
     if (!lexer.accept('func', 'call')) return null;
 
@@ -439,15 +456,15 @@ Parser.prototype._parseCall = function() {
 };
 
 Parser.prototype._parseCond =
-Parser.prototype._parseCloseText = function() {
+Parser.prototype._parseCloseText = function () {
     return this._parseText('close');
 };
-Parser.prototype._parseOpenText = function() {
+Parser.prototype._parseOpenText = function () {
     return this._parseText('open');
 };
 
-Parser.prototype._parseText = function(openOrClose) {
-    var textNode = new ParseNode(openOrClose + '-text');
+Parser.prototype._parseText = function (openOrClose) {
+    var textNode = new ParseNode(`${openOrClose}-text`);
     // any whitespace between Atom and CloseText
     var anyWhitespace = false;
     var subTextNode;
@@ -514,7 +531,7 @@ var ACCEPTED_TOKEN_BY_ATOM = {
     },
 };
 
-Parser.prototype._parseAtom = function() {
+Parser.prototype._parseAtom = function () {
     for (var atomType in ACCEPTED_TOKEN_BY_ATOM) {
         var acceptToken = ACCEPTED_TOKEN_BY_ATOM[atomType];
         var tokenText = this._lexer.accept(acceptToken.tokenType,

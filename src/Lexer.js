@@ -5,7 +5,7 @@
 var utils = require('./utils');
 var ParseError = require('./ParseError');
 
-var Lexer = function(input) {
+var Lexer = function (input) {
     this._input = input;
     this._remain = input;
     this._pos = 0;
@@ -13,7 +13,7 @@ var Lexer = function(input) {
     this._next(); // get the next atom
 };
 
-Lexer.prototype.accept = function(type, text) {
+Lexer.prototype.accept = function (type, text) {
     if (this._nextAtom.type === type && this._matchText(text)) {
         this._next();
         return this._currentAtom.text;
@@ -21,22 +21,30 @@ Lexer.prototype.accept = function(type, text) {
     return null;
 };
 
-Lexer.prototype.expect = function(type, text) {
+Lexer.prototype.expect = function (type, text) {
     var nextAtom = this._nextAtom;
     // The next atom is NOT of the right type
-    if (nextAtom.type !== type)
-        throw new ParseError('Expect an atom of ' + type + ' but received ' +
-            nextAtom.type, this._pos, this._input);
+    if (nextAtom.type !== type) {
+        throw new ParseError(
+            `Expected an atom of ${type} but received ${nextAtom.type}`,
+            this._pos,
+            this._input
+        );
+    }
     // Check whether the text is exactly the same
-    if (!this._matchText(text))
-        throw new ParseError('Expect `' + text + '` but received `' +
-            nextAtom.text + '`', this._pos, this._input);
+    if (!this._matchText(text)) {
+        throw new ParseError(
+            `Expected \`${text}\` but received \`${nextAtom.text}\``,
+            this._pos,
+            this._input
+        );
+    }
 
     this._next();
     return this._currentAtom.text;
 };
 
-Lexer.prototype.get = function() {
+Lexer.prototype.get = function () {
     return this._currentAtom;
 };
 
@@ -45,10 +53,10 @@ Lexer.prototype.get = function() {
     expression. This object simulates a RegEx object
 */
 var mathPattern = {
-    exec: function(str) {
+    exec: function (str) {
         var delimiters = [
-            {start: '$', end: '$'},
-            {start: '\\(', end: '\\)'},
+            { start: '$', end: '$' },
+            { start: '\\(', end: '\\)' },
         ];
         var totalLen = str.length;
 
@@ -61,9 +69,10 @@ var mathPattern = {
             var remain = str.slice(endPos);
             while (endPos < totalLen) {
                 var pos = remain.indexOf(endDel);
-                if (pos < 0)
+                if (pos < 0) {
                     throw new ParseError('Math environment is not closed',
                                          this._pos, this._input);
+                }
 
                 // false positive, it's escaped, not a match
                 if (pos > 0 && remain[pos - 1] === '\\') {
@@ -95,13 +104,13 @@ var atomRegex = {
 var commentRegex = /^%.*/;
 var whitespaceRegex = /^\s+/;
 
-Lexer.prototype._skip = function(len) {
+Lexer.prototype._skip = function (len) {
     this._pos += len;
     this._remain = this._remain.slice(len);
 };
 
 /* Get the next atom */
-Lexer.prototype._next = function() {
+Lexer.prototype._next = function () {
     var anyWhitespace = false;
     while (1) {
         // Skip whitespace (one or more)
@@ -159,17 +168,17 @@ Lexer.prototype._next = function() {
 };
 
 /* Check whether the text of the next atom matches */
-Lexer.prototype._matchText = function(text) {
+Lexer.prototype._matchText = function (text) {
     // don't need to match
     if (text === null || text === undefined) return true;
 
-    // string comparisons are case-insensitive
-    if (utils.isString(text)) // is a string, exactly the same?
+    // using case-insensitive comparisons,
+    // check if text is the same as next atom,
+    // or if text is an array that contains the next atom
+    if (utils.isString(text))
         return text.toLowerCase() === this._nextAtom.text.toLowerCase();
-    else {// is a list, match any of them?
-        text = text.map(function(str) { return str.toLowerCase(); });
-        return text.indexOf(this._nextAtom.text.toLowerCase()) >= 0;
-    }
+    else
+        return text.some((str) => str.toLowerCase() === this._nextAtom.text.toLowerCase());
 };
 
 module.exports = Lexer;

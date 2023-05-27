@@ -21,7 +21,7 @@ var utils = require('./utils');
  *  \tiny, \scriptsize, \footnotesize, \small, \normalsize,
  *  \large, \Large, \LARGE, \huge, \Huge.
  **/
-function TextStyle(outerFontSize) {
+function TextStyle (outerFontSize) {
     this._css = {};
 
     this._fontSize = this._outerFontSize =
@@ -34,12 +34,12 @@ function TextStyle(outerFontSize) {
  * As we use relative font size 'em', the outer span (has its own TextStyle
  * object) affects the size of the span to which this TextStyle object attached.
  * */
-TextStyle.prototype.outerFontSize = function(size) {
+TextStyle.prototype.outerFontSize = function (size) {
     if (size !== undefined) this._outerFontSize = size;
     return this._outerFontSize;
 };
 
-TextStyle.prototype.fontSize = function() {
+TextStyle.prototype.fontSize = function () {
     return this._fontSize;
 };
 
@@ -49,37 +49,37 @@ TextStyle.prototype.fontSize = function() {
 TextStyle.prototype._fontCommandTable = {
     // -------------- declaration --------------
     // font-family
-    normalfont: { 'font-family': 'KaTeX_Main'},
-    rmfamily: { 'font-family': 'KaTeX_Main'},
-    sffamily: { 'font-family': 'KaTeX_SansSerif'},
-    ttfamily: { 'font-family': 'KaTeX_Typewriter'},
+    normalfont: { 'font-family': 'KaTeX_Main' },
+    rmfamily: { 'font-family': 'KaTeX_Main' },
+    sffamily: { 'font-family': 'KaTeX_SansSerif' },
+    ttfamily: { 'font-family': 'KaTeX_Typewriter' },
     // weight
-    bfseries: { 'font-weight': 'bold'},
-    mdseries: { 'font-weight': 'medium'},
-    lfseries: { 'font-weight': 'lighter'},
+    bfseries: { 'font-weight': 'bold' },
+    mdseries: { 'font-weight': 'medium' },
+    lfseries: { 'font-weight': 'lighter' },
     // shape
-    upshape: { 'font-style': 'normal', 'font-variant': 'normal'},
-    itshape: { 'font-style': 'italic', 'font-variant': 'normal'},
-    scshape: { 'font-style': 'normal', 'font-variant': 'small-caps'},
-    slshape: { 'font-style': 'oblique', 'font-variant': 'normal'},
+    upshape: { 'font-style': 'normal', 'font-variant': 'normal' },
+    itshape: { 'font-style': 'italic', 'font-variant': 'normal' },
+    scshape: { 'font-style': 'normal', 'font-variant': 'small-caps' },
+    slshape: { 'font-style': 'oblique', 'font-variant': 'normal' },
     // -------------- command --------------
     // font-family
-    textnormal: { 'font-family': 'KaTeX_Main'},
-    textrm: { 'font-family': 'KaTeX_Main'},
-    textsf: { 'font-family': 'KaTeX_SansSerif'},
-    texttt: { 'font-family': 'KaTeX_Typewriter'},
+    textnormal: { 'font-family': 'KaTeX_Main' },
+    textrm: { 'font-family': 'KaTeX_Main' },
+    textsf: { 'font-family': 'KaTeX_SansSerif' },
+    texttt: { 'font-family': 'KaTeX_Typewriter' },
     // weight
-    textbf: { 'font-weight': 'bold'},
-    textmd: { 'font-weight': 'medium'},
-    textlf: { 'font-weight': 'lighter'},
+    textbf: { 'font-weight': 'bold' },
+    textmd: { 'font-weight': 'medium' },
+    textlf: { 'font-weight': 'lighter' },
     // shape
-    textup: { 'font-style': 'normal', 'font-variant': 'normal'},
-    textit: { 'font-style': 'italic', 'font-variant': 'normal'},
-    textsc: { 'font-style': 'normal', 'font-variant': 'small-caps'},
-    textsl: { 'font-style': 'oblique', 'font-variant': 'normal'},
+    textup: { 'font-style': 'normal', 'font-variant': 'normal' },
+    textit: { 'font-style': 'italic', 'font-variant': 'normal' },
+    textsc: { 'font-style': 'normal', 'font-variant': 'small-caps' },
+    textsl: { 'font-style': 'oblique', 'font-variant': 'normal' },
     // case
-    uppercase: { 'text-transform': 'uppercase'},
-    lowercase: { 'text-transform': 'lowercase'},
+    uppercase: { 'text-transform': 'uppercase' },
+    lowercase: { 'text-transform': 'lowercase' },
 };
 
 TextStyle.prototype._sizingScalesTable = {
@@ -95,7 +95,7 @@ TextStyle.prototype._sizingScalesTable = {
     Huge:           2.28,
 };
 
-TextStyle.prototype.updateByCommand = function(cmd) {
+TextStyle.prototype.updateByCommand = function (cmd) {
     // Font command
     var cmdStyles = this._fontCommandTable[cmd];
     if (cmdStyles !== undefined) {
@@ -112,19 +112,19 @@ TextStyle.prototype.updateByCommand = function(cmd) {
         return;
     }
 
-    throw new ParserError('unrecogniazed text-style command');
+    throw new ParserError('Unrecognized `text-style` command');
 };
 
-TextStyle.prototype.toCSS = function() {
+TextStyle.prototype.toCSS = function () {
     var cssStr = '';
     for (var attr in this._css) {
         var val = this._css[attr];
         if (val === undefined) continue;
-        cssStr += attr + ':' + val + ';';
+        cssStr += `${attr}:${val};`;
     }
-    if (this._fontSize !== this._outerFontSize) {
-        cssStr += 'font-size:' + (this._fontSize / this._outerFontSize) + 'em;';
-    }
+    if (this._fontSize !== this._outerFontSize)
+        cssStr += `font-size:${this._fontSize / this._outerFontSize}em;`;
+
     return cssStr;
 };
 
@@ -132,19 +132,19 @@ TextStyle.prototype.toCSS = function() {
  * TextEnvironment - renders the children nodes in a ParseNode of type
  * 'close-text' or 'open-text' to HTML.
  **/
-function TextEnvironment(nodes, textStyle) {
+function TextEnvironment (nodes, textStyle) {
     this._nodes = nodes;
     this._textStyle = textStyle;
 }
 
-TextEnvironment.prototype._renderCloseText = function(node, backend) {
+TextEnvironment.prototype._renderCloseText = function (node, backend) {
     var newTextStyle = new TextStyle(this._textStyle.fontSize());
     var closeTextEnv = new TextEnvironment(node.children, newTextStyle);
     if (node.whitespace) this._html.putText(' ');
     this._html.putHTML(closeTextEnv.renderToHTML(backend));
 };
 
-TextEnvironment.prototype.renderToHTML = function(backend) {
+TextEnvironment.prototype.renderToHTML = function (backend) {
     this._html = new HTMLBuilder();
 
     var node;
@@ -160,19 +160,14 @@ TextEnvironment.prototype.renderToHTML = function(backend) {
                 this._html.putText(text);
                 break;
             case 'math':
-                if (typeof backend === 'undefined') {
-                    throw 'No math backend found. Please setup KaTeX or MathJax.';
-                }
-                else if (backend.name === 'katex') {
+                if (typeof backend === 'undefined')
+                    throw EvalError('No math backend found. Please setup KaTeX or MathJax.');
+                else if (backend.name === 'katex')
                     this._html.putHTML(backend.driver.renderToString(text));
-                }
-                else if (backend.name === 'mathjax') {
-                    this._html.putText('$' + text + '$');
-                }
-                else {
-                    throw 'Unknown math backend ' + backend;
-                }
-
+                else if (backend.name === 'mathjax')
+                    this._html.putText(`$${text}$`);
+                else
+                    throw new EvalError(`Unknown math backend ${backend}`);
                 break;
             case 'cond-symbol':
                 this._html
@@ -267,7 +262,7 @@ TextEnvironment.prototype.renderToHTML = function(backend) {
                 this._html.endSpan();
                 break;
             default:
-                throw new ParseError('Unexpected ParseNode of type ' + node.type);
+                throw new ParseError(`Unexpected ParseNode of type ${node.type}`);
         }
     }
 
@@ -275,75 +270,75 @@ TextEnvironment.prototype.renderToHTML = function(backend) {
 };
 
 /* HTMLBuilder - A helper class for constructing HTML */
-function HTMLBuilder() {
+function HTMLBuilder () {
     this._body = [];
     this._textBuf = [];
 }
 
-HTMLBuilder.prototype.beginDiv = function(className, style, extraStyle) {
+HTMLBuilder.prototype.beginDiv = function (className, style, extraStyle) {
     this._beginTag('div', className, style, extraStyle);
     this._body.push('\n'); // make the generated HTML more human friendly
     return this;
 };
 
-HTMLBuilder.prototype.endDiv = function() {
+HTMLBuilder.prototype.endDiv = function () {
     this._endTag('div');
     this._body.push('\n'); // make the generated HTML more human friendly
     return this;
 };
 
-HTMLBuilder.prototype.beginP = function(className, style, extraStyle) {
+HTMLBuilder.prototype.beginP = function (className, style, extraStyle) {
     this._beginTag('p', className, style, extraStyle);
     this._body.push('\n'); // make the generated HTML more human friendly
     return this;
 };
 
-HTMLBuilder.prototype.endP = function() {
+HTMLBuilder.prototype.endP = function () {
     this._flushText();
     this._endTag('p');
     this._body.push('\n'); // make the generated HTML more human friendly
     return this;
 };
 
-HTMLBuilder.prototype.beginSpan = function(className, style, extraStyle) {
+HTMLBuilder.prototype.beginSpan = function (className, style, extraStyle) {
     this._flushText();
     return this._beginTag('span', className, style, extraStyle);
 };
 
-HTMLBuilder.prototype.endSpan = function() {
+HTMLBuilder.prototype.endSpan = function () {
     this._flushText();
     return this._endTag('span');
 };
 
-HTMLBuilder.prototype.putHTML = function(html) {
+HTMLBuilder.prototype.putHTML = function (html) {
     this._flushText();
     this._body.push(html);
     return this;
 };
 
-HTMLBuilder.prototype.putText = function(text) {
+HTMLBuilder.prototype.putText = function (text) {
     this._textBuf.push(text);
     return this;
 };
 
-HTMLBuilder.prototype.write = function(html) {
+HTMLBuilder.prototype.write = function (html) {
     this._body.push(html);
 };
 
-HTMLBuilder.prototype.toMarkup = function() {
+HTMLBuilder.prototype.toMarkup = function () {
     this._flushText();
     var html = this._body.join('');
     return html.trim();
 };
 
-HTMLBuilder.prototype.toDOM = function() {
+HTMLBuilder.prototype.toDOM = function () {
     var html = this.toMarkup();
     var div = document.createElement('div');
     div.innerHTML = html;
     return div.firstChild;
 };
 
-HTMLBuilder.prototype._flushText = function() {
+HTMLBuilder.prototype._flushText = function () {
     if (this._textBuf.length === 0) return;
 
     var text = this._textBuf.join('');
@@ -359,29 +354,31 @@ HTMLBuilder.prototype._flushText = function() {
             either a string, e.g., 'color:red', or an object, e.g.
             { color: 'red', margin-left: '1em'}
 */
-HTMLBuilder.prototype._beginTag = function(tag, className, style, extraStyle) {
-    var spanHTML = '<' + tag;
-    if (className) spanHTML += ' class="' + className + '"';
+HTMLBuilder.prototype._beginTag = function (tag, className, style, extraStyle) {
+    var spanHTML = `<${tag}`;
+    if (className) spanHTML += ` class="${className}"`;
     if (style) {
         var styleCode;
-        if (utils.isString(style)) styleCode = style;
+        if (utils.isString(style)) {
+            styleCode = style;
+        }
         else { // style
             styleCode = '';
             for (var attrName in style) {
                 attrVal = style[attrName];
-                styleCode += attrName + ':' + attrVal + ';';
+                styleCode += `${attrName}:${attrVal};`;
             }
         }
         if (extraStyle) styleCode += extraStyle;
-        spanHTML += ' style="' + styleCode + '"';
+        spanHTML += ` style="${styleCode}"`;
     }
     spanHTML += '>';
     this._body.push(spanHTML);
     return this;
 };
 
-HTMLBuilder.prototype._endTag = function(tag) {
-    this._body.push('</' + tag + '>');
+HTMLBuilder.prototype._endTag = function (tag) {
+    this._body.push(`</${tag}>`);
     return this;
 };
 
@@ -394,10 +391,11 @@ var entityMap = {
     "/": '&#x2F;',
 };
 
-HTMLBuilder.prototype._escapeHtml = function(string) {
-    return String(string).replace(/[&<>"'/]/g, function(s) {
-        return entityMap[s];
-    });
+HTMLBuilder.prototype._escapeHtml = function (string) {
+    return String(string).replace(
+        /[&<>"'/]/g,
+        (s) => entityMap[s]
+    );
 };
 
 /*
@@ -417,7 +415,7 @@ HTMLBuilder.prototype._escapeHtml = function(string) {
  *      titlePrefix - The prefix in the title of the algorithm. Default value: 'Algorithm'.
  *
  **/
-function RendererOptions(options) {
+function RendererOptions (options) {
     options = options || {};
     this.indentSize =
         options.indentSize ? this._parseEmVal(options.indentSize) : 1.2;
@@ -431,10 +429,11 @@ function RendererOptions(options) {
     this.titlePrefix = options.titlePrefix !== undefined ? options.titlePrefix : 'Algorithm';
 }
 
-RendererOptions.prototype._parseEmVal = function(emVal) {
+RendererOptions.prototype._parseEmVal = function (emVal) {
     emVal = emVal.trim();
     if (emVal.indexOf('em') !== emVal.length - 2)
-        throw 'option unit error; no `em` found';
+        throw new TypeError('Unit error; expected `em` suffix');
+
     return Number(emVal.substring(0, emVal.length - 2));
 };
 
@@ -444,7 +443,7 @@ RendererOptions.prototype._parseEmVal = function(emVal) {
  * There are three levels for renderer: Group (Block), Line and Segment,
  * which are rendered to HTML tag, <div>, <p>, and <span>, respectively.
  **/
-function Renderer(parser, options) {
+function Renderer (parser, options) {
     this._root = parser.parse();
     this._options = new RendererOptions(options);
     this._openLine = false;
@@ -482,32 +481,32 @@ function Renderer(parser, options) {
 /*  The global counter for the numbering of the algorithm environment */
 Renderer.captionCount = 0;
 
-Renderer.prototype.toMarkup = function() {
+Renderer.prototype.toMarkup = function () {
     var html = this._html = new HTMLBuilder();
     this._buildTree(this._root);
     delete this._html;
     return html.toMarkup();
 };
 
-Renderer.prototype.toDOM = function() {
+Renderer.prototype.toDOM = function () {
     var html = this.toMarkup();
     var div = document.createElement('div');
     div.innerHTML = html;
     return div.firstChild;
 };
 
-Renderer.prototype._beginGroup = function(name, extraClass, style) {
+Renderer.prototype._beginGroup = function (name, extraClass, style) {
     this._closeLineIfAny();
-    this._html.beginDiv('ps-' + name + (extraClass ? ' ' + extraClass : ''),
+    this._html.beginDiv(`ps-${name}${extraClass ? ` ${extraClass}` : ''}`,
                         style);
 };
 
-Renderer.prototype._endGroup = function(name) {
+Renderer.prototype._endGroup = function (name) {
     this._closeLineIfAny();
     this._html.endDiv();
 };
 
-Renderer.prototype._beginBlock = function() {
+Renderer.prototype._beginBlock = function () {
     // The first block have to extra left margin when line number are displayed
     var extraIndentForFirstBlock =
         this._options.lineNumber && this._blockLevel === 0 ? 0.6 : 0;
@@ -519,18 +518,18 @@ Renderer.prototype._beginBlock = function() {
         blockIndent /= 2;
 
     this._beginGroup('block', null, {
-        'margin-left': blockIndent + 'em',
+        'margin-left': `${blockIndent}em`,
     });
     this._blockLevel++;
 };
 
-Renderer.prototype._endBlock = function() {
+Renderer.prototype._endBlock = function () {
     this._closeLineIfAny();
     this._endGroup();
     this._blockLevel--;
 };
 
-Renderer.prototype._newLine = function() {
+Renderer.prototype._newLine = function () {
     this._closeLineIfAny();
 
     this._openLine = true;
@@ -554,7 +553,7 @@ Renderer.prototype._newLine = function() {
         if (this._options.lineNumber) {
             this._html
                 .beginSpan('ps-linenum', {
-                    'left': -((this._blockLevel - 1) * (extraIndentSize)) + 'em',
+                    'left': `${-((this._blockLevel - 1) * (extraIndentSize))}em`,
                 })
                 .putText(this._numLOC + this._options.lineNumberPunc)
                 .endSpan();
@@ -563,13 +562,13 @@ Renderer.prototype._newLine = function() {
     // if this line is for pre-conditions (e.g. \REQUIRE)
     else {
         this._html.beginP('ps-line', {
-            'text-indent': (-indentSize) + 'em',
-            'padding-left': indentSize + 'em',
+            'text-indent': `${-indentSize}em`,
+            'padding-left': `${indentSize}em`,
         }, this._globalTextStyle.toCSS());
     }
 };
 
-Renderer.prototype._closeLineIfAny = function() {
+Renderer.prototype._closeLineIfAny = function () {
     if (!this._openLine) return;
 
     this._html.endP();
@@ -577,19 +576,19 @@ Renderer.prototype._closeLineIfAny = function() {
     this._openLine = false;
 };
 
-Renderer.prototype._typeKeyword = function(keyword) {
+Renderer.prototype._typeKeyword = function (keyword) {
     this._html.beginSpan('ps-keyword').putText(keyword).endSpan();
 };
 
-Renderer.prototype._typeFuncName = function(funcName) {
+Renderer.prototype._typeFuncName = function (funcName) {
     this._html.beginSpan('ps-funcname').putText(funcName).endSpan();
 };
 
-Renderer.prototype._typeText = function(text) {
+Renderer.prototype._typeText = function (text) {
     this._html.write(text);
 };
 
-Renderer.prototype._buildTreeForAllChildren = function(node) {
+Renderer.prototype._buildTreeForAllChildren = function (node) {
     var children = node.children;
     for (var ci = 0; ci < children.length; ci++)
         this._buildTree(children[ci]);
@@ -597,7 +596,7 @@ Renderer.prototype._buildTreeForAllChildren = function(node) {
 
 // The comment nodes at the beginning of blockNode are comments for controls
 // Thus they should be rendered out of block
-Renderer.prototype._buildCommentsFromBlock = function(blockNode) {
+Renderer.prototype._buildCommentsFromBlock = function (blockNode) {
     var children = blockNode.children;
     while (children.length > 0 && children[0].type === 'comment') {
         var commentNode = children.shift();
@@ -605,7 +604,7 @@ Renderer.prototype._buildCommentsFromBlock = function(blockNode) {
     }
 };
 
-Renderer.prototype._buildTree = function(node) {
+Renderer.prototype._buildTree = function (node) {
     var ci; var child; var textNode;
     switch (node.type) {
         // The hierarchicy of build tree: Group (Block) > Line > Text
@@ -675,7 +674,7 @@ Renderer.prototype._buildTree = function(node) {
             textNode = node.children[0];
             var blockNode = node.children[1];
             this._newLine();
-            this._typeKeyword(funcType + ' ');
+            this._typeKeyword(`${funcType} `);
             this._typeFuncName(defFuncName);
             this._typeText('(');
             this._buildTree(textNode);
@@ -686,7 +685,7 @@ Renderer.prototype._buildTree = function(node) {
 
             if (!this._options.noEnd) {
                 this._newLine();
-                this._typeKeyword('end ' + funcType);
+                this._typeKeyword(`end ${funcType}`);
             }
             break;
         case 'if':
@@ -767,7 +766,7 @@ Renderer.prototype._buildTree = function(node) {
                 'forall': 'for all',
                 'while': 'while',
             };
-            this._typeKeyword(displayLoopName[loopType] + ' ');
+            this._typeKeyword(`${displayLoopName[loopType]} `);
             var loopCond = node.children[0];
             this._buildTree(loopCond);
             this._typeKeyword(' do');
@@ -848,8 +847,8 @@ Renderer.prototype._buildTree = function(node) {
             break;
         case 'caption':
             this._newLine();
-            this._typeKeyword(this._options.titlePrefix
-                              + ' ' + Renderer.captionCount + ' ');
+            this._typeKeyword(`${this._options.titlePrefix
+            } ${Renderer.captionCount} `);
             textNode = node.children[0];
             this._buildTree(textNode);
             break;
@@ -891,7 +890,7 @@ Renderer.prototype._buildTree = function(node) {
             this._html.putHTML(closeTextEnv.renderToHTML(this.backend));
             break;
         default:
-            throw new ParseError('Unexpected ParseNode of type ' + node.type);
+            throw new ParseError(`Unexpected ParseNode of type ${node.type}`);
     }
 };
 
