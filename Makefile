@@ -1,6 +1,6 @@
 .PHONY: all build clean docs default lint release
 
-VERSION=2.1.1
+VERSION=2.2.0
 
 # Building tools
 BROWSERIFY = $(realpath ./node_modules/.bin/browserify)
@@ -18,7 +18,8 @@ SAMPLES = build/katex-samples.html build/mathjax-v2-samples.html build/mathjax-v
 default: build
 
 
-all : clean build docs release
+all : clean
+	@$(MAKE) --no-print-directory release
 
 
 watch-js: pseudocode.js $(wildcard src/*.js)
@@ -27,7 +28,7 @@ watch-js: pseudocode.js $(wildcard src/*.js)
 
 
 build: build/pseudocode.js build/pseudocode.css $(SAMPLES)
-	@echo "> Building succeeded"
+	@echo "> Building succeeded\n"
 
 build/pseudocode.js: pseudocode.js $(wildcard src/*.js)
 	@$(MAKE) --no-print-directory lint
@@ -45,7 +46,7 @@ build/%-samples.html: static/%.html.part static/body.html.part static/footer.htm
 
 
 release: build docs build/pseudocode-js.tar.gz build/pseudocode-js.zip
-	@echo "> Release package generated"
+	@echo "> Release package generated\n"
 
 RELEASE_DIR=pseudocode.js-$(VERSION)/
 build/pseudocode-js.tar.gz: build/$(RELEASE_DIR)
