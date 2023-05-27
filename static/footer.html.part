@@ -20,6 +20,18 @@
                                      noEnd: false,
                                      titlePrefix: "My pretty Algorithm"
                                  });                                   
+        pseudocode.renderElement(document.getElementById("scopeline-euclid"),
+                                 {
+                                     lineNumber: false,
+                                     noEnd: true,
+                                     scopeLines: true
+                                 });
+        pseudocode.renderElement(document.getElementById("scopeline-dbscan"),
+                                 {
+                                     lineNumber: true,
+                                     noEnd: false,
+                                     scopeLines: true
+                                 });
     </script>
 </body>
 </html>

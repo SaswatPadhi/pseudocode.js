@@ -50,6 +50,7 @@
     font-style: normal;
     text-transform: none;
 }
+
 /* line number support */
 .ps-root .ps-linenum {
     font-size: 0.8em;
@@ -63,6 +64,17 @@
 .ps-root .ps-algorithmic.with-linenum .ps-line.ps-code {
     text-indent: -1.6em;
 }
-.ps-root .ps-algorithmic.with-linenum .ps-line.ps-code > span{
+.ps-root .ps-algorithmic.with-linenum .ps-line.ps-code > span {
     text-indent: 0em;
+}
+
+/* scope lines support */
+.ps-root .ps-algorithmic.with-scopelines div.ps-block {
+    border-left-style: solid;
+    border-left-width: 0.1em;
+    padding-left: 0.6em;
+}
+
+.ps-root .ps-algorithmic.with-scopelines > div.ps-block {
+    border-left: none;
 }
