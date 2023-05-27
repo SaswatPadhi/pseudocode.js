@@ -515,9 +515,8 @@ Renderer.prototype._beginBlock = function() {
 
     // We also need to handle the extra margin for scope lines
     // We divide the block indent by 2 because the other margin will be after the indent symbol
-    if (this._options.scopeLines) {
-        blockIndent = blockIndent / 2;
-    }
+    if (this._options.scopeLines)
+        blockIndent /= 2;
 
     this._beginGroup('block', null, {
         'margin-left': blockIndent + 'em',
@@ -547,13 +546,8 @@ Renderer.prototype._newLine = function() {
         this._html.beginP('ps-line ps-code', this._globalTextStyle.toCSS());
 
         // We need to consider the indent width for linenumbers and scopelines
-        var extraIndentSize = 0;
-        if (this._options.lineNumber) {
-            extraIndentSize += indentSize * 1.25;
-        }
-        if (this._options.scopeLines) {
-            extraIndentSize += indentSize * 0.1;
-        }
+        var extraIndentSize = this._options.lineNumber ? indentSize * 1.25 : 0;
+        extraIndentSize += this._options.scopeLines ? indentSize * 0.1 : 0;
 
         // We add this width if we need to pad the line (e.g., with linenumber).
         // We don't need to handle scope lines here, as they do not add any extra text in the line.
@@ -647,13 +641,12 @@ Renderer.prototype._buildTree = function(node) {
             this._endGroup();
             break;
         case 'algorithmic':
-            // Check if our algorithm needs to be enhanced with special tags (linenumber or scopelines)
-            var divOptions = '';
-            this._options.lineNumber ? divOptions += ' with-linenum' : '';
-            this._options.scopeLines ? divOptions += ' with-scopelines' : '';
+            // Check if we need to add additional classes for the provided options
+            var divClasses = this._options.lineNumber ? ' with-linenum ' : '';
+            divClasses += this._options.scopeLines ? ' with-scopelines ' : '';
 
-            if (divOptions) {
-                this._beginGroup('algorithmic', divOptions);
+            if (divClasses) {
+                this._beginGroup('algorithmic', divClasses);
                 this._numLOC = 0;
             }
             else {

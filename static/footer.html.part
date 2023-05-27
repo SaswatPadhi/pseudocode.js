@@ -23,7 +23,7 @@
         pseudocode.renderElement(document.getElementById("scopeline-euclid"),
                                  {
                                      lineNumber: false,
-                                     noEnd: false,
+                                     noEnd: true,
                                      scopeLines: true
                                  });
         pseudocode.renderElement(document.getElementById("scopeline-dbscan"),
