@@ -1,7 +1,7 @@
 </head>
 
 <body>
-    <pre id="test-basics" style="display:none">
+    <pre id="test-basics" style="display:none" data-line-number=true>
         \begin{algorithm}
         \caption{Test text-style}
         \begin{algorithmic}
@@ -125,7 +125,7 @@
         \end{algorithmic}
         \end{algorithm}
     </pre>
-    <pre id="test-examples" style="display:none">
+    <pre id="test-examples" style="display:none" data-title-prefix="Procedure">
         % This quicksort algorithm is extracted from Chapter 7, Introduction
         % to Algorithms (3rd edition)
         \begin{algorithm}

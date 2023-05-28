@@ -47,7 +47,10 @@ module.exports = {
 
         elem.style.display = 'none';
 
-        var R = makeRenderer(elem.textContent, options);
+        var elemOptions = JSON.parse(JSON.stringify(options));
+        for (const dataProp in elem.dataset)
+            elemOptions[dataProp] = elem.dataset[dataProp];
+        var R = makeRenderer(elem.textContent, elemOptions);
 
         var newElem = R.toDOM();
         elem.replaceWith(newElem);

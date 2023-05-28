@@ -241,8 +241,10 @@ To display the caption of an algorithm, use `algorithm` environment as a 'float'
 ```
 
 ### Options
-`pseudocode.renderElement` can accept an option as the last argument,
-such as
+
+#### Global Options
+
+`pseudocode.renderElement` can accept an option object as the last argument, such as
 
 ```js
 pseudocode.renderElement(document.getElementById("quicksort"),
@@ -272,6 +274,21 @@ var DEFAULT_OPTIONS = {
     noEnd: false,
     captionCount: undefined
 };
+```
+
+#### Per-Element Options
+
+The above-mentioned global options may be overridden on a per-element basis
+using [HTML `data-*` attributes](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/dataset)
+on the `<pre>` DOM element.
+
+The following example demonstrates how to enable line numbers and change title prefix:
+
+```html
+<pre id="quicksort" class="pseudocode" style="display:hidden;"
+     data-line-number=true data-title-prefix="Algo">
+   ...
+</pre>
 ```
 
 ## Build and Test
