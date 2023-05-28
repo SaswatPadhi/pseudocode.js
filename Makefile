@@ -1,6 +1,6 @@
 .PHONY: all build clean docs default lint release
 
-VERSION=2.2.0
+VERSION=2.3.0
 
 # Building tools
 BROWSERIFY = $(realpath ./node_modules/.bin/browserify)
