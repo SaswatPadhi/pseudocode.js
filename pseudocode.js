@@ -13,30 +13,19 @@ function makeRenderer (data, options) {
     return new Renderer(parser, options);
 }
 
-function mathjaxTypeset (elem) {
-    try {
-        // MathJax 3.x
-        MathJax.typeset([elem]);
-    }
-    catch (_) {
-        // MathJax 2.x
-        MathJax.Hub.Queue(["Typeset", MathJax.Hub, elem]);
-    }
-}
-
 module.exports = {
     ParseError: ParseError,
     render: function (input, baseDomEle, options) {
         if (input === null || input === undefined)
             throw new ReferenceError('Input cannot be empty');
 
-        var renderer = makeRenderer(input, options);
-        var elem = renderer.toDOM();
+        var R = makeRenderer(input, options);
+        var elem = R.toDOM();
         if (baseDomEle)
             baseDomEle.appendChild(elem);
 
-        if (renderer.backend.name === 'mathjax')
-            mathjaxTypeset(elem);
+        if (R.backend && R.backend.name === 'mathjax' && R.backend.version < 3)
+            MathJax.Hub.Queue(["Typeset", MathJax.Hub, elem]);
 
         return elem;
     },
@@ -44,11 +33,13 @@ module.exports = {
         if (input === null || input === undefined)
             throw new ReferenceError('Input cannot be empty');
 
-        var renderer = makeRenderer(input, options);
-        if (renderer.backend.name === 'mathjax')
-            console.warn('Using MathJax backend -- math may not be rendered.');
+        var R = makeRenderer(input, options);
+        if (R.backend && R.backend.name === 'mathjax' && R.backend.version < 3) {
+            console.warn('`renderToString` is not fully supported on MathJax backend below 3.0.\n' +
+                         'Math ($...$) will not be rendered to HTML and will be left as is.');
+        }
 
-        return renderer.toMarkup();
+        return R.toMarkup();
     },
     renderElement: function (elem, options) {
         if (!(elem instanceof Element))
@@ -56,15 +47,13 @@ module.exports = {
 
         elem.style.display = 'none';
 
-        var renderer = makeRenderer(elem.textContent, options);
+        var R = makeRenderer(elem.textContent, options);
 
-        var newElem = renderer.toDOM();
+        var newElem = R.toDOM();
         elem.replaceWith(newElem);
 
-        if (renderer.backend) {
-            if (renderer.backend.name === 'mathjax')
-                mathjaxTypeset(newElem);
-        }
+        if (R.backend && R.backend.name === 'mathjax' && R.backend.version < 3)
+            MathJax.Hub.Queue(["Typeset", MathJax.Hub, elem]);
     },
 
     renderClass: function (className, options) {

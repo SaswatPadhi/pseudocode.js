@@ -160,14 +160,25 @@ TextEnvironment.prototype.renderToHTML = function (backend) {
                 this._html.putText(text);
                 break;
             case 'math':
-                if (typeof backend === 'undefined')
+                if (typeof backend === 'undefined') {
                     throw EvalError('No math backend found. Please setup KaTeX or MathJax.');
-                else if (backend.name === 'katex')
+                }
+                else if (backend.name === 'katex') {
                     this._html.putHTML(backend.driver.renderToString(text));
-                else if (backend.name === 'mathjax')
-                    this._html.putText(`$${text}$`);
-                else
+                }
+                else if (backend.name === 'mathjax') {
+                    if (backend.version < 3) {
+                        // keep math text, typeset later
+                        this._html.putText(`$${text}$`);
+                    }
+                    else {
+                        // use synchronous conversion available in 3.x
+                        this._html.putHTML(backend.driver.tex2chtml(text, { display: false }).outerHTML);
+                    }
+                }
+                else {
                     throw new EvalError(`Unknown math backend ${backend}`);
+                }
                 break;
             case 'cond-symbol':
                 this._html
@@ -473,6 +484,7 @@ function Renderer (parser, options) {
     else if (typeof MathJax !== 'undefined') {
         this.backend = {
             'name' : 'mathjax',
+            'version': parseInt(MathJax.version.split('.')[0]),
             'driver' : MathJax,
         };
     }
