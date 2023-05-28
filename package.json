@@ -22,7 +22,7 @@
         "browserify": "^17.0.0",
         "clean-css-cli": "^5.3.0",
         "eslint": "^8.25.0",
-        "katex": "^0.16.3",
+        "katex": "^0.16.7",
         "uglify-js": "^3.17.4",
         "watchify": "^4.0.0",
         "clean-css": "^5.2.4"

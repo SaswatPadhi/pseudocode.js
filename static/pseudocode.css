@@ -1,4 +1,4 @@
-@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css');
+@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.css');
 
 .ps-root {
     font-family: KaTeX_Main, 'Times New Roman', Times, serif;
