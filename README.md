@@ -14,8 +14,7 @@ HTML.
 * _Math formula support:_ Inserting math formulas in pseudocode.js is as easy 
   as LaTeX. Just enclose math expression in `$...$` or `\(...\)`.
 
-It supports all modern browsers, including Chrome, Safari, Firefox, Edge, and
-IE 9 - IE 11.
+It supports all modern browsers, including Chrome, Safari, Firefox, Edge, and Edge.
 
 Visit the [project website](https://saswatpadhi.github.io/pseudocode.js) for a demo.
 
@@ -129,7 +128,7 @@ Insert the following Javascript snippet at the end of your document:
 </script>
 ```
 
-#### Step 4B &middot; Render the class using pseudocode.js
+#### Step 4B &middot; Render all elements of the class using pseudocode.js
 Insert the following Javascript snippet at the end of your document:
 
 ```html
@@ -198,38 +197,37 @@ and `<function>`:
 \COMMENT{<text>}
 ```
 
-A `<text>` (or `<condition>`) can include the following:
+A `<text>`, `<block>`, or `<condition>` may include the following:
 ```tex
-# Normal characters
+% Normal characters
 Hello world
-# Escaped characters
+% Escaped characters
 \\, \{, \}, \$, \&, \#, \% and \_
-# Math formula
+% Math formula
 $i \gets i + 1$
-# Function call
+% Function call
 \CALL{<func>}{<args>}
-# Keywords
-\AND, \OR, \XOR, \NOT, \TO, \DOWNTO, \TRUE, \FALSE
-# LaTeX's sizing commands
+% Keywords
+\AND, \OR, \XOR, \NOT, \TO, \DOWNTO, \TRUE, \FALSE, \BREAK, \CONTINUE
+% LaTeX's sizing commands
 \tiny, \scriptsize, \footnotesize, \small \normalsize, \large, \Large, \LARGE, 
 \huge, \HUGE
-# LaTeX's font declarations
+% LaTeX's font declarations
 \rmfamily, \sffamily, \ttfamily
 \upshape, \itshape, \slshape, \scshape
 \bfseries, \mdseries, \lfseries
-# LaTeX's font commands
+% LaTeX's font commands
 \textnormal{<text>}, \textrm{<text>}, \textsf{<text>}, \texttt{<text>}
 \textup{<text>}, \textit{<text>}, \textsl{<text>}, \textsc{<text>}
 \uppercase{<text>}, \lowercase{<text>}
 \textbf, \textmd, \textlf
-# And it's possible to group text with braces
+% And it's possible to group text with braces
 normal text {\small the size gets smaller} back to normal again
 ```
 
-Note that although pseudocode.js recognizes some LaTeX commands, it is by no 
-means a full-featured LaTeX implementation in JavaScript.
-It only support a subset of LaTeX commands that are most relevant to 
-typesetting algorithms.
+> **Note**
+> Although pseudocode.js recognizes some LaTeX commands, it is by no means a full-featured LaTeX implementation in JavaScript.
+> It only support a subset of LaTeX commands that are most relevant to typesetting algorithms.
 
 
 To display the caption of an algorithm, use `algorithm` environment as a 'float' wrapper :
