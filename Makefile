@@ -58,7 +58,8 @@ build/pseudocode-js.tar.gz: build/$(RELEASE_DIR)
 	cd build && tar czf pseudocode-js.tar.gz $(RELEASE_DIR)
 
 build/pseudocode-js.zip: build/$(RELEASE_DIR)
-	cd build && zip -rq pseudocode-js.zip $(RELEASE_DIR)
+	cd build && zip -rq pseudocode-js.zip $(RELEASE_DIR) || \
+                7z a -r pseudocode-js.zip $(RELEASE_DIR)
 
 build/$(RELEASE_DIR): build/pseudocode.js build/pseudocode.min.js build/pseudocode.css build/pseudocode.min.css $(SAMPLES) README.md
 	mkdir -p build/$(RELEASE_DIR)
