@@ -62,9 +62,7 @@ module.exports = {
     renderClass: function (className, options) {
         [].forEach.call(
             document.getElementsByClassName(className),
-            function (el) {
-                this.renderElement(el, options);
-            }
+            (el) => this.renderElement(el, options)
         );
     },
 };

@@ -1,7 +1,7 @@
 </head>
 
 <body>
-    <pre id="test-basics" style="display:none" data-line-number=true>
+    <pre id="test-basics" data-line-number=true>
         \begin{algorithm}
         \caption{Test text-style}
         \begin{algorithmic}
@@ -42,7 +42,7 @@
         \END{ALGORITHMIC}
         \END{ALGORITHM}
     </pre>
-    <pre id="test-codes" style="display:none">
+    <pre id="test-codes">
         \begin{algorithm}
         \caption{Test control blocks}
         \begin{algorithmic}
@@ -125,7 +125,7 @@
         \end{algorithmic}
         \end{algorithm}
     </pre>
-    <pre id="test-examples" style="display:none" data-title-prefix="Procedure">
+    <pre id="test-examples" data-title-prefix="Procedure">
         % This quicksort algorithm is extracted from Chapter 7, Introduction
         % to Algorithms (3rd edition)
         \begin{algorithm}
@@ -153,7 +153,7 @@
         \end{algorithmic}
         \end{algorithm}
     </pre>
-    <pre id="test-examples-custom-title" style="display:none">
+    <pre id="test-examples-custom-title">
         % This quicksort algorithm is extracted from Chapter 7, Introduction 
         % to Algorithms (3rd edition)
         \begin{algorithm}
@@ -181,7 +181,7 @@
         \end{algorithmic}
         \end{algorithm}
     </pre>
-    <pre id="scopeline-euclid" style="display:none">
+    <pre id="scopeline-euclid">
         \begin{algorithm}
         \caption{Classical Euclidean Algorithm}
         \begin{algorithmic}
@@ -198,7 +198,7 @@
         \end{algorithmic}
         \end{algorithm}
     </pre>
-    <pre id="scopeline-dbscan" style="display:none">
+    <pre id="scopeline-dbscan">
         \begin{algorithm}
         \caption{DBSCAN}
         \begin{algorithmic}

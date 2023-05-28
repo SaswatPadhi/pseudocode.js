@@ -90,7 +90,7 @@ We assume the pseudocode to be rendered is in a `<pre>` DOM element.
 Here is an example that illustrates a quicksort algorithm:
 
 ```html
-<pre id="quicksort" class="pseudocode" style="display:hidden;">
+<pre id="quicksort" class="pseudocode">
     % This quicksort algorithm is extracted from Chapter 7, Introduction to Algorithms (3rd edition)
     \begin{algorithm}
     \caption{Quicksort}
@@ -285,7 +285,7 @@ on the `<pre>` DOM element.
 The following example demonstrates how to enable line numbers and change title prefix:
 
 ```html
-<pre id="quicksort" class="pseudocode" style="display:hidden;"
+<pre id="quicksort" class="pseudocode"
      data-line-number=true data-title-prefix="Algo">
    ...
 </pre>
