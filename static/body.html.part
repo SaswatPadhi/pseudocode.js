@@ -181,7 +181,7 @@
         \end{algorithmic}
         \end{algorithm}
     </pre>
-    <pre id="scopeline-euclid">
+    <pre class="scopeline-pseudocode" data-line-number=true>
         \begin{algorithm}
         \caption{Classical Euclidean Algorithm}
         \begin{algorithmic}
@@ -193,12 +193,12 @@
                         \STATE $b \gets b - a$
                     \ENDIF
                 \ENDWHILE
-                \STATE return $a$
+                \RETURN $a$
             \ENDPROCEDURE
         \end{algorithmic}
         \end{algorithm}
     </pre>
-    <pre id="scopeline-dbscan">
+    <pre class="scopeline-pseudocode" data-no-end=true>
         \begin{algorithm}
         \caption{DBSCAN}
         \begin{algorithmic}
@@ -219,7 +219,7 @@
                     \ENDIF
                 \ENDIF
             \ENDFOR
-            \STATE return $K$
+            \RETURN $K$
         \ENDPROCEDURE
         \end{algorithmic}
         \end{algorithm}
