@@ -47,7 +47,7 @@ module.exports = {
 
         elem.style.display = 'none';
 
-        var elemOptions = JSON.parse(JSON.stringify(options));
+        var elemOptions = JSON.parse(JSON.stringify(options || {}));
         for (const dataProp in elem.dataset)
             elemOptions[dataProp] = elem.dataset[dataProp];
         var R = makeRenderer(elem.textContent, elemOptions);
