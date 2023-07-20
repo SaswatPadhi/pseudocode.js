@@ -80,6 +80,15 @@ Include the following in the `<head>` of your page:
 Include the following in the `<head>` of your page:
 
 ```html
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pseudocode@2.4.1/build/pseudocode.min.css">
+<script src="https://cdn.jsdelivr.net/npm/pseudocode@2.4.1/build/pseudocode.min.js">
+</script>
+```
+
+You may also use the `latest` tag for pseudocode instead,
+but jsDelivr might be delayed in updating the pointer for this tag.
+
+```html
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pseudocode@latest/build/pseudocode.min.css">
 <script src="https://cdn.jsdelivr.net/npm/pseudocode@latest/build/pseudocode.min.js">
 </script>
