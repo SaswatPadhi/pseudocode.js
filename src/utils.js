@@ -1,24 +1,16 @@
-function isString (str) {
-    return (typeof str === 'string') || (str instanceof String);
-}
-
-function isObject (obj) {
-    return (typeof obj === 'object' && (obj instanceof Object));
-}
-
-function toString (obj) {
-    if (!isObject(obj))
-        return `${obj}`;
-
-    var parts = [];
-    for (var member in obj)
-        parts.push(`${member}: ${toString(obj[member])}`);
-
-    return parts.join(', ');
-}
-
 module.exports = {
-    isString: isString,
-    isObject: isObject,
-    toString: toString,
+    isString: (str) => (typeof str === 'string') || (str instanceof String),
+
+    isObject: (obj) => (typeof obj === 'object' && (obj instanceof Object)),
+
+    toString: function (obj) {
+        if (!this.isObject(obj))
+            return `${obj}`;
+
+        var parts = [];
+        for (var member in obj)
+            parts.push(`${member}: ${this.toString(obj[member])}`);
+
+        return parts.join(', ');
+    },
 };

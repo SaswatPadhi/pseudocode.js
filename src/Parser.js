@@ -66,7 +66,7 @@
  *     (More LaTeX symbols can be added if necessary. See
  *     http://tug.ctan.org/info/symbols/comprehensive/symbols-a4.pdf)
  *     <math>          :== \( ... \) | $ ... $
- *     (Math are handled by KaTeX)
+ *     (Math is handled by a backend, KaTeX or MathJax)
  *     <size>          :== \tiny | \scriptsize | \footnotesize | \small
  *                         | \normalsize | \large | \Large | \LARGE | \huge
  *                         | \HUGE

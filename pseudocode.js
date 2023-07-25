@@ -15,6 +15,7 @@ function makeRenderer (data, options) {
 
 module.exports = {
     ParseError: ParseError,
+
     render: function (input, baseDomEle, options) {
         if (input === null || input === undefined)
             throw new ReferenceError('Input cannot be empty');
@@ -29,6 +30,7 @@ module.exports = {
 
         return elem;
     },
+
     renderToString: function (input, options) {
         if (input === null || input === undefined)
             throw new ReferenceError('Input cannot be empty');
@@ -41,6 +43,7 @@ module.exports = {
 
         return R.toMarkup();
     },
+
     renderElement: function (elem, options) {
         if (!(elem instanceof Element))
             throw new ReferenceError('A DOM element is required');
