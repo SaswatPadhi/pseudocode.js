@@ -167,13 +167,13 @@ TextEnvironment.prototype.renderToHTML = function (backend) {
                     this._html.putHTML(backend.driver.renderToString(text));
                 }
                 else if (backend.name === 'mathjax') {
-                    if (backend.version < 3) {
-                        // keep math text, typeset later
-                        this._html.putText(`$${text}$`);
-                    }
-                    else {
+                    if (backend.version === 3) {
                         // use synchronous conversion available in 3.x
                         this._html.putHTML(backend.driver.tex2chtml(text, { display: false }).outerHTML);
+                    }
+                    else {
+                        // keep math text, typeset later
+                        this._html.putText(`$${text}$`);
                     }
                 }
                 else {

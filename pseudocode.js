@@ -25,8 +25,13 @@ module.exports = {
         if (baseDomEle)
             baseDomEle.appendChild(elem);
 
-        if (R.backend && R.backend.name === 'mathjax' && R.backend.version < 3)
-            MathJax.Hub.Queue(["Typeset", MathJax.Hub, elem]);
+        if (R.backend && R.backend.name === 'mathjax') {
+            if (MathJax.version < 3)
+                MathJax.Hub.Queue(["Typeset", MathJax.Hub, elem]);
+            else if (MathJax.version > 3)
+                MathJax.typeset();
+            // We use synchronous conversion in MathJax 3.x
+        }
 
         return elem;
     },
@@ -37,7 +42,7 @@ module.exports = {
 
         var R = makeRenderer(input, options);
         if (R.backend && R.backend.name === 'mathjax' && R.backend.version < 3) {
-            console.warn('`renderToString` is not fully supported on MathJax backend below 3.0.\n' +
+            console.warn('`renderToString` is fully supported only on MathJax backend 3.x.\n' +
                          'Math ($...$) will not be rendered to HTML and will be left as is.');
         }
 
@@ -58,8 +63,13 @@ module.exports = {
         var newElem = R.toDOM();
         elem.replaceWith(newElem);
 
-        if (R.backend && R.backend.name === 'mathjax' && R.backend.version < 3)
-            MathJax.Hub.Queue(["Typeset", MathJax.Hub, elem]);
+        if (R.backend && R.backend.name === 'mathjax') {
+            if (MathJax.version < 3)
+                MathJax.Hub.Queue(["Typeset", MathJax.Hub, elem]);
+            else if (MathJax.version > 3)
+                MathJax.typeset();
+            // We use synchronous conversion in MathJax 3.x
+        }
     },
 
     renderClass: function (className, options) {

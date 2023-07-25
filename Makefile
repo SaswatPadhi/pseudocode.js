@@ -12,7 +12,7 @@ UGLIFYJS = $(realpath ./node_modules/.bin/uglifyjs) \
 	--beautify \
 	ascii_only=true,beautify=false
 
-SAMPLES = build/katex-samples.html build/mathjax-v2-samples.html build/mathjax-v3-samples.html
+SAMPLES = build/katex-samples.html build/mathjax-v2-samples.html build/mathjax-v3-samples.html build/mathjax-v4-samples.html
 
 
 default: build
