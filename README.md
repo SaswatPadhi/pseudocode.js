@@ -40,7 +40,7 @@ Include the following in the `<head>` of your page:
 Include the following in the `<head>` of your page:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS_CHTML"
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS_CHTML-full"
         integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw="
         crossorigin="anonymous" referrerpolicy="no-referrer">
 </script>
@@ -56,6 +56,12 @@ Include the following in the `<head>` of your page:
 </script>
 ```
 
+> **Note**
+> The `-full` configuration is larger and loads more extensions,
+> but I recommend using it it just to avoid any hiccups later.
+> You may want to use the standard configuration instead
+> if you do not require additional packages.
+
 #### Step 1C &middot; For MathJax 3.x users
 Include the following in the `<head>` of your page:
 
@@ -70,11 +76,17 @@ Include the following in the `<head>` of your page:
         }
     }
 </script>
-<script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-chtml.js"
-        integrity="sha256-Cm3tWrvOEzMWWN0jnzQ4Kr0GSSx0txth6MqoES7FX6U="
-        crossorigin="anonymous" referrerpolicy="no-referrer">
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-chtml-full.js"
+        integrity="sha256-kbAFUDxdHwlYv01zraGjvjNZayxKtdoiJ38bDTFJtaQ="
+        crossorigin="anonymous">
 </script>
 ```
+
+> **Note**
+> The `-full` configuration is larger and loads more extensions,
+> but I recommend using it it just to avoid any hiccups later.
+> You may want to use the standard configuration instead
+> if you do not require additional packages, such as `color`.
 
 #### Step 2 &middot; Grab pseudocode.js
 Include the following in the `<head>` of your page:
