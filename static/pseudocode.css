@@ -9,11 +9,14 @@
 .ps-root .ps-algorithm {
     margin: 0.8em 0;
     /* algorithm environment has borders; algorithmic has not */
-    border-top: 3px solid black;
-    border-bottom: 2px solid black;
+    border-top-width: 3px;
+    border-top-style: solid;
+    border-bottom-width: 2px;
+    border-bottom-style: solid;
 }
 .ps-root .ps-algorithm.with-caption > .ps-line:first-child {
-    border-bottom: 2px solid black;
+    border-bottom-width: 2px;
+    border-bottom-style: solid;
 }
 
 .ps-root .katex {
