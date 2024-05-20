@@ -13,8 +13,7 @@
     border-bottom: 2px solid;
 }
 .ps-root .ps-algorithm.with-caption > .ps-line:first-child {
-    border-bottom-width: 2px;
-    border-bottom-style: solid;
+    border-bottom: 2px solid;
 }
 
 .ps-root .katex {
