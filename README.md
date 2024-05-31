@@ -274,15 +274,23 @@ pseudocode.renderElement(document.getElementById("quicksort"),
 
 The following options are currently supported:
 
- * `indentSize`: The indent size of inside a control block, e.g. if, for,
-        etc. The unit must be in 'em'.
- * `commentDelimiter`: The delimiters used to start and end a comment region.
-        Note that only line comments are supported.
- * `lineNumber`: Whether line numbering is enabled.
- * `lineNumberPunc`: The punctuation that follows line number.
- * `noEnd`: Whether block ending, like `end if`, end procedure`, etc., are
-        showned.
- * `captionCount`: Reset the caption counter to this number.
+ * `captionCount`:
+   Reset the caption counter to this number.
+ * `commentDelimiter`:
+   The delimiters used to start and end a comment region.
+   Note that only line comments are supported.
+ * `indentSize`:
+   The indent size of inside a control block, e.g. if, for etc.
+   The unit must be in 'em'.
+ * `lineNumber`:
+   Whether line numbering is enabled.
+ * `lineNumberPunc`:
+   The punctuation that follows line number.
+ * `noEnd`:
+   Whether block ending, like `end if`, end procedure`, etc.
+   are showned.
+ * `titlePrefix`:
+   The title prefix (defaults to "Algorithm") for captions.
 
 The default values of these options are:
 
