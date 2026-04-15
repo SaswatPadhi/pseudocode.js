@@ -275,7 +275,7 @@ pseudocode.renderElement(document.getElementById("quicksort"),
 The following options are currently supported:
 
  * `captionCount`:
-   Reset the caption counter to this number.
+   Reset the caption counter to this number, if defined.
  * `commentDelimiter`:
    The delimiters used to start and end a comment region.
    Note that only line comments are supported.
@@ -288,7 +288,10 @@ The following options are currently supported:
    The punctuation that follows line number.
  * `noEnd`:
    Whether block ending, like `end if`, end procedure`, etc.
-   are showned.
+   are shown.
+ * `scopeLines`:
+   Whether vertical lines indicating the scopes of nested blocks
+   are drawn.
  * `titlePrefix`:
    The title prefix (defaults to "Algorithm") for captions.
 
@@ -296,12 +299,14 @@ The default values of these options are:
 
 ```js
 var DEFAULT_OPTIONS = {
-    indentSize: '1.2em',
+    captionCount: undefined,
     commentDelimiter: '//',
+    indentSize: '1.2em',
     lineNumber: false,
     lineNumberPunc: ':',
     noEnd: false,
-    captionCount: undefined
+    scopeLines: false,
+    titlePrefix: 'Algorithm'
 };
 ```
 
